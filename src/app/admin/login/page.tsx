@@ -8,6 +8,7 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { CLINIC_INFO } from '@/lib/constants';
 import Link from 'next/link';
+import BrandLogo from '@/components/ui/BrandLogo';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -126,19 +127,12 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md">
         {/* Branding */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2.5 mb-3">
-            <div className="w-12 h-12 rounded-2xl bg-forest text-gold flex items-center justify-center shadow-md">
-              <Leaf className="w-6 h-6" />
-            </div>
-            <div className="text-left">
-              <span className="font-heading text-2xl font-bold text-forest block leading-none">
-                {CLINIC_INFO.name}
-              </span>
-              <span className="text-[10px] text-sage-dark uppercase tracking-widest font-semibold block mt-0.5">
-                Staff Administration
-              </span>
-            </div>
+          <Link href="/" className="inline-flex items-center justify-center mb-3">
+            <BrandLogo size="lg" theme="dark" showSubtitle={false} />
           </Link>
+          <p className="text-[10px] text-sage-dark uppercase tracking-widest font-semibold block mt-1">
+            Staff &amp; Clinic Administration
+          </p>
           <h1 className="font-heading text-2xl sm:text-3xl font-bold text-gray-900 mt-2">
             Administrator Portal
           </h1>

@@ -39,7 +39,11 @@ export const metadata: Metadata = {
     description: `Request a consultation with ${CLINIC_INFO.doctor} at ${CLINIC_INFO.fullName} in Bengaluru.`,
   },
   icons: {
-    icon: '/favicon.ico',
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
+    apple: '/icon.svg',
   },
 };
 
@@ -51,6 +55,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased scroll-smooth">
       <head>
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <link rel="alternate icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/icon.svg" />
         <link rel="stylesheet" href="/styles.css" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

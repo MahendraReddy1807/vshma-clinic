@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import {
-  Leaf,
   LayoutDashboard,
   CalendarDays,
   LogOut,
@@ -15,6 +14,7 @@ import {
 } from 'lucide-react';
 import { CLINIC_INFO } from '@/lib/constants';
 import { createBrowserSupabaseClient } from '@/lib/supabase/browser';
+import BrandLogo from '@/components/ui/BrandLogo';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -83,8 +83,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Mobile Top Bar */}
       <div className="md:hidden bg-forest text-white px-4 py-3 flex items-center justify-between border-b border-forest-light">
         <div className="flex items-center gap-2">
-          <Leaf className="w-5 h-5 text-gold" />
-          <span className="font-heading font-bold text-lg">{CLINIC_INFO.name} Admin</span>
+          <BrandLogo size="sm" theme="light" showSubtitle={false} />
         </div>
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -102,18 +101,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       >
         <div>
           {/* Logo / Branding */}
-          <div className="p-6 border-b border-forest-light/60 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-forest-light text-gold flex items-center justify-center shadow">
-              <Leaf className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="font-heading font-bold text-lg text-white leading-tight">
-                {CLINIC_INFO.name}
-              </h2>
-              <span className="text-[10px] text-sage uppercase tracking-wider font-semibold block">
-                Doctor Portal
-              </span>
-            </div>
+          <div className="p-6 border-b border-forest-light/60">
+            <BrandLogo size="sm" theme="light" showSubtitle={true} />
           </div>
 
           {/* Current Admin badge */}

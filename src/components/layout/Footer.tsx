@@ -1,7 +1,8 @@
 import Link from 'next/link';
-import { Leaf, MapPin, Shield } from 'lucide-react';
+import { MapPin, Shield } from 'lucide-react';
 import { NAV_LINKS, CLINIC_INFO } from '@/lib/constants';
 import WhatsAppIcon from '@/components/ui/WhatsAppIcon';
+import BrandLogo from '@/components/ui/BrandLogo';
 
 export default function Footer() {
   return (
@@ -10,9 +11,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="lg:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <Leaf className="h-6 w-6 text-gold" />
-              <span className="font-heading text-2xl font-bold">{CLINIC_INFO.name}</span>
+            <div className="mb-4">
+              <BrandLogo size="md" theme="light" />
             </div>
             <p className="text-sage text-sm leading-relaxed mb-4">{CLINIC_INFO.tagline}</p>
             <p className="text-sage-light/70 text-xs leading-relaxed">

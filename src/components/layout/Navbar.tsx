@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Leaf, Menu, X, ArrowRight } from 'lucide-react';
+import { Menu, X, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
 import { NAV_LINKS, CLINIC_INFO } from '@/lib/constants';
 import Button from '@/components/ui/Button';
 import WhatsAppIcon from '@/components/ui/WhatsAppIcon';
+import BrandLogo from '@/components/ui/BrandLogo';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -36,18 +37,8 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-2xl bg-forest text-gold flex items-center justify-center shadow-md group-hover:scale-105 transition-all duration-300">
-              <Leaf className="w-5 h-5 text-gold transition-transform group-hover:rotate-12" />
-            </div>
-            <div>
-              <span className="font-heading text-2xl font-bold tracking-tight text-forest block leading-none">
-                {CLINIC_INFO.name}
-              </span>
-              <span className="text-[10px] uppercase tracking-widest text-sage font-semibold block mt-0.5">
-                Homeopathy Clinic
-              </span>
-            </div>
+          <Link href="/" aria-label="VSHMA Home">
+            <BrandLogo size="md" theme="dark" />
           </Link>
 
           {/* Desktop Links (Floating Capsule Design) */}
