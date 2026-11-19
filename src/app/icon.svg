@@ -1,68 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
-  <defs>
-    <!-- Background Gradient: Deep Luxury Forest Green -->
-    <linearGradient id="vshmaBg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#1F4D3F" />
-      <stop offset="45%" stop-color="#183D32" />
-      <stop offset="100%" stop-color="#0D241D" />
-    </linearGradient>
-
-    <!-- Radiant Gold Foil Gradient -->
-    <linearGradient id="vshmaGold" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FAF1D8" />
-      <stop offset="30%" stop-color="#DFCF9F" />
-      <stop offset="70%" stop-color="#B9A477" />
-      <stop offset="100%" stop-color="#8C7645" />
-    </linearGradient>
-
-    <!-- Herbal Sage Gradient -->
-    <linearGradient id="vshmaSage" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#C5DACD" />
-      <stop offset="60%" stop-color="#8BA895" />
-      <stop offset="100%" stop-color="#557560" />
-    </linearGradient>
-
-    <!-- Ambient Shadow -->
-    <filter id="vshmaShadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.4" />
-    </filter>
-  </defs>
-
-  <!-- Luxury Squircle Badge Base -->
-  <rect x="5" y="5" width="118" height="118" rx="34" fill="url(#vshmaBg)" stroke="url(#vshmaGold)" stroke-width="2.5" />
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="112" fill="#183D32" />
   
-  <!-- Subtle Inner Inset Ring -->
-  <rect x="9" y="9" width="110" height="110" rx="30" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1" />
+  <g id="vshma-monogram" transform="translate(0, 0)">
+    <!-- Classical Left Serif / Terminal -->
+    <path d="M128 140 L196 140 L196 154 L176 154 L244 374 L268 374 L340 154 L320 154 L320 140 L380 140 L380 154 L358 154 L276 394 L236 394 L148 154 L128 154 Z" fill="#FAF9F4" />
 
-  <!-- Botanical V-Monogram Emblem -->
-  <g filter="url(#vshmaShadow)">
-    <!-- Left Leaf Wing (Forms Left Arm of 'V') -->
-    <path 
-      d="M36 34 C42 56 52 76 64 98 C54 78 46 60 42 44 C40 38 38 35 36 34 Z" 
-      fill="url(#vshmaSage)" 
-    />
+    <!-- Botanical Leaf Integration: Sprouting from upper right arm -->
+    <path d="M348 154 C350 110 392 88 424 86 C426 118 402 168 348 186 C346 174 348 162 348 154 Z" fill="#8BA895" />
     
-    <!-- Right Leaf Wing (Forms Right Arm of 'V') -->
-    <path 
-      d="M92 34 C86 56 76 76 64 98 C72 78 82 58 86 42 C88 38 90 35 92 34 Z" 
-      fill="url(#vshmaGold)" 
-    />
+    <!-- Botanical Leaf Central Vein in Ivory -->
+    <path d="M354 162 C376 148 400 126 412 104 C400 122 378 142 354 152 Z" fill="#FAF9F4" opacity="0.9" />
 
-    <!-- Center Ascending Botanical Heart / Vitality Dewdrop -->
-    <path 
-      d="M64 42 C71 52 74 62 64 78 C54 62 57 52 64 42 Z" 
-      fill="url(#vshmaGold)" 
-      opacity="0.95" 
-    />
-
-    <!-- Inner Core Healing Sprout -->
-    <path 
-      d="M64 48 C67 55 69 62 64 72 C59 62 61 55 64 48 Z" 
-      fill="#183D32" 
-      opacity="0.75" 
-    />
-
-    <!-- Floating Vitality Dewdrop Star -->
-    <circle cx="64" cy="30" r="4.5" fill="url(#vshmaGold)" />
+    <!-- Natural Dewdrop Accent in Sage Green -->
+    <circle cx="332" cy="204" r="7" fill="#8BA895" opacity="0.9" />
   </g>
 </svg>
