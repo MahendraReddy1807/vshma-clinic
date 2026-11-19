@@ -15,7 +15,7 @@ export default function BrandLogo({
   theme = 'dark',
   showSubtitle = true,
 }: BrandLogoProps) {
-  const iconSize = size === 'sm' ? 34 : size === 'lg' ? 48 : 40;
+  const iconSize = size === 'sm' ? 36 : size === 'lg' ? 52 : 44;
   const titleClass =
     size === 'sm'
       ? 'text-xl'
@@ -25,17 +25,17 @@ export default function BrandLogo({
 
   return (
     <div className={`flex items-center gap-3 group ${className}`}>
-      {/* Bespoke Luxury V-Emblem */}
+      {/* 3D Botanical Medallion Emblem */}
       <div
-        className="relative rounded-[1.15rem] overflow-hidden shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all duration-300 shrink-0 border border-gold/40"
+        className="relative rounded-full overflow-hidden shadow-md group-hover:shadow-xl group-hover:scale-105 transition-all duration-300 shrink-0 ring-1 ring-gold/40 bg-forest-dark/10"
         style={{ width: iconSize, height: iconSize }}
       >
         <Image
-          src="/icon.svg"
+          src="/logo-transparent.png"
           alt={`${CLINIC_INFO.name} Emblem`}
           width={iconSize}
           height={iconSize}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           priority
         />
       </div>
