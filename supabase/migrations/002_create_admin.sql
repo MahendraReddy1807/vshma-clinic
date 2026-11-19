@@ -1,0 +1,19 @@
+-- ============================================================
+-- VSHMA CLINIC - ADMIN USER ONBOARDING
+-- ============================================================
+-- Follow these instructions to register your authorized administrator:
+--
+-- 1. Open your Supabase Dashboard: https://supabase.com/dashboard/project/_/auth/users
+-- 2. Click "Add User" -> "Create User"
+-- 3. Enter your Administrator Email (e.g. admin@vshma.com) and a secure Password
+-- 4. Check "Auto Confirm User" so the account is immediately active
+-- 5. Copy the newly created User's UUID (from the User ID column)
+-- 6. Execute the query below in the Supabase SQL Editor replacing the placeholders:
+-- ============================================================
+
+-- INSERT INTO public.admin_profiles (id, email, role)
+-- VALUES (
+--   'YOUR_COPIED_SUPABASE_USER_UUID',
+--   'admin@vshma.com',
+--   'admin'
+-- );

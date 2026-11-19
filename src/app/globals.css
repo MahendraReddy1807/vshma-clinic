@@ -1,0 +1,125 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: #1a1a1a;
+    background-color: #FAF9F4;
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Glassmorphism utility */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.glass-panel-dark {
+  background: rgba(24, 61, 50, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(139, 168, 149, 0.25);
+}
+
+.glass-card-hover {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card-hover:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px -15px rgba(24, 61, 50, 0.12);
+  border-color: rgba(185, 164, 119, 0.5);
+}
+
+/* Subtle glow accents */
+.glow-gold {
+  box-shadow: 0 0 50px -10px rgba(185, 164, 119, 0.3);
+}
+
+.glow-forest {
+  box-shadow: 0 0 50px -10px rgba(24, 61, 50, 0.25);
+}
+
+/* Custom premium scrollbar */
+::-webkit-scrollbar {
+  width: 9px;
+}
+
+::-webkit-scrollbar-track {
+  background: #FAF9F4;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #AEC5B6;
+  border-radius: 9999px;
+  border: 2px solid #FAF9F4;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #183D32;
+}
+
+/* Floating animation */
+@keyframes gentle-float {
+
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+}
+
+.animate-float {
+  animation: gentle-float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: gentle-float 7s ease-in-out 2s infinite;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 6rem;
+}
+
+section[id] {
+  scroll-margin-top: 6rem;
+}
+
+:focus-visible {
+  outline: 3px solid #B9A477;
+  outline-offset: 4px;
+}
+
+::selection {
+  background: #E9F1EB;
+  color: #183D32;
+}
+
+.animate-float-delayed {
+  animation: gentle-float 7s ease-in-out 2s infinite;
+}
