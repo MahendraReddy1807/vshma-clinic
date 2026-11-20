@@ -3,52 +3,47 @@ import Footer from '@/components/layout/Footer';
 import FloatingWhatsApp from '@/components/layout/FloatingWhatsApp';
 import ScrollToTop from '@/components/layout/ScrollToTop';
 import HeroSection from '@/components/sections/HeroSection';
-import BrandIntroSection from '@/components/sections/BrandIntroSection';
 import AboutSection from '@/components/sections/AboutSection';
+import ConsultationOptionsSection from '@/components/sections/ConsultationOptionsSection';
 import OurApproachSection from '@/components/sections/OurApproachSection';
-import ConsultationExperiences from '@/components/sections/ConsultationExperiences';
-import HowItWorksSection from '@/components/sections/HowItWorksSection';
 import WhyChooseSection from '@/components/sections/WhyChooseSection';
+import HowItWorksSection from '@/components/sections/HowItWorksSection';
 import BookingSection from '@/components/sections/BookingSection';
 import FAQSection from '@/components/sections/FAQSection';
 import CTASection from '@/components/sections/CTASection';
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen flex flex-col bg-ivory text-charcoal selection:bg-mint selection:text-forest">
+    <div className="min-h-screen flex flex-col bg-[#F6F2E9] text-charcoal selection:bg-sage/20 selection:text-forest">
       <Navbar />
       <main className="flex-1">
-        {/* Section 01: Cinematic Hero */}
+        {/* 01. Premium Hero */}
         <HeroSection />
 
-        {/* Section 02: Brand Introduction */}
-        <BrandIntroSection />
-
-        {/* Section 03: Doctor Story */}
+        {/* 02. Doctor Introduction */}
         <AboutSection />
 
-        {/* Section 04: Our Approach */}
+        {/* 03. Our Clinical Approach */}
         <OurApproachSection />
 
-        {/* Section 05: Consultation Experiences */}
-        <ConsultationExperiences />
+        {/* 04. Consultation Options (Vertical Scroll Drives Horizontal Card Glide) */}
+        <ConsultationOptionsSection />
 
-        {/* Section 06: The Consultation Journey */}
-        <HowItWorksSection />
-
-        {/* Section 07: Why VSHMA */}
+        {/* 05. Why VSHMA & Personal Attention */}
         <WhyChooseSection />
 
-        {/* Section 08: Premium Booking Experience */}
+        {/* 06. The Consultation Journey */}
+        <HowItWorksSection />
+
+        {/* 07. Appointment Booking Experience */}
         <BookingSection />
 
-        {/* Section 09: FAQ */}
+        {/* 08. Frequently Asked Questions */}
         <FAQSection />
 
-        {/* Section 10: Signature Closing Section */}
+        {/* 09. Contact and Clinic Information */}
         <CTASection />
       </main>
-      {/* Section 11: Premium Footer */}
       <Footer />
       <FloatingWhatsApp />
       <ScrollToTop />

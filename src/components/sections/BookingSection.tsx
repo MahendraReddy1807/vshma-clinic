@@ -7,6 +7,7 @@ import {
   Clock,
   User,
   Phone,
+  Mail,
   FileText,
   CheckCircle2,
   AlertCircle,
@@ -30,6 +31,8 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
   const [formData, setFormData] = useState({
     full_name: '',
     phone: '',
+    email: '',
+    age: '',
     appointment_date: '',
     preferred_time: '',
     consultation_type: initialType || (CONSULTATION_TYPES[0] as string),
@@ -49,7 +52,9 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
       const params = new URLSearchParams(window.location.search);
       const queryType = params.get('type');
       if (queryType && (CONSULTATION_TYPES as readonly string[]).includes(queryType)) {
-        setFormData((prev) => ({ ...prev, consultation_type: queryType }));
+        setTimeout(() => {
+          setFormData((prev) => ({ ...prev, consultation_type: queryType }));
+        }, 0);
       }
     }
   }, []);
@@ -75,6 +80,10 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
       newErrors.phone = 'Mobile number is required.';
     } else if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
       newErrors.phone = 'Enter a valid 10-digit Indian mobile number.';
+    }
+
+    if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      newErrors.email = 'Please provide a valid email address.';
     }
 
     if (!formData.appointment_date) {
@@ -211,6 +220,8 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
                     setFormData({
                       full_name: '',
                       phone: '',
+                      email: '',
+                      age: '',
                       appointment_date: '',
                       preferred_time: '',
                       consultation_type: CONSULTATION_TYPES[0] as string,
@@ -225,6 +236,13 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
             </motion.div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6 relative z-10" noValidate>
+              <div className="p-4 rounded-xl bg-[#F6F2E9] border border-[#D8D0BD] text-xs text-charcoal/80 flex items-start gap-3">
+                <Clock className="w-4 h-4 text-bronze shrink-0 mt-0.5" />
+                <p>
+                  <strong>Appointment Policy:</strong> This form registers an appointment request. Our clinic desk will review the slot and confirm your scheduled consultation directly with you.
+                </p>
+              </div>
+
               {errors.form && (
                 <div
                   role="alert"
@@ -284,6 +302,51 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
                       required
                     />
                   </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div className="sm:col-span-2">
+                  <label
+                    htmlFor="booking-email"
+                    className="block text-xs font-bold text-forest uppercase tracking-wider mb-2 font-sans"
+                  >
+                    Email Address (For Confirmation &amp; Reminders)
+                  </label>
+                  <div className="relative">
+                    <Mail className="absolute left-4 top-3.5 w-4 h-4 text-gray-400" />
+                    <Input
+                      id="booking-email"
+                      type="email"
+                      placeholder="e.g. yourname@example.com"
+                      value={formData.email}
+                      onChange={(e) => {
+                        setFormData({ ...formData, email: e.target.value });
+                        clearFieldError('email');
+                      }}
+                      className="pl-11 rounded-2xl"
+                      error={errors.email}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="booking-age"
+                    className="block text-xs font-bold text-forest uppercase tracking-wider mb-2 font-sans"
+                  >
+                    Patient Age
+                  </label>
+                  <Input
+                    id="booking-age"
+                    type="number"
+                    min={0}
+                    max={120}
+                    placeholder="e.g. 32"
+                    value={formData.age}
+                    onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                    className="rounded-2xl"
+                  />
                 </div>
               </div>
 

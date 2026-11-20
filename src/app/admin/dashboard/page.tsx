@@ -45,7 +45,8 @@ export default function AdminDashboardPage() {
             total: 18,
             pending: 4,
             confirmed: 10,
-            completed: 3,
+            rescheduled: 1,
+            completed: 2,
             cancelled: 1,
           });
         }

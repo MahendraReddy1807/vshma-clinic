@@ -9,44 +9,50 @@ module.exports = {
     extend: {
       colors: {
         forest: {
-          DEFAULT: "#183D32",
-          light: "#254D3D",
-          dark: "#10271F",
-          deep: "#091712",
-        },
-        emerald: {
-          DEFAULT: "#254D3D",
-          dark: "#1C3E31",
-          light: "#356B55",
+          DEFAULT: "#263B32",
+          light: "#354E43",
+          dark: "#1B2A24",
+          deep: "#121C18",
         },
         sage: {
-          DEFAULT: "#8BA895",
-          light: "#DCE8DD",
-          soft: "#EAF1EB",
-          dark: "#6C8E77",
+          DEFAULT: "#66745C",
+          light: "#8F9D85",
+          soft: "#DCE3D6",
+          dark: "#4E5A45",
         },
-        mint: {
-          DEFAULT: "#E9F1EB",
-          light: "#F4F8F5",
-          dark: "#D2E3D7",
+        sand: {
+          DEFAULT: "#D8D0BD",
+          light: "#EAE5D9",
+          dark: "#B8AE96",
         },
         ivory: {
-          DEFAULT: "#FAF9F4",
-          warm: "#F5F3EC",
+          DEFAULT: "#F6F2E9",
+          warm: "#ECE6D8",
+          dark: "#E3DCcb",
         },
         cream: {
-          DEFAULT: "#F1EEE4",
-          soft: "#F8F6F0",
+          DEFAULT: "#F6F2E9",
+          soft: "#FAF7F0",
+        },
+        bronze: {
+          DEFAULT: "#9B795A",
+          light: "#B89676",
+          dark: "#7A5E44",
         },
         gold: {
-          DEFAULT: "#B9A477",
-          light: "#D4C39B",
-          dark: "#978358",
+          DEFAULT: "#9B795A",
+          light: "#B89676",
+          dark: "#7A5E44",
         },
         charcoal: {
-          DEFAULT: "#202622",
-          light: "#2D3630",
-          dark: "#151A17",
+          DEFAULT: "#292B27",
+          light: "#3D403A",
+          dark: "#1A1B19",
+        },
+        mint: {
+          DEFAULT: "#E5ECE0",
+          light: "#F0F5ED",
+          dark: "#C8D6C0",
         },
       },
       fontFamily: {

@@ -7,6 +7,12 @@ import {
   sanitizeInput,
   getTodayISO,
 } from '@/lib/utils';
+import { CLINIC_INFO } from '@/lib/constants';
+import { sendTransactionalEmail } from '@/lib/email/resend';
+import {
+  renderBookingReceivedEmail,
+  renderAdminNewAppointmentEmail,
+} from '@/lib/email/templates';
 
 export async function POST(request: Request) {
   try {
@@ -14,6 +20,8 @@ export async function POST(request: Request) {
     const {
       full_name,
       phone,
+      email,
+      age,
       appointment_date,
       preferred_time,
       consultation_type,
@@ -33,15 +41,30 @@ export async function POST(request: Request) {
       );
     }
 
+    // Optional email validation
+    let sanitizedEmail: string | null = null;
+    if (email && typeof email === 'string' && email.trim()) {
+      const emailTrimmed = email.trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrimmed)) {
+        return NextResponse.json({ error: 'Please provide a valid email address.' }, { status: 400 });
+      }
+      sanitizedEmail = emailTrimmed.slice(0, 150);
+    }
+
+    // Optional age validation
+    let parsedAge: number | null = null;
+    if (age !== undefined && age !== null && age !== '') {
+      const numAge = parseInt(String(age), 10);
+      if (!Number.isNaN(numAge) && numAge >= 0 && numAge <= 120) {
+        parsedAge = numAge;
+      }
+    }
+
     if (typeof appointment_date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(appointment_date)) {
       return NextResponse.json({ error: 'Preferred date is required.' }, { status: 400 });
     }
 
     // Check date is not in past
-    const selectedDate = new Date(`${appointment_date}T00:00:00`);
-    if (Number.isNaN(selectedDate.getTime()) || selectedDate.toISOString().slice(0, 10) !== appointment_date) {
-      return NextResponse.json({ error: 'Please provide a valid appointment date.' }, { status: 400 });
-    }
     if (appointment_date < getTodayISO()) {
       return NextResponse.json(
         { error: 'Appointment date cannot be in the past.' },
@@ -59,16 +82,25 @@ export async function POST(request: Request) {
     // 2. Sanitization
     const sanitizedName = sanitizeInput(full_name).slice(0, 120);
     const sanitizedPhone = phone.replace(/[\s\-()]/g, '');
-    const sanitizedTime = typeof preferred_time === 'string' && preferred_time ? sanitizeInput(preferred_time).slice(0, 80) : null;
-    const allowedTypes = ['General Consultation', 'Follow-up Consultation', 'New Patient Consultation', 'Online Consultation'];
-    const sanitizedType = typeof consultation_type === 'string' && allowedTypes.includes(consultation_type)
-      ? consultation_type
-      : 'General Consultation';
-    const sanitizedMessage = typeof message === 'string' && message ? sanitizeInput(message).slice(0, 500) : null;
+    const sanitizedTime =
+      typeof preferred_time === 'string' && preferred_time
+        ? sanitizeInput(preferred_time).slice(0, 80)
+        : null;
+    const sanitizedType =
+      typeof consultation_type === 'string' && consultation_type.trim()
+        ? sanitizeInput(consultation_type).slice(0, 100)
+        : 'General Consultation';
+    const sanitizedMessage =
+      typeof message === 'string' && message ? sanitizeInput(message).slice(0, 500) : null;
 
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_URL === 'your_supabase_project_url') {
-      // Staging / Demo fallback: generate valid reference and prefilled WhatsApp URL so patient flow works seamlessly
-      const booking_reference = generateBookingReference();
+    const booking_reference = generateBookingReference();
+
+    // 3. Staging / Demo fallback if Supabase is not yet plugged in
+    if (
+      !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+      !process.env.SUPABASE_SERVICE_ROLE_KEY ||
+      process.env.NEXT_PUBLIC_SUPABASE_URL === 'your_supabase_project_url'
+    ) {
       const whatsapp_url = generateWhatsAppUrl({
         name: sanitizedName,
         phone: sanitizedPhone,
@@ -77,6 +109,24 @@ export async function POST(request: Request) {
         type: sanitizedType,
         reference: booking_reference,
       });
+
+      // Dispatch simulated emails
+      if (sanitizedEmail) {
+        const { html, text } = renderBookingReceivedEmail({
+          patientName: sanitizedName,
+          bookingReference: booking_reference,
+          appointmentDate: appointment_date,
+          preferredTime: sanitizedTime,
+          consultationType: sanitizedType,
+        });
+        await sendTransactionalEmail({
+          to: sanitizedEmail,
+          subject: `Appointment Request Received: ${booking_reference} - VSHMA Clinic`,
+          html,
+          text,
+          notificationType: 'booking_received',
+        });
+      }
 
       return NextResponse.json(
         {
@@ -89,43 +139,110 @@ export async function POST(request: Request) {
       );
     }
 
-    // 3. Generate Reference
-    const booking_reference = generateBookingReference();
-
-    // Persist the request before returning a booking reference or WhatsApp URL.
-    let dbRecordCreated = false;
-
-    try {
-      const supabase = createServerSupabaseClient();
-      const { error: dbError } = await supabase.from('appointments').insert({
+    // 4. Real Supabase Database Insertion
+    const supabase = createServerSupabaseClient();
+    const { data: insertedAppt, error: dbError } = await supabase
+      .from('appointments')
+      .insert({
         booking_reference,
         full_name: sanitizedName,
         phone: sanitizedPhone,
+        email: sanitizedEmail,
+        age: parsedAge,
         appointment_date,
         preferred_time: sanitizedTime,
         consultation_type: sanitizedType,
         message: sanitizedMessage,
         status: 'pending',
-      });
+      })
+      .select('id')
+      .single();
 
-      if (dbError) {
-        console.error('Supabase insert error:', dbError);
-      } else {
-        dbRecordCreated = true;
-      }
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      console.error('Failed to communicate with Supabase:', message);
-    }
-
-    if (!dbRecordCreated) {
+    if (dbError || !insertedAppt) {
+      console.error('Supabase insert error:', dbError);
       return NextResponse.json(
         { error: 'Unable to reserve appointment right now. Please try via WhatsApp directly.' },
         { status: 500 }
       );
     }
 
-    // 5. Generate dynamic WhatsApp URL
+    const appointmentId = insertedAppt.id;
+
+    // 5. In-dashboard notification for Real-Time Administrator Alert
+    try {
+      await supabase.from('admin_notifications').insert({
+        appointment_id: appointmentId,
+        title: `New Booking: ${sanitizedName}`,
+        message: `${sanitizedType} requested for ${appointment_date} (${sanitizedTime || 'Flexible'})`,
+        type: 'new_booking',
+        is_read: false,
+      });
+    } catch (notifErr) {
+      console.error('[Admin Notification Insert Error]', notifErr);
+    }
+
+    // 6. Check automation settings for email dispatch
+    try {
+      const { data: settings } = await supabase.from('automation_settings').select('key, value');
+      const settingsMap = (settings || []).reduce((acc, curr) => {
+        acc[curr.key] = curr.value;
+        return acc;
+      }, {} as Record<string, boolean>);
+
+      const emergencyPause = settingsMap['emergency_email_pause'] === true;
+
+      if (!emergencyPause) {
+        // Patient booking acknowledgement email
+        if (sanitizedEmail && settingsMap['enable_booking_acknowledgement'] !== false) {
+          const { html, text } = renderBookingReceivedEmail({
+            patientName: sanitizedName,
+            bookingReference: booking_reference,
+            appointmentDate: appointment_date,
+            preferredTime: sanitizedTime,
+            consultationType: sanitizedType,
+          });
+
+          // Non-blocking email dispatch
+          sendTransactionalEmail({
+            to: sanitizedEmail,
+            subject: `Appointment Request Received: ${booking_reference} - VSHMA Clinic`,
+            html,
+            text,
+            appointmentId,
+            notificationType: 'booking_received',
+          }).catch((err) => console.error('[Patient Email Error]', err));
+        }
+
+        // Admin notification email
+        if (settingsMap['enable_admin_notification'] !== false) {
+          const adminRecipient =
+            process.env.ADMIN_NOTIFICATION_EMAIL || CLINIC_INFO.email || 'care@vshma.in';
+
+          const { html: adminHtml, text: adminText } = renderAdminNewAppointmentEmail({
+            patientName: sanitizedName,
+            bookingReference: booking_reference,
+            appointmentDate: appointment_date,
+            preferredTime: sanitizedTime,
+            consultationType: sanitizedType,
+            phone: sanitizedPhone,
+            email: sanitizedEmail || undefined,
+          });
+
+          sendTransactionalEmail({
+            to: adminRecipient,
+            subject: `[New Appointment Request] ${sanitizedName} (${booking_reference})`,
+            html: adminHtml,
+            text: adminText,
+            appointmentId,
+            notificationType: 'admin_new_booking',
+          }).catch((err) => console.error('[Admin Email Error]', err));
+        }
+      }
+    } catch (emailSettingErr) {
+      console.error('[Email Automation Trigger Error]', emailSettingErr);
+    }
+
+    // 7. Generate dynamic WhatsApp URL
     const whatsapp_url = generateWhatsAppUrl({
       name: sanitizedName,
       phone: sanitizedPhone,
@@ -139,6 +256,7 @@ export async function POST(request: Request) {
       {
         success: true,
         booking_reference,
+        appointment_id: appointmentId,
         whatsapp_url,
         message: 'Appointment booking request received successfully.',
       },

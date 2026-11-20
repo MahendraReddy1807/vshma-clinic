@@ -6,6 +6,8 @@ import Link from 'next/link';
 import {
   LayoutDashboard,
   CalendarDays,
+  BookOpen,
+  Bell,
   LogOut,
   Menu,
   X,
@@ -75,6 +77,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       name: 'Appointments',
       href: '/admin/appointments',
       icon: CalendarDays,
+    },
+    {
+      name: 'Knowledge Base',
+      href: '/admin/knowledge-base',
+      icon: BookOpen,
+    },
+    {
+      name: 'Notifications & Logs',
+      href: '/admin/notifications',
+      icon: Bell,
     },
   ];
 

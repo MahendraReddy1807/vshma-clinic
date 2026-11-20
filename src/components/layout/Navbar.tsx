@@ -49,12 +49,10 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? 'py-3.5 bg-white/90 backdrop-blur-xl shadow-[0_4px_30px_rgba(24,61,50,0.08)] border-b border-sage/20'
-          : isHeroTransparent
-          ? 'py-6 bg-transparent'
-          : 'py-5 bg-white/80 backdrop-blur-md border-b border-sage/15'
+          ? 'py-3.5 bg-[#F6F2E9]/95 backdrop-blur-md shadow-sm border-b border-[#D8D0BD]/60'
+          : 'py-5 bg-[#F6F2E9]/80 backdrop-blur-sm border-b border-[#D8D0BD]/30'
       }`}
     >
       <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
@@ -63,7 +61,7 @@ export default function Navbar() {
           <Link href="/" aria-label="VSHMA Home" className="shrink-0">
             <BrandLogo
               size="md"
-              theme={isHeroTransparent ? 'light' : 'dark'}
+              theme="dark"
               showSubtitle={true}
             />
           </Link>
@@ -71,11 +69,7 @@ export default function Navbar() {
           {/* Desktop Floating Navigation Capsule */}
           <nav
             aria-label="Main Navigation"
-            className={`hidden lg:flex items-center gap-1 px-5 py-2 rounded-full backdrop-blur-md transition-all duration-300 ${
-              isHeroTransparent
-                ? 'bg-white/10 border border-white/20 shadow-lg'
-                : 'bg-white/85 border border-sage/30 shadow-sm'
-            }`}
+            className="hidden lg:flex items-center gap-1 px-5 py-2 rounded-full bg-white/80 border border-[#D8D0BD] shadow-sm backdrop-blur-md"
           >
             {NAV_LINKS.map((link) => {
               const isActive = pathname === link.href;
@@ -85,21 +79,11 @@ export default function Navbar() {
                   href={link.href}
                   className={`relative px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide font-sans transition-all duration-200 ${
                     isActive
-                      ? isHeroTransparent
-                        ? 'text-white bg-white/20'
-                        : 'text-forest bg-forest/10'
-                      : isHeroTransparent
-                      ? 'text-ivory/85 hover:text-white hover:bg-white/10'
-                      : 'text-charcoal/80 hover:text-forest hover:bg-mint/60'
+                      ? 'text-white bg-forest shadow-xs'
+                      : 'text-charcoal/75 hover:text-forest hover:bg-forest/5'
                   }`}
                 >
                   {link.label}
-                  {isActive && (
-                    <motion.span
-                      layoutId="nav-indicator"
-                      className="absolute inset-0 rounded-full border border-gold/40 pointer-events-none"
-                    />
-                  )}
                 </Link>
               );
             })}
@@ -111,11 +95,7 @@ export default function Navbar() {
               href={CLINIC_INFO.whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className={`text-xs font-semibold flex items-center gap-2 px-3.5 py-2 rounded-full backdrop-blur-md transition-all duration-200 border ${
-                isHeroTransparent
-                  ? 'bg-white/10 hover:bg-white/20 text-ivory border-white/20'
-                  : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border-emerald-200'
-              }`}
+              className="text-xs font-semibold flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-[#D8D0BD] text-forest hover:bg-[#F6F2E9] transition-all duration-200 shadow-xs"
             >
               <WhatsAppIcon className="w-4 h-4 text-[#25D366]" />
               <span className="font-sans">+91 {CLINIC_INFO.phone}</span>
@@ -123,7 +103,7 @@ export default function Navbar() {
 
             <Link
               href="/book"
-              className="group inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-gold hover:bg-gold-light text-forest-deep text-xs font-semibold font-sans tracking-wide transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0"
+              className="group inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-forest hover:bg-forest-light text-white text-xs font-semibold font-sans uppercase tracking-wider transition-all duration-200 shadow-sm hover:shadow"
             >
               <span>Book Consultation</span>
               <ArrowUpRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -134,11 +114,7 @@ export default function Navbar() {
           <button
             type="button"
             onClick={() => setMobileOpen(!mobileOpen)}
-            className={`lg:hidden p-2.5 rounded-2xl border transition-colors cursor-pointer ${
-              isHeroTransparent
-                ? 'bg-white/10 border-white/20 text-white'
-                : 'bg-white border-sage/30 text-forest shadow-sm'
-            }`}
+            className="lg:hidden p-2.5 rounded-xl border border-[#D8D0BD] bg-white text-forest shadow-xs cursor-pointer"
             aria-expanded={mobileOpen}
             aria-label="Toggle Navigation Menu"
           >

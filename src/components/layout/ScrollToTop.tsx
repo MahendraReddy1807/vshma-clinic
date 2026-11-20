@@ -22,10 +22,10 @@ export default function ScrollToTop() {
       onClick={scrollToTop}
       aria-label="Scroll to top"
       className={cn(
-        'fixed bottom-6 left-6 z-40 flex items-center justify-center w-10 h-10',
-        'rounded-full bg-forest text-white shadow-lg hover:bg-forest-light',
+        'fixed bottom-24 right-7 z-40 flex items-center justify-center w-11 h-11',
+        'rounded-full bg-forest text-white shadow-lg hover:bg-forest-light border border-white/20',
         'transition-all duration-300',
-        visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none',
+        visible ? 'opacity-100 scale-100' : 'opacity-0 scale-75 pointer-events-none',
       )}
     >
       <ChevronUp className="h-5 w-5" />

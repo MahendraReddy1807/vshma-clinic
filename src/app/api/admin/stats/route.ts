@@ -18,7 +18,8 @@ export async function GET(request: Request) {
       total: 18,
       pending: 4,
       confirmed: 10,
-      completed: 3,
+      rescheduled: 1,
+      completed: 2,
       cancelled: 1,
     };
     return NextResponse.json(demoStats);
@@ -40,6 +41,7 @@ export async function GET(request: Request) {
       total: appointments.length,
       pending: appointments.filter((a) => a.status === 'pending').length,
       confirmed: appointments.filter((a) => a.status === 'confirmed').length,
+      rescheduled: appointments.filter((a) => a.status === 'rescheduled').length,
       completed: appointments.filter((a) => a.status === 'completed').length,
       cancelled: appointments.filter((a) => a.status === 'cancelled').length,
     };

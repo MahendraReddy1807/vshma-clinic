@@ -1,37 +1,59 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { UserCheck, MessageCircle, Heart, PhoneCall, Sparkles } from 'lucide-react';
+import {
+  UserCheck,
+  MessageCircle,
+  Heart,
+  PhoneCall,
+  Sparkles,
+  CalendarCheck,
+  ClipboardList,
+} from 'lucide-react';
 import Link from 'next/link';
 
 const values = [
   {
     icon: UserCheck,
-    title: 'Personal Attention',
+    title: 'Individual Attention',
     subtitle: 'No Rushed Appointments',
     description:
-      'We never double-book or rush through appointments. Your consultation is reserved exclusively for you, providing ample time to share your complete health story.',
+      'We never double-book slots. Each appointment is reserved exclusively for you, providing unhurried time to share your complete health chronology.',
   },
   {
     icon: MessageCircle,
-    title: 'Clear Communication',
+    title: 'Direct Practitioner Dialogue',
     subtitle: 'Transparent & Collaborative',
     description:
-      'We demystify your care plan, explain the reasoning behind our homeopathic therapeutics, and provide realistic expectations for progressive recovery.',
+      'You communicate directly with Dr. Chihnitha Reddy T. We explain the reasoning behind your care plan and discuss expectations clearly.',
   },
   {
-    icon: Heart,
-    title: 'Welcoming Experience',
-    subtitle: 'Tranquil Environment',
+    icon: ClipboardList,
+    title: 'Constitutional Totality',
+    subtitle: 'In-Depth Case Taking',
     description:
-      'Designed to feel calm and restorative. Whether visiting in-clinic in Bengaluru or connecting virtually, your dignity, comfort, and privacy come first.',
+      'We evaluate your physical complaints alongside sleep rhythms, lifestyle pressures, and emotional dispositions to select matching individualized remedies.',
+  },
+  {
+    icon: CalendarCheck,
+    title: 'Thoughtful Coordination',
+    subtitle: 'Orderly Scheduling',
+    description:
+      'From prompt booking requests to reminder notifications, appointments are scheduled with care to respect your time and convenience.',
   },
   {
     icon: PhoneCall,
-    title: 'Follow-Up Discussions',
-    subtitle: 'Ongoing Partnership',
+    title: 'Follow-Up Arrangements',
+    subtitle: 'Continuous Guidance',
     description:
-      'Care is a continuous dialogue. We offer responsive follow-up communication to guide you through remedy reactions and track your wellness trajectory.',
+      'Care is an ongoing partnership. We provide structured review timelines (typically 3–6 weeks) to monitor your vitality and calibrate dosages.',
+  },
+  {
+    icon: Heart,
+    title: 'Welcoming Environment',
+    subtitle: 'Calm & Restorative',
+    description:
+      'A serene clinical setting in Bengaluru where your comfort, dignity, and confidentiality are respected at every moment.',
   },
 ];
 
@@ -39,81 +61,79 @@ export default function WhyChooseSection() {
   return (
     <section
       id="why-vshma"
-      className="relative scroll-mt-24 py-24 sm:py-32 bg-forest-dark text-white overflow-hidden border-b border-white/10"
+      className="relative scroll-mt-24 py-24 sm:py-32 bg-[#263B32] text-white overflow-hidden border-b border-white/10"
       aria-label="Why Choose VSHMA Homeopathy Clinic"
     >
-      {/* Ambient background glow */}
-      <div className="absolute top-1/3 -left-32 w-[30rem] h-[30rem] bg-gold/10 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-10 -right-32 w-[30rem] h-[30rem] bg-emerald-light/15 rounded-full blur-[140px] pointer-events-none" />
-
       <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+          
           {/* Left Column: Editorial Statement */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-60px' }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:col-span-5 space-y-6 lg:sticky lg:top-32"
+            className="lg:col-span-4 space-y-6 lg:sticky lg:top-32"
           >
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15">
-              <Sparkles className="w-3.5 h-3.5 text-gold" />
-              <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-ivory">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15">
+              <Sparkles className="w-3.5 h-3.5 text-sand" />
+              <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-sand font-sans">
                 The VSHMA Standard
               </span>
             </div>
 
-            <h2 className="font-display font-light text-4xl sm:text-5xl lg:text-6xl text-ivory leading-[1.08] tracking-tight">
-              Why patients place their trust in VSHMA.
+            <h2 className="font-display font-light text-4xl sm:text-5xl lg:text-6xl text-[#F6F2E9] leading-[1.08] tracking-tight">
+              Why patients choose VSHMA.
             </h2>
 
-            <p className="text-sage-light/85 text-base sm:text-lg font-light leading-relaxed font-sans">
-              We have redesigned the clinical consultation from the ground up—prioritizing genuine attentiveness, medical ethics, and unhurried doctor-patient relationships.
+            <p className="text-sand/85 text-base sm:text-lg font-light leading-relaxed font-sans">
+              We have shaped our clinic around genuine human attentiveness, medical ethics, and unhurried doctor-patient relationships.
             </p>
 
-            <div className="pt-4">
+            <div className="pt-2">
               <Link
                 href="/book"
-                className="inline-flex items-center justify-center px-7 py-3.5 rounded-full bg-gold hover:bg-gold-light text-forest-deep font-sans font-semibold text-xs tracking-wider uppercase transition-all shadow-md"
+                className="inline-flex items-center justify-center px-7 py-3.5 rounded-xl bg-sand hover:bg-sand-light text-forest font-sans font-semibold text-xs tracking-wider uppercase transition-all shadow-sm"
               >
                 Schedule Your Visit
               </Link>
             </div>
           </motion.div>
 
-          {/* Right Column: 4 Editorial Feature Cards */}
-          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {/* Right Column: 6 Feature Cards */}
+          <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
             {values.map((v, idx) => {
               const Icon = v.icon;
               return (
                 <motion.div
                   key={v.title}
-                  initial={{ opacity: 0, y: 24 }}
+                  initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-50px' }}
-                  transition={{ duration: 0.7, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                  className="p-7 rounded-3xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 hover:border-gold/40 backdrop-blur-md transition-all duration-300 space-y-4 group"
+                  transition={{ duration: 0.6, delay: idx * 0.08, ease: [0.16, 1, 0.3, 1] }}
+                  className="p-6 sm:p-7 rounded-2xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 hover:border-sand/40 transition-all duration-300 space-y-3.5 group"
                 >
-                  <div className="w-12 h-12 rounded-2xl bg-forest-light/60 flex items-center justify-center text-gold border border-white/15 group-hover:bg-gold group-hover:text-forest transition-colors duration-300">
+                  <div className="w-11 h-11 rounded-xl bg-white/10 flex items-center justify-center text-sand border border-white/15 group-hover:bg-sand group-hover:text-forest transition-colors duration-300">
                     <Icon className="w-5 h-5" />
                   </div>
 
                   <div className="space-y-1">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-sage block font-sans">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-sand/80 block font-sans">
                       {v.subtitle}
                     </span>
-                    <h3 className="font-heading font-semibold text-xl text-ivory">
+                    <h3 className="font-display font-normal text-xl text-[#F6F2E9]">
                       {v.title}
                     </h3>
                   </div>
 
-                  <p className="text-xs sm:text-sm text-sage-light/80 leading-relaxed font-light font-sans">
+                  <p className="text-xs sm:text-sm text-white/75 leading-relaxed font-light font-sans">
                     {v.description}
                   </p>
                 </motion.div>
               );
             })}
           </div>
+
         </div>
       </div>
     </section>
