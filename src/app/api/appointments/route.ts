@@ -7,12 +7,8 @@ import {
   sanitizeInput,
   getTodayISO,
 } from '@/lib/utils';
-import { CLINIC_INFO } from '@/lib/constants';
 import { sendTransactionalEmail } from '@/lib/email/resend';
-import {
-  renderBookingReceivedEmail,
-  renderAdminNewAppointmentEmail,
-} from '@/lib/email/templates';
+import { buildEmailVariables } from '@/lib/email/template-variables';
 
 export async function POST(request: Request) {
   try {
@@ -95,48 +91,13 @@ export async function POST(request: Request) {
 
     const booking_reference = generateBookingReference();
 
-    // 3. Staging / Demo fallback if Supabase is not yet plugged in
+    // Never return booking success unless Supabase persists the request.
     if (
       !process.env.NEXT_PUBLIC_SUPABASE_URL ||
       !process.env.SUPABASE_SERVICE_ROLE_KEY ||
       process.env.NEXT_PUBLIC_SUPABASE_URL === 'your_supabase_project_url'
     ) {
-      const whatsapp_url = generateWhatsAppUrl({
-        name: sanitizedName,
-        phone: sanitizedPhone,
-        date: appointment_date,
-        time: sanitizedTime || undefined,
-        type: sanitizedType,
-        reference: booking_reference,
-      });
-
-      // Dispatch simulated emails
-      if (sanitizedEmail) {
-        const { html, text } = renderBookingReceivedEmail({
-          patientName: sanitizedName,
-          bookingReference: booking_reference,
-          appointmentDate: appointment_date,
-          preferredTime: sanitizedTime,
-          consultationType: sanitizedType,
-        });
-        await sendTransactionalEmail({
-          to: sanitizedEmail,
-          subject: `Appointment Request Received: ${booking_reference} - VSHMA Clinic`,
-          html,
-          text,
-          notificationType: 'booking_received',
-        });
-      }
-
-      return NextResponse.json(
-        {
-          success: true,
-          booking_reference,
-          whatsapp_url,
-          message: 'Appointment booking request received successfully.',
-        },
-        { status: 201 }
-      );
+      return NextResponse.json({ error: 'Booking service is not configured.' }, { status: 503 });
     }
 
     // 4. Real Supabase Database Insertion
@@ -155,7 +116,7 @@ export async function POST(request: Request) {
         message: sanitizedMessage,
         status: 'pending',
       })
-      .select('id')
+      .select('id,created_at')
       .single();
 
     if (dbError || !insertedAppt) {
@@ -194,47 +155,37 @@ export async function POST(request: Request) {
       if (!emergencyPause) {
         // Patient booking acknowledgement email
         if (sanitizedEmail && settingsMap['enable_booking_acknowledgement'] !== false) {
-          const { html, text } = renderBookingReceivedEmail({
-            patientName: sanitizedName,
-            bookingReference: booking_reference,
-            appointmentDate: appointment_date,
-            preferredTime: sanitizedTime,
-            consultationType: sanitizedType,
-          });
-
-          // Non-blocking email dispatch
-          sendTransactionalEmail({
+          await sendTransactionalEmail({
             to: sanitizedEmail,
-            subject: `Appointment Request Received: ${booking_reference} - VSHMA Clinic`,
-            html,
-            text,
             appointmentId,
+            bookingReference: booking_reference,
             notificationType: 'booking_received',
+            variables: buildEmailVariables({
+              patientName: sanitizedName,
+              bookingReference: booking_reference,
+              appointmentDate: appointment_date,
+              appointmentTime: sanitizedTime,
+              bookingCreatedAt: insertedAppt.created_at,
+            }),
           }).catch((err) => console.error('[Patient Email Error]', err));
         }
 
         // Admin notification email
         if (settingsMap['enable_admin_notification'] !== false) {
-          const adminRecipient =
-            process.env.ADMIN_NOTIFICATION_EMAIL || CLINIC_INFO.email || 'care@vshma.in';
-
-          const { html: adminHtml, text: adminText } = renderAdminNewAppointmentEmail({
-            patientName: sanitizedName,
-            bookingReference: booking_reference,
-            appointmentDate: appointment_date,
-            preferredTime: sanitizedTime,
-            consultationType: sanitizedType,
-            phone: sanitizedPhone,
-            email: sanitizedEmail || undefined,
-          });
-
-          sendTransactionalEmail({
-            to: adminRecipient,
-            subject: `[New Appointment Request] ${sanitizedName} (${booking_reference})`,
-            html: adminHtml,
-            text: adminText,
+          await sendTransactionalEmail({
+            to: process.env.ADMIN_NOTIFICATION_EMAIL || '',
             appointmentId,
+            bookingReference: booking_reference,
             notificationType: 'admin_new_booking',
+            variables: buildEmailVariables({
+              patientName: sanitizedName,
+              patientEmail: sanitizedEmail,
+              patientPhone: sanitizedPhone,
+              bookingReference: booking_reference,
+              appointmentDate: appointment_date,
+              appointmentTime: sanitizedTime,
+              bookingCreatedAt: insertedAppt.created_at,
+            }),
           }).catch((err) => console.error('[Admin Email Error]', err));
         }
       }

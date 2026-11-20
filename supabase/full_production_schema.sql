@@ -90,6 +90,12 @@ CREATE TABLE IF NOT EXISTS public.notification_logs (
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'queued', 'sent', 'failed', 'delivered')),
   error_message TEXT,
   retry_count INT DEFAULT 0 NOT NULL,
+  booking_reference TEXT,
+  template_alias TEXT,
+  resend_message_id TEXT,
+  idempotency_key TEXT,
+  template_variables JSONB NOT NULL DEFAULT '{}'::jsonb,
+  attempted_at TIMESTAMPTZ,
   sent_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
@@ -97,6 +103,9 @@ CREATE TABLE IF NOT EXISTS public.notification_logs (
 CREATE INDEX IF NOT EXISTS idx_notification_logs_appointment ON public.notification_logs(appointment_id);
 CREATE INDEX IF NOT EXISTS idx_notification_logs_status ON public.notification_logs(status);
 CREATE INDEX IF NOT EXISTS idx_notification_logs_type ON public.notification_logs(notification_type);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_notification_logs_idempotency_key
+  ON public.notification_logs (idempotency_key)
+  WHERE idempotency_key IS NOT NULL;
 
 -- ============================================================
 -- 4. AUTOMATED REMINDER JOBS TABLE

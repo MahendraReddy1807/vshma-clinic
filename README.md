@@ -21,9 +21,12 @@ NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
 SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVER_ONLY_SERVICE_ROLE_KEY
 NEXT_PUBLIC_SITE_URL=http://localhost:3007
+RESEND_API_KEY=YOUR_RESEND_API_KEY
+RESEND_FROM_EMAIL=VSHMA <verified-sender@your-domain.example>
+ADMIN_NOTIFICATION_EMAIL=administrator@your-domain.example
 ```
 
-Never expose `SUPABASE_SERVICE_ROLE_KEY` as a `NEXT_PUBLIC_` variable or commit `.env.local`. Booking and administrator APIs remain unavailable until the Supabase variables are configured; they do not create simulated bookings.
+Never expose `SUPABASE_SERVICE_ROLE_KEY` or `RESEND_API_KEY` as a `NEXT_PUBLIC_` variable or commit `.env.local`. Booking, administrator, and email APIs fail closed when their required services are not configured; they do not create simulated bookings or mock email-delivery successes.
 
 ## Supabase database and administrator
 
@@ -32,6 +35,8 @@ Run the SQL migrations in order in the Supabase SQL Editor:
 1. `supabase/migrations/001_create_tables.sql`
 2. `supabase/migrations/002_create_admin.sql` (operator instructions)
 3. `supabase/migrations/003_tighten_access_policies.sql`
+4. `supabase/migrations/004_signature_modules.sql`
+5. `supabase/migrations/20261120072037_vshma_resend_email_idempotency.sql`
 
 Create an administrator in Supabase Authentication, using a strong password and email confirmation. Copy that user's UUID, then run:
 
@@ -41,6 +46,20 @@ VALUES ('AUTH_USER_UUID', 'admin@example.com', 'admin');
 ```
 
 Replace both sample values. Only users with an `admin` profile can use the admin API. The app does not contain default credentials. Sign in at `/admin/login`; use the password reset link there if needed. Configure the Supabase Auth password recovery redirect URL for your deployment (for example, `https://your-domain.example/admin/login`).
+
+## Resend templates and email delivery
+
+Six responsive hosted templates are defined in `emails/resend/templates.mjs` using stable aliases. All sends use the Resend Node SDK and require a published matching template. Email logs record the alias, booking reference, Resend message ID, idempotency key, status, and timestamps. The Resend API key stays server-side.
+
+Create local previews without contacting Resend:
+
+```powershell
+npm run email:preview
+```
+
+Review the generated files in `emails/previews/`. To create or update Resend drafts, run `npm run email:sync -- --sync-drafts`. To publish after review, run `npm run email:sync -- --publish`. The sync script never sends test emails; publishing is an explicit action. Set `RESEND_FROM_EMAIL` to a sender on a verified Resend domain and set `ADMIN_NOTIFICATION_EMAIL` to the clinic’s authorized administrator address. Admin notification sending fails and is logged if that recipient is not configured.
+
+Before production email sending, apply the email metadata migration, sync and publish all six aliases in Resend, verify the sending domain, and set `ADMIN_NOTIFICATION_EMAIL` in the hosting environment.
 
 ## Main routes and behavior
 

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { sendTransactionalEmail } from '@/lib/email/resend';
-import { renderAppointmentReminderEmail } from '@/lib/email/templates';
+import { buildEmailVariables } from '@/lib/email/template-variables';
 
 export async function GET(request: Request) {
   return handleReminders(request);
@@ -29,13 +29,7 @@ async function handleReminders(request: Request) {
       !process.env.SUPABASE_SERVICE_ROLE_KEY ||
       process.env.NEXT_PUBLIC_SUPABASE_URL === 'your_supabase_project_url'
     ) {
-      return NextResponse.json({
-        success: true,
-        message: 'Cron reminder engine running in development mock mode. Supabase not configured.',
-        processed: 0,
-        dispatched: 0,
-        isMock: true,
-      });
+      return NextResponse.json({ error: 'Reminder service is not configured.' }, { status: 503 });
     }
 
     const supabase = createServerSupabaseClient();
@@ -68,6 +62,8 @@ async function handleReminders(request: Request) {
           email,
           appointment_date,
           preferred_time,
+          rescheduled_date,
+          rescheduled_time,
           consultation_type,
           status
         )
@@ -91,8 +87,8 @@ async function handleReminders(request: Request) {
     for (const job of dueJobs) {
       const appt = (job as unknown as { appointments: Record<string, unknown> | null }).appointments;
 
-      // Skip if appointment is no longer confirmed
-      if (!appt || (appt.status !== 'confirmed' && appt.status !== 'pending')) {
+      // Rescheduled appointments retain a confirmed slot; pending requests do not.
+      if (!appt || (appt.status !== 'confirmed' && appt.status !== 'rescheduled')) {
         await supabase.from('reminder_jobs').update({ status: 'cancelled' }).eq('id', job.id);
         continue;
       }
@@ -105,8 +101,15 @@ async function handleReminders(request: Request) {
         continue;
       }
 
-      // Lock job as processing
-      await supabase.from('reminder_jobs').update({ status: 'processing' }).eq('id', job.id);
+      // Claim the job atomically so overlapping cron runs cannot send it twice.
+      const { data: claimedJob, error: claimError } = await supabase
+        .from('reminder_jobs')
+        .update({ status: 'processing' })
+        .eq('id', job.id)
+        .eq('status', 'pending')
+        .select('id')
+        .maybeSingle();
+      if (claimError || !claimedJob) continue;
 
       const patientEmail = String(appt.email || '');
       if (!patientEmail) {
@@ -118,24 +121,18 @@ async function handleReminders(request: Request) {
         continue;
       }
 
-      const { html, text } = renderAppointmentReminderEmail(
-        {
-          patientName: String(appt.full_name || 'Patient'),
-          bookingReference: String(appt.booking_reference || ''),
-          appointmentDate: String(appt.appointment_date || ''),
-          preferredTime: appt.preferred_time as string | null,
-          consultationType: String(appt.consultation_type || 'General Consultation'),
-        },
-        job.reminder_type as '24h' | '2h'
-      );
-
       const emailResult = await sendTransactionalEmail({
         to: patientEmail,
-        subject: `Reminder: Upcoming Appointment with ${appt.full_name} (${job.reminder_type})`,
-        html,
-        text,
         appointmentId: job.appointment_id,
+        bookingReference: String(appt.booking_reference || ''),
         notificationType: job.reminder_type === '24h' ? 'reminder_24h' : 'reminder_2h',
+        variables: buildEmailVariables({
+          patientName: String(appt.full_name || 'Patient'),
+          bookingReference: String(appt.booking_reference || ''),
+          appointmentDate: String(appt.rescheduled_date || appt.appointment_date || ''),
+          appointmentTime: String(appt.rescheduled_time || appt.preferred_time || 'Flexible'),
+          reminderType: job.reminder_type as '24h' | '2h',
+        }),
       });
 
       if (emailResult.success) {

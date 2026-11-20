@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Leaf, Lock, Mail, AlertCircle, ArrowRight, CheckCircle2, ShieldCheck, Sparkles } from 'lucide-react';
+import { Leaf, Lock, Mail, AlertCircle, ArrowRight, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { createBrowserSupabaseClient } from '@/lib/supabase/browser';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
@@ -41,27 +41,12 @@ export default function AdminLoginPage() {
         process.env.NEXT_PUBLIC_SUPABASE_URL !== 'your_supabase_project_url'
       );
 
-      // If Supabase is connected, authenticate via live Supabase Auth
-      if (isConfigured) {
-        const supabase = createBrowserSupabaseClient();
-        const { data, error: authError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-        if (authError || !data.session) {
-          throw new Error(authError?.message || 'Invalid credentials.');
-        }
-
-        localStorage.setItem('vshma_admin_session', data.session.access_token);
-        localStorage.setItem('vshma_admin_email', data.user.email || '');
-        router.push('/admin/dashboard');
-        return;
-      }
-
-      // If Supabase is not connected yet, allow demo staff login
-      localStorage.setItem('vshma_admin_session', 'demo_admin_token_vshma');
-      localStorage.setItem('vshma_admin_email', email || 'admin@vshma.in');
+      if (!isConfigured) throw new Error('Supabase administrator login is not configured.');
+      const supabase = createBrowserSupabaseClient();
+      const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
+      if (authError || !data.session) throw new Error(authError?.message || 'Invalid credentials.');
+      localStorage.setItem('vshma_admin_session', data.session.access_token);
+      localStorage.setItem('vshma_admin_email', data.user.email || '');
       router.push('/admin/dashboard');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Login failed.';
@@ -69,12 +54,6 @@ export default function AdminLoginPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleDemoAccess = () => {
-    localStorage.setItem('vshma_admin_session', 'demo_admin_token_vshma');
-    localStorage.setItem('vshma_admin_email', 'admin@vshma.in');
-    router.push('/admin/dashboard');
   };
 
   const handlePasswordReset = async () => {
@@ -236,17 +215,6 @@ export default function AdminLoginPage() {
                 </Button>
               </div>
 
-              {/* Instant Preview / Demo Access Button */}
-              <div className="pt-3">
-                <button
-                  type="button"
-                  onClick={handleDemoAccess}
-                  className="w-full py-2.5 rounded-2xl bg-mint hover:bg-sage/30 text-forest text-xs font-semibold border border-sage/30 flex items-center justify-center gap-2 transition-all shadow-sm"
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-gold" />
-                  <span>One-Click Administrator Demo Access</span>
-                </button>
-              </div>
             </form>
           )}
 

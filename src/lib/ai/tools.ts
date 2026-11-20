@@ -2,7 +2,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { CLINIC_INFO, TIME_SLOTS, CONSULTATION_TYPES } from '@/lib/constants';
 import { generateBookingReference, generateWhatsAppUrl, validateIndianMobile } from '@/lib/utils';
 import { sendTransactionalEmail } from '@/lib/email/resend';
-import { renderBookingReceivedEmail, renderAdminNewAppointmentEmail } from '@/lib/email/templates';
+import { buildEmailVariables } from '@/lib/email/template-variables';
 
 export interface ToolDefinition {
   type: 'function';
@@ -247,23 +247,11 @@ export async function executeAiTool(name: string, args: Record<string, unknown>)
             message,
             status: 'pending',
           })
-          .select('id')
+          .select('id,created_at')
           .single();
 
         if (insertErr) {
-          return {
-            success: true,
-            booking_reference,
-            message: 'Appointment request generated (demo mode).',
-            whatsapp_url: generateWhatsAppUrl({
-              name: full_name,
-              phone,
-              date: appointment_date,
-              time: preferred_time || undefined,
-              type: consultation_type,
-              reference: booking_reference,
-            }),
-          };
+          return { error: 'The appointment request could not be saved. Please contact the clinic directly.' };
         }
 
         // Trigger notifications
@@ -276,22 +264,36 @@ export async function executeAiTool(name: string, args: Record<string, unknown>)
           });
 
           if (email) {
-            const { html, text } = renderBookingReceivedEmail({
+            await sendTransactionalEmail({
+              to: email,
+              appointmentId: inserted.id,
+              bookingReference: booking_reference,
+              notificationType: 'booking_received',
+              variables: buildEmailVariables({
+                patientName: full_name,
+                bookingReference: booking_reference,
+                appointmentDate: appointment_date,
+                appointmentTime: preferred_time,
+                bookingCreatedAt: inserted.created_at,
+              }),
+            });
+          }
+
+          await sendTransactionalEmail({
+            to: process.env.ADMIN_NOTIFICATION_EMAIL || '',
+            appointmentId: inserted.id,
+            bookingReference: booking_reference,
+            notificationType: 'admin_new_booking',
+            variables: buildEmailVariables({
               patientName: full_name,
+              patientEmail: email,
+              patientPhone: phone,
               bookingReference: booking_reference,
               appointmentDate: appointment_date,
-              preferredTime: preferred_time,
-              consultationType: consultation_type,
-            });
-            sendTransactionalEmail({
-              to: email,
-              subject: `Appointment Request: ${booking_reference} - VSHMA Clinic`,
-              html,
-              text,
-              appointmentId: inserted.id,
-              notificationType: 'booking_received',
-            }).catch(() => null);
-          }
+              appointmentTime: preferred_time,
+              bookingCreatedAt: inserted.created_at,
+            }),
+          });
         }
 
         return {
@@ -312,9 +314,7 @@ export async function executeAiTool(name: string, args: Record<string, unknown>)
         };
       } catch (err) {
         return {
-          success: true,
-          booking_reference,
-          message: 'Appointment reference created. Please contact WhatsApp for instant confirmation.',
+          error: 'The appointment request could not be completed. Please contact the clinic directly.',
         };
       }
     }

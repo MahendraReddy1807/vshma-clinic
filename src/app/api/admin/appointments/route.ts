@@ -2,11 +2,7 @@ import { NextResponse } from 'next/server';
 import { verifyAdminAuth } from '@/lib/admin-auth';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { sendTransactionalEmail } from '@/lib/email/resend';
-import {
-  renderAppointmentConfirmedEmail,
-  renderAppointmentRescheduledEmail,
-  renderAppointmentCancelledEmail,
-} from '@/lib/email/templates';
+import { buildEmailVariables } from '@/lib/email/template-variables';
 import {
   scheduleAppointmentReminders,
   rescheduleAppointmentReminders,
@@ -176,15 +172,7 @@ export async function PATCH(request: Request) {
     }
 
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_URL === 'your_supabase_project_url') {
-      return NextResponse.json({
-        success: true,
-        id,
-        status,
-        rescheduled_date,
-        rescheduled_time,
-        reason,
-        isMock: true
-      });
+      return NextResponse.json({ error: 'Appointment service is not configured.' }, { status: 503 });
     }
 
     const supabase = createServerSupabaseClient();
@@ -230,33 +218,32 @@ export async function PATCH(request: Request) {
     // 3. Automated actions based on new status
     const recipientEmail = updatedAppt.email || currentAppt.email;
 
+    const emailWarnings: string[] = [];
     if (status === 'confirmed') {
       // Schedule reminder jobs
-      await scheduleAppointmentReminders({
-        id: updatedAppt.id,
-        appointment_date: updatedAppt.appointment_date,
-        preferred_time: updatedAppt.preferred_time,
-      });
+      if (currentAppt.status !== 'confirmed') {
+        await scheduleAppointmentReminders({
+          id: updatedAppt.id,
+          appointment_date: updatedAppt.rescheduled_date || updatedAppt.appointment_date,
+          preferred_time: updatedAppt.rescheduled_time || updatedAppt.preferred_time,
+        });
+      }
 
       // Send confirmation email
-      if (recipientEmail) {
-        const { html, text } = renderAppointmentConfirmedEmail({
-          patientName: updatedAppt.full_name,
-          bookingReference: updatedAppt.booking_reference,
-          appointmentDate: updatedAppt.appointment_date,
-          preferredTime: updatedAppt.preferred_time,
-          consultationType: updatedAppt.consultation_type,
-          confirmedAt: nowIso,
-        });
-
-        await sendTransactionalEmail({
+      if (recipientEmail && currentAppt.status !== 'confirmed') {
+        const emailResult = await sendTransactionalEmail({
           to: recipientEmail,
-          subject: `Confirmed: Consultation with Dr. Chihnitha Reddy T (${updatedAppt.booking_reference})`,
-          html,
-          text,
           appointmentId: updatedAppt.id,
+          bookingReference: updatedAppt.booking_reference,
           notificationType: 'appointment_confirmed',
+          variables: buildEmailVariables({
+            patientName: updatedAppt.full_name,
+            bookingReference: updatedAppt.booking_reference,
+            appointmentDate: updatedAppt.rescheduled_date || updatedAppt.appointment_date,
+            appointmentTime: updatedAppt.rescheduled_time || updatedAppt.preferred_time,
+          }),
         });
+        if (!emailResult.success) emailWarnings.push('Appointment confirmation email was not sent; see notification logs.');
       }
 
       // Record in admin notifications
@@ -274,26 +261,24 @@ export async function PATCH(request: Request) {
       // Reschedule reminder jobs
       await rescheduleAppointmentReminders(updatedAppt.id, newDate, newTime);
 
-      // Send rescheduled email
-      if (recipientEmail) {
-        const { html, text } = renderAppointmentRescheduledEmail({
-          patientName: updatedAppt.full_name,
-          bookingReference: updatedAppt.booking_reference,
-          appointmentDate: updatedAppt.appointment_date,
-          rescheduledDate: newDate,
-          rescheduledTime: newTime,
-          consultationType: updatedAppt.consultation_type,
-          reason,
-        });
-
-        await sendTransactionalEmail({
+      // Include the requested schedule in the key so a later, distinct reschedule can notify once.
+      if (recipientEmail && (currentAppt.rescheduled_date !== newDate || currentAppt.rescheduled_time !== newTime || currentAppt.status !== 'rescheduled')) {
+        const emailResult = await sendTransactionalEmail({
           to: recipientEmail,
-          subject: `Rescheduled: Appointment ${updatedAppt.booking_reference} - VSHMA Clinic`,
-          html,
-          text,
           appointmentId: updatedAppt.id,
+          bookingReference: updatedAppt.booking_reference,
           notificationType: 'appointment_rescheduled',
+          idempotencySuffix: `${newDate}:${newTime || ''}`,
+          variables: buildEmailVariables({
+            patientName: updatedAppt.full_name,
+            bookingReference: updatedAppt.booking_reference,
+            previousAppointmentDate: currentAppt.rescheduled_date || currentAppt.appointment_date,
+            previousAppointmentTime: currentAppt.rescheduled_time || currentAppt.preferred_time,
+            newAppointmentDate: newDate,
+            newAppointmentTime: newTime,
+          }),
         });
+        if (!emailResult.success) emailWarnings.push('Appointment rescheduling email was not sent; see notification logs.');
       }
 
       await supabase.from('admin_notifications').insert({
@@ -307,24 +292,21 @@ export async function PATCH(request: Request) {
       // Cancel pending reminder jobs
       await cancelAppointmentReminders(updatedAppt.id);
 
-      // Send cancellation email
-      if (recipientEmail) {
-        const { html, text } = renderAppointmentCancelledEmail({
-          patientName: updatedAppt.full_name,
-          bookingReference: updatedAppt.booking_reference,
-          appointmentDate: updatedAppt.appointment_date,
-          consultationType: updatedAppt.consultation_type,
-          reason,
-        });
-
-        await sendTransactionalEmail({
+      // Send cancellation notice only on the first transition to cancelled.
+      if (recipientEmail && currentAppt.status !== 'cancelled') {
+        const emailResult = await sendTransactionalEmail({
           to: recipientEmail,
-          subject: `Cancelled: Appointment ${updatedAppt.booking_reference} - VSHMA Clinic`,
-          html,
-          text,
           appointmentId: updatedAppt.id,
+          bookingReference: updatedAppt.booking_reference,
           notificationType: 'appointment_cancelled',
+          variables: buildEmailVariables({
+            patientName: updatedAppt.full_name,
+            bookingReference: updatedAppt.booking_reference,
+            appointmentDate: currentAppt.rescheduled_date || currentAppt.appointment_date,
+            appointmentTime: currentAppt.rescheduled_time || currentAppt.preferred_time,
+          }),
         });
+        if (!emailResult.success) emailWarnings.push('Appointment cancellation email was not sent; see notification logs.');
       }
 
       await supabase.from('admin_notifications').insert({
@@ -338,7 +320,7 @@ export async function PATCH(request: Request) {
       await cancelAppointmentReminders(updatedAppt.id);
     }
 
-    return NextResponse.json({ success: true, appointment: updatedAppt });
+    return NextResponse.json({ success: true, appointment: updatedAppt, emailWarnings });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error: msg }, { status: 500 });

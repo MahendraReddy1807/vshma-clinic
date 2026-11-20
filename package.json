@@ -7,7 +7,9 @@
     "dev": "npm run build:css && next dev --webpack -p 3000",
     "build": "npm run build:css && next build --webpack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "email:preview": "node scripts/preview-resend-templates.mjs",
+    "email:sync": "node scripts/sync-resend-templates.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

@@ -9,20 +9,8 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: auth.error || 'Unauthorized' }, { status: 401 });
   }
 
-  if (
-    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    !process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_URL === 'your_supabase_project_url'
-  ) {
-    const demoStats: DashboardStats = {
-      total: 18,
-      pending: 4,
-      confirmed: 10,
-      rescheduled: 1,
-      completed: 2,
-      cancelled: 1,
-    };
-    return NextResponse.json(demoStats);
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_URL === 'your_supabase_project_url') {
+    return NextResponse.json({ error: 'Dashboard service is not configured.' }, { status: 503 });
   }
 
   try {

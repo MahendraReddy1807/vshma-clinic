@@ -82,6 +82,12 @@ export interface NotificationLog {
   subject: string | null;
   status: 'pending' | 'queued' | 'sent' | 'failed' | 'delivered';
   error_message: string | null;
+  booking_reference?: string | null;
+  template_alias?: string | null;
+  template_variables?: Record<string, string | number> | null;
+  idempotency_key?: string | null;
+  resend_message_id?: string | null;
+  attempted_at?: string | null;
   retry_count: number;
   sent_at: string | null;
   created_at: string;
