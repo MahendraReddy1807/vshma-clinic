@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import {
@@ -130,35 +130,53 @@ const CONSULTATIONS_DATA: ConsultationItem[] = [
 export default function ConsultationOptionsSection() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeStep, setActiveStep] = useState(0);
+  const [dims, setDims] = useState({ cardWidth: 420, gap: 32, totalTravel: 2260 });
 
-  // Scroll tracking across the vertical travel distance
+  // Calculate card sizing and total travel dynamically so active card is centered
+  useEffect(() => {
+    const calcDims = () => {
+      const isXl = window.innerWidth >= 1280;
+      const is2Xl = window.innerWidth >= 1536;
+      const cardWidth = is2Xl ? 440 : isXl ? 420 : 380;
+      const gap = isXl ? 32 : 24;
+      const totalTravel = (CONSULTATIONS_DATA.length - 1) * (cardWidth + gap);
+      setDims({ cardWidth, gap, totalTravel });
+    };
+
+    calcDims();
+    window.addEventListener('resize', calcDims);
+    return () => window.removeEventListener('resize', calcDims);
+  }, []);
+
+  // Vertical scroll tracking
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start start', 'end end'],
   });
 
-  // Buttery luxury spring physics for horizontal glide
+  // Silky buttery luxury spring glide
   const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 75,
-    damping: 24,
+    stiffness: 65,
+    damping: 25,
     restDelta: 0.001,
   });
 
-  // Translate horizontal track smoothly
-  const x = useTransform(smoothProgress, [0, 1], ['0%', '-67%']);
+  // Dynamic horizontal translation:
+  // Starts at 0 (Card 01 centered at 50vw) and glides to -totalTravel (Card 06 centered at 50vw)
+  const x = useTransform(smoothProgress, [0, 1], [0, -dims.totalTravel]);
 
-  // Update active card indicator based on scroll position
+  // Update active card index based on scroll position
   useEffect(() => {
     return smoothProgress.on('change', (latest) => {
-      const idx = Math.min(
-        Math.max(Math.floor(latest * CONSULTATIONS_DATA.length), 0),
+      const step = Math.min(
+        Math.max(Math.round(latest * (CONSULTATIONS_DATA.length - 1)), 0),
         CONSULTATIONS_DATA.length - 1
       );
-      setActiveStep(idx);
+      setActiveStep(step);
     });
   }, [smoothProgress]);
 
-  // Jump smoothly to a specific card
+  // Jump smoothly to center a specific card
   const scrollToStep = (index: number) => {
     if (!containerRef.current) return;
     const containerTop = containerRef.current.offsetTop;
@@ -171,46 +189,49 @@ export default function ConsultationOptionsSection() {
     <section
       id="consultations"
       ref={containerRef}
-      className="relative scroll-mt-28 lg:h-[390vh] bg-[#F6F2E9] text-charcoal border-b border-[#D8D0BD]/40 select-none overflow-clip"
+      className="relative scroll-mt-28 lg:h-[450vh] bg-[#F7F4EC] text-charcoal border-b border-[#D8D0BD]/40 select-none overflow-clip"
       aria-label="Clinical Consultation Options"
     >
       {/* Anchor for treatments URL */}
       <div id="treatments" className="absolute -top-28" />
 
       {/* ───────────── DESKTOP PINNED HORIZONTAL STAGE ───────────── */}
-      <div className="hidden lg:flex sticky top-0 h-screen w-full flex-col justify-between overflow-hidden px-8 lg:px-14 pt-24 xl:pt-28 pb-5 z-10">
+      <div className="hidden lg:flex sticky top-0 h-screen w-full flex-col justify-between overflow-hidden pt-24 xl:pt-28 pb-5 z-10">
         
-        {/* Ambient Floating Depth Orbs (Subtle Botanical Glow) */}
+        {/* Overhead Luxury Center Spotlight Beam */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[720px] h-[480px] bg-[radial-gradient(ellipse_60%_40%_at_50%_0%,rgba(185,164,119,0.18),transparent_70%)] pointer-events-none z-0" />
+
+        {/* Ambient Floating Depth Orbs (Luxury Botanical Radiance) */}
         <motion.div
           animate={{
-            x: [0, 25, 0],
-            y: [0, -15, 0],
-            scale: [1, 1.08, 1],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-          className="absolute -top-12 left-1/4 w-[420px] h-[420px] rounded-full bg-[#8BA895]/12 blur-[100px] pointer-events-none"
-        />
-        <motion.div
-          animate={{
-            x: [0, -25, 0],
-            y: [0, 20, 0],
-            scale: [1, 1.06, 1],
+            x: [0, 35, 0],
+            y: [0, -25, 0],
+            scale: [1, 1.12, 1],
           }}
           transition={{
             duration: 12,
             repeat: Infinity,
             ease: 'easeInOut',
+          }}
+          className="absolute -top-16 left-1/4 w-[480px] h-[480px] rounded-full bg-[#8BA895]/15 blur-[120px] pointer-events-none"
+        />
+        <motion.div
+          animate={{
+            x: [0, -40, 0],
+            y: [0, 30, 0],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{
+            duration: 14,
+            repeat: Infinity,
+            ease: 'easeInOut',
             delay: 1.5,
           }}
-          className="absolute -bottom-16 right-1/3 w-[480px] h-[480px] rounded-full bg-[#B9A477]/10 blur-[110px] pointer-events-none"
+          className="absolute -bottom-20 right-1/4 w-[540px] h-[540px] rounded-full bg-[#B9A477]/14 blur-[130px] pointer-events-none"
         />
 
         {/* ───────────── TOP HEADER & PROGRESS INDICATOR ───────────── */}
-        <header className="relative z-20 flex items-end justify-between border-b border-[#D8D0BD]/50 pb-4 shrink-0">
+        <header className="relative z-20 flex items-end justify-between border-b border-[#D8D0BD]/50 pb-4 shrink-0 px-8 lg:px-14">
           <div className="space-y-1.5 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-forest/10 text-forest text-[11px] font-semibold tracking-widest uppercase font-sans">
               <span className="w-1.5 h-1.5 rounded-full bg-bronze animate-pulse" />
@@ -225,9 +246,9 @@ export default function ConsultationOptionsSection() {
           <div className="flex flex-col items-end gap-2 shrink-0 pl-6">
             <div className="flex items-center gap-3">
               <span className="text-[11px] font-sans text-charcoal/60 uppercase tracking-widest hidden xl:inline">
-                Scroll down to glide horizontally
+                Scroll to glide through specialties
               </span>
-              <div className="px-3.5 py-1 rounded-full bg-white/90 backdrop-blur-sm border border-[#D8D0BD] shadow-xs text-xs font-sans font-medium text-forest flex items-center gap-1.5">
+              <div className="px-3.5 py-1 rounded-full bg-white/95 backdrop-blur-md border border-[#D8D0BD] shadow-xs text-xs font-sans font-medium text-forest flex items-center gap-1.5">
                 <span className="font-display text-sm text-bronze font-semibold">
                   {CONSULTATIONS_DATA[activeStep].number}
                 </span>
@@ -247,46 +268,64 @@ export default function ConsultationOptionsSection() {
           </div>
         </header>
 
-        {/* ───────────── HORIZONTAL FLOATING TRACK ───────────── */}
-        <main className="relative z-10 my-auto py-2 overflow-visible">
+        {/* ───────────── HORIZONTAL CENTER-STAGE TRACK ───────────── */}
+        {/* Track starts with Card 01 centered at exactly 50vw of the viewport */}
+        <main className="relative z-10 my-auto py-2 overflow-visible w-full">
           <motion.div
-            style={{ x }}
-            className="flex gap-6 xl:gap-8 items-stretch will-change-transform pl-1 pr-72"
+            style={{
+              x,
+              paddingLeft: `calc(50vw - ${dims.cardWidth / 2}px)`,
+              paddingRight: `calc(50vw - ${dims.cardWidth / 2}px)`,
+            }}
+            className="flex items-stretch will-change-transform gap-6 xl:gap-8"
           >
             {CONSULTATIONS_DATA.map((item, index) => {
               const Icon = item.icon;
               const isActive = index === activeStep;
 
-              // Staggered ambient floating offsets
-              const floatOffset = index % 2 === 0 ? -7 : -5;
-              const floatDuration = 4.2 + (index % 3) * 0.8;
+              // Sinusoidal floating animation wave
+              // Active card oscillates gently with higher elevation and subtle micro-tilt
+              const floatOffset = index % 2 === 0 ? -10 : -7;
+              const floatDuration = 4.8 + (index % 3) * 0.6;
 
               return (
                 <motion.article
                   key={item.id}
                   animate={{
-                    y: [0, floatOffset, 0],
+                    y: isActive ? [0, floatOffset, 0] : [0, floatOffset * 0.65, 0],
+                    rotate: isActive ? [0, 0.4, -0.4, 0] : 0,
                   }}
                   transition={{
                     duration: floatDuration,
                     repeat: Infinity,
                     repeatType: 'mirror',
                     ease: 'easeInOut',
-                    delay: index * 0.35,
+                    delay: index * 0.3,
                   }}
                   whileHover={{
-                    y: -12,
-                    scale: 1.015,
-                    transition: { duration: 0.3, ease: 'easeOut' },
+                    y: -14,
+                    scale: 1.03,
+                    transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
                   }}
-                  className={`w-[390px] xl:w-[430px] h-[calc(100vh-270px)] min-h-[420px] max-h-[500px] shrink-0 flex flex-col justify-between rounded-2xl bg-white/95 backdrop-blur-xs border transition-all duration-300 p-6 xl:p-7 group relative cursor-default ${
+                  style={{
+                    width: dims.cardWidth,
+                  }}
+                  className={`h-[calc(100vh-270px)] min-h-[420px] max-h-[500px] shrink-0 flex flex-col justify-between rounded-2xl transition-all duration-500 p-6 xl:p-7 group relative cursor-default ${
                     isActive
-                      ? 'border-bronze shadow-[0_20px_45px_-12px_rgba(24,61,50,0.18)] ring-1 ring-bronze/40'
-                      : 'border-[#D8D0BD]/75 shadow-[0_8px_25px_-8px_rgba(41,43,39,0.08)] hover:border-sage hover:shadow-[0_22px_45px_-10px_rgba(24,61,50,0.14)]'
+                      ? 'bg-gradient-to-b from-white via-white to-[#FAF7F0] border-bronze shadow-[0_28px_65px_-12px_rgba(24,61,50,0.22),_0_0_40px_rgba(185,164,119,0.18)] ring-1 ring-bronze/50 scale-100 opacity-100 z-20'
+                      : 'bg-white/85 backdrop-blur-md border-[#D8D0BD]/75 shadow-[0_8px_24px_-8px_rgba(41,43,39,0.06)] hover:border-bronze/60 hover:shadow-[0_22px_50px_-10px_rgba(24,61,50,0.14)] scale-[0.96] opacity-65 hover:opacity-100 z-10'
                   }`}
                 >
-                  {/* Subtle Card Ambient Glow Accent on Hover */}
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-white via-transparent to-sage/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                  {/* Luxury Gold Hairline Accent Bar on Active Card */}
+                  {isActive && (
+                    <motion.div
+                      layoutId="cardActiveGlow"
+                      className="absolute top-0 left-6 right-6 h-[2.5px] bg-gradient-to-r from-transparent via-[#B9A477] to-transparent rounded-full"
+                    />
+                  )}
+
+                  {/* Soft Background Hover Gradient */}
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-white/60 via-transparent to-sage/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
                   <div className="space-y-3.5 relative z-10 overflow-hidden">
                     {/* Top Row: Number, Icon, Category */}
@@ -295,9 +334,13 @@ export default function ConsultationOptionsSection() {
                         {item.number}
                       </span>
                       <motion.div
-                        whileHover={{ scale: 1.1, rotate: 3 }}
+                        whileHover={{ scale: 1.12, rotate: 4 }}
                         transition={{ type: 'spring', stiffness: 300, damping: 15 }}
-                        className="w-10 h-10 rounded-xl bg-[#F6F2E9] border border-[#D8D0BD] flex items-center justify-center text-forest shadow-xs group-hover:bg-forest group-hover:text-white group-hover:border-forest transition-colors duration-300"
+                        className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-all duration-300 shadow-xs ${
+                          isActive
+                            ? 'bg-forest text-white border-forest shadow-sm ring-2 ring-bronze/20'
+                            : 'bg-[#F6F2E9] border-[#D8D0BD] text-forest group-hover:bg-forest group-hover:text-white group-hover:border-forest'
+                        }`}
                       >
                         <Icon className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" />
                       </motion.div>
@@ -348,11 +391,15 @@ export default function ConsultationOptionsSection() {
                     </div>
                   </div>
 
-                  {/* Card Bottom CTA (Never Cut Off) */}
+                  {/* Card Bottom CTA (Pinned & Prominent) */}
                   <div className="pt-3 border-t border-[#D8D0BD]/50 relative z-10 shrink-0">
                     <Link
                       href={`/book?type=${encodeURIComponent(item.title)}`}
-                      className="group/btn inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-forest hover:bg-forest-light text-white font-sans text-xs font-semibold uppercase tracking-wider transition-all duration-300 shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99]"
+                      className={`group/btn inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl font-sans text-xs font-semibold uppercase tracking-wider transition-all duration-300 shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] ${
+                        isActive
+                          ? 'bg-forest hover:bg-forest-light text-white ring-1 ring-forest/20'
+                          : 'bg-forest/90 hover:bg-forest text-white'
+                      }`}
                     >
                       <span>Book {item.title}</span>
                       <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover/btn:translate-x-1" />
@@ -365,7 +412,7 @@ export default function ConsultationOptionsSection() {
         </main>
 
         {/* ───────────── BOTTOM CONTROL BAR ───────────── */}
-        <footer className="relative z-20 flex items-center justify-between border-t border-[#D8D0BD]/50 pt-3 shrink-0">
+        <footer className="relative z-20 flex items-center justify-between border-t border-[#D8D0BD]/50 pt-3 shrink-0 px-8 lg:px-14">
           <div className="flex items-center gap-1.5">
             {CONSULTATIONS_DATA.map((c, i) => (
               <button
@@ -373,7 +420,7 @@ export default function ConsultationOptionsSection() {
                 onClick={() => scrollToStep(i)}
                 className={`px-3 py-1 rounded-lg text-xs font-sans transition-all duration-300 cursor-pointer ${
                   i === activeStep
-                    ? 'bg-forest text-white font-semibold shadow-xs scale-105'
+                    ? 'bg-forest text-white font-semibold shadow-xs scale-105 ring-1 ring-bronze/40'
                     : 'bg-white hover:bg-white/90 text-charcoal/70 border border-[#D8D0BD] hover:border-bronze/50'
                 }`}
               >
@@ -382,10 +429,10 @@ export default function ConsultationOptionsSection() {
             ))}
           </div>
 
-          <div className="text-[11px] text-charcoal/60 font-sans pr-44 xl:pr-52">
+          <div className="text-[11px] text-charcoal/60 font-sans">
             <span>Specialty </span>
             <strong className="text-forest font-semibold">{CONSULTATIONS_DATA[activeStep].number} of 06</strong>
-            <span className="hidden sm:inline"> &bull; Vertical scroll glides horizontally</span>
+            <span className="hidden sm:inline"> &bull; Centered spotlight glide</span>
           </div>
         </footer>
 
@@ -433,7 +480,7 @@ export default function ConsultationOptionsSection() {
                       {item.number}
                     </span>
                     <div className="w-10 h-10 rounded-xl bg-[#F6F2E9] border border-[#D8D0BD] flex items-center justify-center text-forest">
-                      <Icon className="w-5 h-5 text-forest" />
+                      <Icon className="w-4 h-4 text-forest" />
                     </div>
                   </div>
 
@@ -468,7 +515,7 @@ export default function ConsultationOptionsSection() {
                     <ul className="space-y-1">
                       {item.highlights.map((h) => (
                         <li key={h} className="flex items-start gap-1.5 text-xs text-charcoal/75 font-sans">
-                          <CheckCircle2 className="w-3 h-3 text-forest shrink-0 mt-0.5" />
+                          <CheckCircle2 className="w-3.5 h-3.5 text-forest shrink-0 mt-0.5" />
                           <span>{h}</span>
                         </li>
                       ))}

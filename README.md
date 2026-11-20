@@ -23,10 +23,12 @@ SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVER_ONLY_SERVICE_ROLE_KEY
 NEXT_PUBLIC_SITE_URL=http://localhost:3007
 RESEND_API_KEY=YOUR_RESEND_API_KEY
 RESEND_FROM_EMAIL=VSHMA <verified-sender@your-domain.example>
-ADMIN_NOTIFICATION_EMAIL=administrator@your-domain.example
+ADMIN_NOTIFICATION_EMAIL=
 ```
 
 Never expose `SUPABASE_SERVICE_ROLE_KEY` or `RESEND_API_KEY` as a `NEXT_PUBLIC_` variable or commit `.env.local`. Booking, administrator, and email APIs fail closed when their required services are not configured; they do not create simulated bookings or mock email-delivery successes.
+
+Set `ADMIN_NOTIFICATION_EMAIL` to the clinic's confirmed, authorized admin inbox before enabling admin email notifications. Leave it blank until that address is provided. A blank or malformed value is rejected by the email sender and recorded as a failed notification; appointment creation may still succeed, but the application does not report that email as sent.
 
 ## Supabase database and administrator
 
@@ -42,10 +44,10 @@ Create an administrator in Supabase Authentication, using a strong password and 
 
 ```sql
 INSERT INTO public.admin_profiles (id, email, role)
-VALUES ('AUTH_USER_UUID', 'admin@example.com', 'admin');
+VALUES ('AUTH_USER_UUID', 'AUTH_USER_EMAIL', 'admin');
 ```
 
-Replace both sample values. Only users with an `admin` profile can use the admin API. The app does not contain default credentials. Sign in at `/admin/login`; use the password reset link there if needed. Configure the Supabase Auth password recovery redirect URL for your deployment (for example, `https://your-domain.example/admin/login`).
+Replace both values with the administrator's actual Supabase Auth UUID and email. Only users with an `admin` profile can use the admin API. The app does not contain default credentials. Sign in at `/admin/login`; use the password reset link there if needed. Configure the Supabase Auth password recovery redirect URL for your deployment (for example, `https://your-domain.example/admin/login`).
 
 ## Resend templates and email delivery
 
