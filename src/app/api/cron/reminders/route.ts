@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { sendTransactionalEmail } from '@/lib/email/resend';
 import { buildEmailVariables } from '@/lib/email/template-variables';
+import { notifyPatientAppointmentReminderViaWhatsApp } from '@/lib/whatsapp/service';
 
 export async function GET(request: Request) {
   return handleReminders(request);
@@ -65,6 +66,7 @@ async function handleReminders(request: Request) {
           rescheduled_date,
           rescheduled_time,
           consultation_type,
+          whatsapp_opt_in,
           status
         )
       `)
@@ -134,6 +136,20 @@ async function handleReminders(request: Request) {
           reminderType: job.reminder_type as '24h' | '2h',
         }),
       });
+
+      // Also dispatch automated WhatsApp reminder if patient opted in
+      if (Boolean(appt.whatsapp_opt_in) && appt.phone) {
+        await notifyPatientAppointmentReminderViaWhatsApp({
+          appointmentId: job.appointment_id,
+          bookingReference: String(appt.booking_reference || ''),
+          patientName: String(appt.full_name || 'Patient'),
+          patientPhone: String(appt.phone),
+          appointmentDate: String(appt.rescheduled_date || appt.appointment_date || ''),
+          exactTime: String(appt.rescheduled_time || appt.preferred_time || '10:30 AM'),
+          reminderType: job.reminder_type as '24h' | '2h',
+          whatsappOptIn: true,
+        }).catch((waErr) => console.error('[Cron WhatsApp Reminder Error]', waErr));
+      }
 
       if (emailResult.success) {
         await supabase.from('reminder_jobs').update({ status: 'completed' }).eq('id', job.id);

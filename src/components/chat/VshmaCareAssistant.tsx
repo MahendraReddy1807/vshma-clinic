@@ -5,14 +5,11 @@ import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  MessageSquare,
   X,
   Send,
-  Sparkles,
   Bot,
   User,
   ShieldAlert,
-  Headphones,
   RotateCcw,
 } from 'lucide-react';
 import WhatsAppIcon from '@/components/ui/WhatsAppIcon';
@@ -131,12 +128,12 @@ export default function VshmaCareAssistant() {
           className="group relative flex items-center justify-center w-14 h-14 rounded-full bg-forest hover:bg-forest-light text-white shadow-2xl border-2 border-gold/40 hover:scale-108 active:scale-95 transition-all duration-300 cursor-pointer"
         >
           {/* Logo Symbol inside */}
-          <div className="relative w-8 h-8 rounded-full overflow-hidden flex items-center justify-center">
+          <div className="relative w-9 h-9 rounded-full overflow-hidden flex items-center justify-center">
             <Image
               src="/logo-transparent.png"
               alt="VSHMA Emblem"
               fill
-              sizes="32px"
+              sizes="36px"
               className="object-contain"
             />
           </div>

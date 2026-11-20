@@ -9,6 +9,10 @@ import {
 } from '@/lib/utils';
 import { sendTransactionalEmail } from '@/lib/email/resend';
 import { buildEmailVariables } from '@/lib/email/template-variables';
+import {
+  notifyAdminNewBookingViaWhatsApp,
+  notifyPatientBookingAckViaWhatsApp,
+} from '@/lib/whatsapp/service';
 
 export async function POST(request: Request) {
   try {
@@ -23,6 +27,7 @@ export async function POST(request: Request) {
       consultation_type,
       message,
       privacy_consent,
+      whatsapp_opt_in,
     } = body;
 
     // 1. Validation
@@ -102,9 +107,38 @@ export async function POST(request: Request) {
 
     // 4. Real Supabase Database Insertion
     const supabase = createServerSupabaseClient();
-    const { data: insertedAppt, error: dbError } = await supabase
+    const isOptedIn = Boolean(whatsapp_opt_in);
+    const nowIso = new Date().toISOString();
+
+    const apptPayload: Record<string, unknown> = {
+      booking_reference,
+      full_name: sanitizedName,
+      phone: sanitizedPhone,
+      email: sanitizedEmail,
+      age: parsedAge,
+      appointment_date,
+      preferred_time: sanitizedTime,
+      consultation_type: sanitizedType,
+      message: sanitizedMessage,
+      status: 'pending',
+      whatsapp_opt_in: isOptedIn,
+      whatsapp_opt_in_timestamp: isOptedIn ? (body.whatsapp_opt_in_timestamp || nowIso) : null,
+      whatsapp_opt_in_source: isOptedIn ? (body.whatsapp_opt_in_source || 'web_booking_form') : null,
+    };
+
+    let insertedAppt: { id: string; created_at: string } | null = null;
+    let dbError: { message?: string } | null = null;
+
+    // Try inserting with full consent audit columns first
+    const firstTry = await supabase
       .from('appointments')
-      .insert({
+      .insert(apptPayload)
+      .select('id,created_at')
+      .single();
+
+    if (firstTry.error) {
+      // Graceful fallback if audit columns haven't been applied yet
+      const fallbackPayload = {
         booking_reference,
         full_name: sanitizedName,
         phone: sanitizedPhone,
@@ -115,9 +149,30 @@ export async function POST(request: Request) {
         consultation_type: sanitizedType,
         message: sanitizedMessage,
         status: 'pending',
-      })
-      .select('id,created_at')
-      .single();
+        whatsapp_opt_in: isOptedIn,
+      };
+
+      const fallback = await supabase
+        .from('appointments')
+        .insert(fallbackPayload)
+        .select('id,created_at')
+        .single();
+
+      if (fallback.error && fallback.error.message?.includes('whatsapp_opt_in')) {
+        // Fallback without whatsapp_opt_in column
+        const minimalPayload: Record<string, unknown> = { ...fallbackPayload };
+        delete minimalPayload.whatsapp_opt_in;
+        const minimal = await supabase.from('appointments').insert(minimalPayload).select('id,created_at').single();
+        insertedAppt = minimal.data;
+        dbError = minimal.error;
+      } else {
+        insertedAppt = fallback.data;
+        dbError = fallback.error;
+      }
+    } else {
+      insertedAppt = firstTry.data;
+      dbError = firstTry.error;
+    }
 
     if (dbError || !insertedAppt) {
       console.error('Supabase insert error:', dbError);
@@ -155,7 +210,7 @@ export async function POST(request: Request) {
       if (!emergencyPause) {
         // Patient booking acknowledgement email
         if (sanitizedEmail && settingsMap['enable_booking_acknowledgement'] !== false) {
-          await sendTransactionalEmail({
+          const patientEmailResult = await sendTransactionalEmail({
             to: sanitizedEmail,
             appointmentId,
             bookingReference: booking_reference,
@@ -167,33 +222,82 @@ export async function POST(request: Request) {
               appointmentTime: sanitizedTime,
               bookingCreatedAt: insertedAppt.created_at,
             }),
-          }).catch((err) => console.error('[Patient Email Error]', err));
+          }).catch((err) => ({ success: false, error: String(err) }));
+
+          if (!patientEmailResult.success) {
+            console.error('[Patient Booking Email Failure]', patientEmailResult.error);
+          }
         }
 
         // Admin notification email
         if (settingsMap['enable_admin_notification'] !== false) {
-          await sendTransactionalEmail({
-            to: process.env.ADMIN_NOTIFICATION_EMAIL || '',
-            appointmentId,
-            bookingReference: booking_reference,
-            notificationType: 'admin_new_booking',
-            variables: buildEmailVariables({
-              patientName: sanitizedName,
-              patientEmail: sanitizedEmail,
-              patientPhone: sanitizedPhone,
+          const adminRecipient = process.env.ADMIN_NOTIFICATION_EMAIL || '';
+          if (adminRecipient) {
+            const adminEmailResult = await sendTransactionalEmail({
+              to: adminRecipient,
+              appointmentId,
               bookingReference: booking_reference,
-              appointmentDate: appointment_date,
-              appointmentTime: sanitizedTime,
-              bookingCreatedAt: insertedAppt.created_at,
-            }),
-          }).catch((err) => console.error('[Admin Email Error]', err));
+              notificationType: 'admin_new_booking',
+              variables: buildEmailVariables({
+                patientName: sanitizedName,
+                patientEmail: sanitizedEmail,
+                patientPhone: sanitizedPhone,
+                bookingReference: booking_reference,
+                appointmentDate: appointment_date,
+                appointmentTime: sanitizedTime,
+                bookingCreatedAt: insertedAppt.created_at,
+              }),
+            }).catch((err) => ({ success: false, error: String(err) }));
+
+            if (!adminEmailResult.success) {
+              console.error('[Admin Booking Email Failure]', adminEmailResult.error);
+            }
+          }
         }
       }
     } catch (emailSettingErr) {
       console.error('[Email Automation Trigger Error]', emailSettingErr);
     }
 
-    // 7. Generate dynamic WhatsApp URL
+    // 7. Automated WhatsApp Notifications (Fail-Safe)
+    let whatsappDispatched = false;
+    try {
+      const adminWhatsAppPromise = notifyAdminNewBookingViaWhatsApp({
+        appointmentId,
+        bookingReference: booking_reference,
+        patientName: sanitizedName,
+        patientPhone: sanitizedPhone,
+        appointmentDate: appointment_date,
+        preferredTime: sanitizedTime || 'Flexible',
+        consultationType: sanitizedType,
+        whatsappOptIn: Boolean(whatsapp_opt_in),
+      }).catch((waErr) => {
+        console.error('[WhatsApp Admin Dispatch Error]', waErr);
+        return null;
+      });
+
+      // Always invoke patient ack: records "Skipped — patient has not opted in" if false
+      const patientWhatsAppPromise = notifyPatientBookingAckViaWhatsApp({
+        appointmentId,
+        bookingReference: booking_reference,
+        patientName: sanitizedName,
+        patientPhone: sanitizedPhone,
+        appointmentDate: appointment_date,
+        preferredTime: sanitizedTime || 'Flexible',
+        consultationType: sanitizedType,
+        whatsappOptIn: isOptedIn,
+      }).catch((waErr) => {
+        console.error('[WhatsApp Patient Dispatch Error]', waErr);
+        return null;
+      });
+
+      const [adminWaRes] = await Promise.all([adminWhatsAppPromise, patientWhatsAppPromise]);
+      whatsappDispatched = Boolean(adminWaRes && typeof adminWaRes === 'object' && 'success' in adminWaRes && adminWaRes.success);
+    } catch (waErr) {
+      console.error('[WhatsApp Automation Trigger Error]', waErr);
+    }
+
+    // 8. Generate dynamic WhatsApp URL
     const whatsapp_url = generateWhatsAppUrl({
       name: sanitizedName,
       phone: sanitizedPhone,
@@ -209,6 +313,7 @@ export async function POST(request: Request) {
         booking_reference,
         appointment_id: appointmentId,
         whatsapp_url,
+        whatsapp_notification_dispatched: whatsappDispatched,
         message: 'Appointment booking request received successfully.',
       },
       { status: 201 }

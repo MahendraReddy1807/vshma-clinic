@@ -13,7 +13,6 @@ import {
   Clock,
   Heart,
   ShieldCheck,
-  CheckCircle2,
   ArrowUpRight,
   Sparkles,
 } from 'lucide-react';

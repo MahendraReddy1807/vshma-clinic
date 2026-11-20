@@ -25,7 +25,13 @@ export interface Appointment {
   consultation_type: string;
   message: string | null;
   status: AppointmentStatus;
+  whatsapp_opt_in?: boolean;
+  whatsapp_opt_in_timestamp?: string | null;
+  whatsapp_opt_in_source?: string | null;
   confirmed_at?: string | null;
+  email_notification?: NotificationLog | null;
+  whatsapp_notification?: NotificationLog | null;
+  admin_whatsapp_notification?: NotificationLog | null;
   created_at: string;
   updated_at: string;
 }
@@ -40,6 +46,7 @@ export interface BookingFormData {
   consultation_type: string;
   message: string;
   privacy_consent: boolean;
+  whatsapp_opt_in?: boolean;
 }
 
 /* ---------- Admin ---------- */
@@ -80,7 +87,17 @@ export interface NotificationLog {
   channel: 'email' | 'in_app' | 'whatsapp';
   recipient: string;
   subject: string | null;
-  status: 'pending' | 'queued' | 'sent' | 'failed' | 'delivered';
+  status:
+    | 'pending'
+    | 'processing'
+    | 'queued'
+    | 'accepted'
+    | 'sent'
+    | 'delivered'
+    | 'bounced'
+    | 'failed'
+    | 'read'
+    | 'skipped';
   error_message: string | null;
   booking_reference?: string | null;
   template_alias?: string | null;
@@ -88,6 +105,7 @@ export interface NotificationLog {
   idempotency_key?: string | null;
   resend_message_id?: string | null;
   attempted_at?: string | null;
+  delivered_at?: string | null;
   retry_count: number;
   sent_at: string | null;
   created_at: string;
@@ -173,6 +191,66 @@ export interface ServiceCard {
   title: string;
   description: string;
   icon: string;
+}
+
+/* ---------- CRM Patient Types (Phase 1) ---------- */
+
+export interface Patient {
+  id: string;
+  patient_id: string; // VSHMA-P-YYYYMM-XXXX
+  full_name: string;
+  phone: string;
+  phone_normalized: string;
+  email: string | null;
+  age?: number | null;
+  gender?: string | null;
+  city?: string | null;
+  whatsapp_opt_in: boolean;
+  first_interaction_at: string;
+  last_interaction_at: string;
+  total_appointments: number;
+  internal_notes?: string | null;
+  tags: string[];
+  is_flagged_ambiguous: boolean;
+  ambiguity_reason?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PatientNote {
+  id: string;
+  patient_id: string;
+  author_id?: string | null;
+  author_email: string;
+  content: string;
+  is_confidential: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PatientActivity {
+  id: string;
+  patient_id: string;
+  activity_type:
+    | 'patient_created'
+    | 'appointment_booked'
+    | 'appointment_confirmed'
+    | 'appointment_rescheduled'
+    | 'appointment_cancelled'
+    | 'appointment_completed'
+    | 'note_added'
+    | 'whatsapp_opt_in_updated';
+  reference_id?: string | null;
+  title: string;
+  details: Record<string, unknown>;
+  actor: string;
+  created_at: string;
+}
+
+export interface PatientWithDetails extends Patient {
+  appointments: Appointment[];
+  notes: PatientNote[];
+  activity: PatientActivity[];
 }
 
 /* ---------- Navigation ---------- */

@@ -87,7 +87,10 @@ CREATE TABLE IF NOT EXISTS public.notification_logs (
   channel TEXT NOT NULL DEFAULT 'email' CHECK (channel IN ('email', 'in_app', 'whatsapp')),
   recipient TEXT NOT NULL,
   subject TEXT,
-  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'queued', 'sent', 'failed', 'delivered')),
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN (
+    'pending', 'processing', 'queued', 'accepted', 'sent', 'delivered',
+    'bounced', 'failed', 'read', 'skipped'
+  )),
   error_message TEXT,
   retry_count INT DEFAULT 0 NOT NULL,
   booking_reference TEXT,
@@ -96,6 +99,7 @@ CREATE TABLE IF NOT EXISTS public.notification_logs (
   idempotency_key TEXT,
   template_variables JSONB NOT NULL DEFAULT '{}'::jsonb,
   attempted_at TIMESTAMPTZ,
+  delivered_at TIMESTAMPTZ,
   sent_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
@@ -104,8 +108,12 @@ CREATE INDEX IF NOT EXISTS idx_notification_logs_appointment ON public.notificat
 CREATE INDEX IF NOT EXISTS idx_notification_logs_status ON public.notification_logs(status);
 CREATE INDEX IF NOT EXISTS idx_notification_logs_type ON public.notification_logs(notification_type);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_notification_logs_idempotency_key
-  ON public.notification_logs (idempotency_key)
-  WHERE idempotency_key IS NOT NULL;
+  ON public.notification_logs (idempotency_key);
+CREATE INDEX IF NOT EXISTS idx_notification_logs_resend_msg_id
+  ON public.notification_logs (resend_message_id)
+  WHERE resend_message_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_notification_logs_appointment_attempted
+  ON public.notification_logs (appointment_id, attempted_at DESC);
 
 -- ============================================================
 -- 4. AUTOMATED REMINDER JOBS TABLE

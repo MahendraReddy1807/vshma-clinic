@@ -1,18 +1,39 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
-// Convert date string (YYYY-MM-DD) and preferred_time window to approximate IST Date
+// Convert date string (YYYY-MM-DD) and exact or preferred time to IST Date
 export function parseAppointmentISTDate(dateStr: string, timeStr?: string | null): Date {
   let hour = 10; // Default 10:00 AM IST
-  const minute = 0;
+  let minute = 0;
 
   if (timeStr) {
-    const lower = timeStr.toLowerCase();
-    if (lower.includes('morning') || lower.includes('9am')) {
-      hour = 10;
-    } else if (lower.includes('afternoon') || lower.includes('12pm')) {
-      hour = 13;
-    } else if (lower.includes('evening') || lower.includes('3pm')) {
-      hour = 16;
+    const trimmed = timeStr.trim();
+    // 1. Exact 12-hour format e.g. "9:15 AM", "10:30am", "2:20 PM"
+    const match12 = trimmed.match(/^(\d{1,2}):(\d{2})\s*(am|pm)$/i);
+    if (match12) {
+      let h = parseInt(match12[1], 10);
+      const m = parseInt(match12[2], 10);
+      const meridiem = match12[3].toLowerCase();
+      if (meridiem === 'pm' && h < 12) h += 12;
+      if (meridiem === 'am' && h === 12) h = 0;
+      hour = h;
+      minute = m;
+    } else {
+      // 2. Exact 24-hour format e.g. "14:20", "09:15"
+      const match24 = trimmed.match(/^(\d{1,2}):(\d{2})$/);
+      if (match24) {
+        hour = parseInt(match24[1], 10);
+        minute = parseInt(match24[2], 10);
+      } else {
+        // 3. Fallback to broad slot keywords if legacy broad preference
+        const lower = trimmed.toLowerCase();
+        if (lower.includes('morning') || lower.includes('9am')) {
+          hour = 10;
+        } else if (lower.includes('afternoon') || lower.includes('12pm')) {
+          hour = 13;
+        } else if (lower.includes('evening') || lower.includes('3pm')) {
+          hour = 16;
+        }
+      }
     }
   }
 

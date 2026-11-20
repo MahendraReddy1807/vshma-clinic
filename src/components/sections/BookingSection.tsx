@@ -38,6 +38,7 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
     consultation_type: initialType || (CONSULTATION_TYPES[0] as string),
     message: '',
     privacy_consent: false,
+    whatsapp_opt_in: false,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -45,6 +46,11 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
   const [bookingSuccess, setBookingSuccess] = useState<{
     reference: string;
     whatsappUrl: string;
+    fullName?: string;
+    phone?: string;
+    date?: string;
+    time?: string;
+    type?: string;
   } | null>(null);
 
   useEffect(() => {
@@ -111,7 +117,12 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
       const response = await fetch('/api/appointments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          whatsapp_opt_in: Boolean(formData.whatsapp_opt_in),
+          whatsapp_opt_in_timestamp: formData.whatsapp_opt_in ? new Date().toISOString() : null,
+          whatsapp_opt_in_source: 'web_booking_form',
+        }),
       });
 
       const data = await response.json();
@@ -123,16 +134,12 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
       setBookingSuccess({
         reference: data.booking_reference,
         whatsappUrl: data.whatsapp_url,
+        fullName: formData.full_name,
+        phone: formData.phone,
+        date: formData.appointment_date,
+        time: formData.preferred_time,
+        type: formData.consultation_type,
       });
-
-      // Attempt window open if not blocked
-      if (data.whatsapp_url) {
-        try {
-          window.open(data.whatsapp_url, '_blank', 'noopener,noreferrer');
-        } catch {
-          // Handled via prominent manual button in success view
-        }
-      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Something went wrong.';
       setErrors({ form: msg });
@@ -155,7 +162,7 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
           </h2>
 
           <p className="text-charcoal/75 text-base sm:text-lg font-light leading-relaxed font-sans">
-            Request your appointment with Dr. Chihnitha Reddy T (BHMS). Receive an instant booking reference and pre-filled WhatsApp confirmation.
+            Request your appointment with Dr. Chihnitha Reddy T (BHMS). Receive an instant booking reference. Our clinic desk is notified automatically.
           </p>
         </div>
 
@@ -175,8 +182,11 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
               </div>
 
               <div className="space-y-2">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold uppercase tracking-wider font-sans">
+                  <span>✓ Automatically Confirmed & Received</span>
+                </div>
                 <h3 className="font-display text-3xl sm:text-4xl font-normal text-forest">
-                  Booking Request Recorded
+                  Appointment Request Confirmed
                 </h3>
                 <p className="text-charcoal/75 max-w-md mx-auto text-sm sm:text-base font-light">
                   Your appointment slot request has been logged in the VSHMA clinical system.
@@ -192,29 +202,37 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
                 </span>
               </div>
 
-              <div className="bg-white/80 backdrop-blur-sm border border-sage/20 rounded-2xl p-5 max-w-md mx-auto text-left text-xs sm:text-sm text-charcoal/80 flex items-start gap-3.5 shadow-sm">
-                <WhatsAppIcon className="w-5 h-5 text-[#25D366] shrink-0 mt-0.5" />
-                <p>
-                  <strong>Final step:</strong> Click the button below to send your pre-filled confirmation message directly to Dr. Chihnitha on WhatsApp (+91 {CLINIC_INFO.phone}).
-                </p>
+              {/* Automated Next Steps Card */}
+              <div className="bg-white/90 backdrop-blur-sm border border-[#D8D0BD] rounded-2xl p-5 max-w-lg mx-auto text-left space-y-3 shadow-xs">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-forest font-sans block">
+                  Automated Next Steps:
+                </span>
+                <ul className="space-y-2 text-xs sm:text-sm text-charcoal/80 font-sans">
+                  <li className="flex items-start gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>
+                      <strong>Slot Reserved:</strong> Your preferred slot ({bookingSuccess.date || 'Requested date'} &bull; {bookingSuccess.time || 'Preferred time'}) is reserved in the clinic schedule.
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>
+                      <strong>Automatic Clinic Notification:</strong> Dr. Chihnitha&apos;s team has automatically received your details.
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>
+                      <strong>Direct Reach-Out:</strong> Our coordination desk will contact you directly via call or WhatsApp. <em>No further action is required from you.</em>
+                    </span>
+                  </li>
+                </ul>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-                <a
-                  href={bookingSuccess.whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full sm:w-auto"
-                >
-                  <Button size="lg" className="w-full bg-[#25D366] hover:bg-[#20ba5a] text-white border-none shadow-lg flex items-center justify-center gap-2">
-                    <WhatsAppIcon className="w-4 h-4 text-white" />
-                    <span>Open WhatsApp Pre-filled Chat</span>
-                    <ExternalLink className="w-3.5 h-3.5 ml-1.5 opacity-80" />
-                  </Button>
-                </a>
+              <div className="flex flex-col sm:flex-row gap-3.5 justify-center items-center pt-2">
                 <Button
-                  variant="secondary"
                   size="lg"
+                  className="w-full sm:w-auto bg-forest hover:bg-forest-light text-white shadow-md"
                   onClick={() => {
                     setBookingSuccess(null);
                     setFormData({
@@ -227,11 +245,24 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
                       consultation_type: CONSULTATION_TYPES[0] as string,
                       message: '',
                       privacy_consent: false,
+                      whatsapp_opt_in: false,
                     });
                   }}
                 >
-                  Book Another Appointment
+                  Book Another Consultation
                 </Button>
+
+                {/* Optional direct message button for patients who prefer manual chat */}
+                <a
+                  href={bookingSuccess.whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-xs font-semibold text-charcoal/70 hover:text-forest transition-colors py-2 px-3"
+                >
+                  <WhatsAppIcon className="w-4 h-4 text-[#25D366]" />
+                  <span>Message on WhatsApp (Optional)</span>
+                  <ExternalLink className="w-3 h-3 opacity-60" />
+                </a>
               </div>
             </motion.div>
           ) : (
@@ -456,12 +487,38 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
                     <Link href="/privacy" className="text-forest font-semibold underline underline-offset-2" target="_blank">
                       Privacy Policy
                     </Link>
-                    .
+                    . <span className="text-red-500">*</span>
                   </span>
                 </label>
                 {errors.privacy_consent && (
                   <p role="alert" className="text-xs text-red-500 mt-1">{errors.privacy_consent}</p>
                 )}
+              </div>
+
+              {/* Optional WhatsApp communication consent */}
+              <div className="pt-2 p-3.5 rounded-2xl bg-forest/5 border border-forest/15">
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.whatsapp_opt_in}
+                    onChange={(e) => {
+                      setFormData({ ...formData, whatsapp_opt_in: e.target.checked });
+                    }}
+                    className="mt-1 h-4 w-4 rounded border-sage text-forest focus:ring-forest cursor-pointer"
+                  />
+                  <div className="space-y-1">
+                    <span className="text-xs font-semibold text-forest flex items-center gap-1.5 font-sans">
+                      <WhatsAppIcon className="w-3.5 h-3.5 text-[#25D366]" />
+                      <span>Receive appointment updates on WhatsApp (Optional)</span>
+                    </span>
+                    <p className="text-[11px] text-charcoal/70 leading-relaxed font-sans">
+                      Receive appointment updates on WhatsApp. I agree to receive WhatsApp messages from VSHMA Homeopathy Clinic regarding my appointment, confirmation, rescheduling, cancellation and reminders. I can withdraw my consent at any time.
+                    </p>
+                  </div>
+                </label>
+                <p className="text-[10px] text-charcoal/50 mt-1 pl-7 font-sans">
+                  To withdraw consent at any time, reply STOP on WhatsApp or notify clinic reception.
+                </p>
               </div>
 
               <div className="pt-2">
@@ -472,7 +529,7 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
                   disabled={isLoading}
                   className="w-full py-4 text-base font-semibold shadow-xl hover:shadow-2xl font-sans"
                 >
-                  {isLoading ? 'Recording Reservation...' : 'Submit Booking & Open WhatsApp'}
+                  {isLoading ? 'Recording Reservation...' : 'Request Appointment Slot'}
                 </Button>
                 <div className="flex items-center justify-center gap-2 text-center text-xs text-charcoal/50 mt-3 font-light font-sans">
                   <ShieldCheck className="w-3.5 h-3.5 text-gold" />

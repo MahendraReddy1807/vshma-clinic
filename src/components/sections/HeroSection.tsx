@@ -131,7 +131,7 @@ export default function HeroSection() {
                     alt={`${CLINIC_INFO.doctor}, ${CLINIC_INFO.qualification}`}
                     fill
                     sizes="80px"
-                    className="object-cover object-top"
+                    className="object-cover object-[center_25%]"
                   />
                 </div>
                 <div className="space-y-0.5">

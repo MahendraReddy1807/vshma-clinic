@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowUpRight, MapPin, GraduationCap, Clock, Award } from 'lucide-react';
+import { ArrowUpRight, MapPin, GraduationCap } from 'lucide-react';
 import { CLINIC_INFO } from '@/lib/constants';
 import WhatsAppIcon from '@/components/ui/WhatsAppIcon';
 
@@ -30,7 +30,7 @@ export default function AboutSection() {
               <div className="absolute -inset-2.5 rounded-3xl bg-[#D8D0BD]/35 -rotate-1 pointer-events-none" />
 
               {/* Portrait Frame */}
-              <div className="relative rounded-2xl overflow-hidden bg-[#263B32] border border-[#D8D0BD] shadow-xl aspect-[3/4]">
+              <div className="relative rounded-2xl overflow-hidden bg-[#263B32] border border-[#D8D0BD] shadow-xl aspect-[4/5] sm:aspect-[3/4]">
                 <Image
                   src="/images/dr-chihnitha.jpg"
                   alt={`Dr. Chihnitha Reddy T, BHMS Homeopathy Doctor at VSHMA Clinic`}

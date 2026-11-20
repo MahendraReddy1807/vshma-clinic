@@ -93,3 +93,48 @@ export function getTodayISO(): string {
     day: '2-digit',
   }).format(new Date());
 }
+
+/** Parse and format time to 12-hour AM/PM string, e.g. "09:15" -> "9:15 AM", "14:20" -> "2:20 PM" */
+export function formatTimeTo12h(timeStr?: string | null): string {
+  if (!timeStr) return '';
+  const trimmed = timeStr.trim();
+  // Already 12-hour format e.g. "9:15 AM", "10:30 PM", "2:20 pm"
+  const match12 = trimmed.match(/^(\d{1,2}):(\d{2})\s*(am|pm)$/i);
+  if (match12) {
+    const hour = parseInt(match12[1], 10);
+    const min = match12[2];
+    const meridiem = match12[3].toUpperCase();
+    return `${hour}:${min} ${meridiem}`;
+  }
+  // 24-hour format e.g. "09:15", "14:20"
+  const match24 = trimmed.match(/^(\d{1,2}):(\d{2})$/);
+  if (match24) {
+    let hour = parseInt(match24[1], 10);
+    const min = match24[2];
+    const meridiem = hour >= 12 ? 'PM' : 'AM';
+    hour = hour % 12;
+    if (hour === 0) hour = 12;
+    return `${hour}:${min} ${meridiem}`;
+  }
+  return trimmed;
+}
+
+/** Format time to 24-hour HH:MM for HTML <input type="time"> */
+export function formatTimeTo24h(timeStr?: string | null): string {
+  if (!timeStr) return '10:30';
+  const trimmed = timeStr.trim();
+  const match24 = trimmed.match(/^(\d{1,2}):(\d{2})$/);
+  if (match24) {
+    return `${match24[1].padStart(2, '0')}:${match24[2]}`;
+  }
+  const match12 = trimmed.match(/^(\d{1,2}):(\d{2})\s*(am|pm)$/i);
+  if (match12) {
+    let hour = parseInt(match12[1], 10);
+    const min = match12[2];
+    const meridiem = match12[3].toLowerCase();
+    if (meridiem === 'pm' && hour < 12) hour += 12;
+    if (meridiem === 'am' && hour === 12) hour = 0;
+    return `${hour.toString().padStart(2, '0')}:${min}`;
+  }
+  return '10:30';
+}

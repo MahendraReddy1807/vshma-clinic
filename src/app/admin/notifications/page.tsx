@@ -14,6 +14,7 @@ import {
   Send,
   RefreshCw,
 } from 'lucide-react';
+import WhatsAppIcon from '@/components/ui/WhatsAppIcon';
 import Button from '@/components/ui/Button';
 import type { NotificationLog, AdminNotification } from '@/types';
 import { formatDate } from '@/lib/utils';
@@ -231,15 +232,15 @@ export default function AdminNotificationsPage() {
           </div>
         </div>
 
-        {/* Right Column: Transactional Email Delivery Logs */}
+        {/* Right Column: Transactional Email & WhatsApp Delivery Logs */}
         <div className="lg:col-span-2 bg-white rounded-3xl border border-gray-100 shadow-sm p-5 space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-gray-100">
             <div>
               <h2 className="font-heading text-base font-bold text-gray-900">
-                Transactional Email Audit Logs
+                Communication Audit Logs
               </h2>
               <p className="text-[11px] text-gray-400">
-                Detailed record of appointment receipts, doctor confirmations, and automated reminders
+                Detailed record of WhatsApp & Email notifications, confirmations, and reminders
               </p>
             </div>
             <span className="text-xs text-gray-500 font-mono">{logs.length} logged</span>
@@ -249,7 +250,7 @@ export default function AdminNotificationsPage() {
             <table className="w-full text-left text-xs">
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50/50 text-[10px] uppercase font-semibold text-gray-400">
-                  <th className="py-2.5 px-3">Type</th>
+                  <th className="py-2.5 px-3">Channel / Type</th>
                   <th className="py-2.5 px-3">Recipient</th>
                   <th className="py-2.5 px-3">Status</th>
                   <th className="py-2.5 px-3">Timestamp</th>
@@ -267,21 +268,58 @@ export default function AdminNotificationsPage() {
                   logs.map((log) => (
                     <tr key={log.id} className="hover:bg-gray-50/50 transition-colors">
                       <td className="py-3 px-3">
-                        <span className="font-mono text-[11px] font-semibold text-forest">
-                          {log.notification_type.replace(/_/g, ' ')}
-                        </span>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-1.5">
+                            {log.channel === 'whatsapp' ? (
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                <WhatsAppIcon className="w-3 h-3 text-[#25D366]" />
+                                <span>WhatsApp</span>
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-800 border border-blue-200">
+                                <Mail className="w-3 h-3 text-blue-600" />
+                                <span>Email</span>
+                              </span>
+                            )}
+                          </div>
+                          <span className="font-mono text-[11px] font-semibold text-forest block">
+                            {log.notification_type.replace(/_/g, ' ')}
+                          </span>
+                        </div>
                       </td>
                       <td className="py-3 px-3">
-                        <p className="font-medium text-gray-800">{log.recipient}</p>
-                        <p className="text-[10px] text-gray-400 truncate max-w-[200px]">
-                          {log.subject}
-                        </p>
+                        <p className="font-medium text-gray-800 font-mono text-[11px]">{log.recipient}</p>
+                        {log.subject && (
+                          <p className="text-[10px] text-gray-400 truncate max-w-[200px]">
+                            {log.subject}
+                          </p>
+                        )}
+                        {log.error_message && (
+                          <p className="text-[10px] text-red-500 truncate max-w-[220px]" title={log.error_message}>
+                            Err: {log.error_message}
+                          </p>
+                        )}
                       </td>
                       <td className="py-3 px-3">
-                        {log.status === 'sent' ? (
+                        {log.status === 'read' ? (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-sky-700 bg-sky-50 px-2 py-0.5 rounded-full border border-sky-200">
+                            <CheckCircle2 className="w-3 h-3 text-sky-600" />
+                            <span>Read</span>
+                          </span>
+                        ) : log.status === 'delivered' ? (
                           <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                             <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                             <span>Delivered</span>
+                          </span>
+                        ) : log.status === 'sent' ? (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200">
+                            <CheckCircle2 className="w-3 h-3 text-teal-600" />
+                            <span>Sent</span>
+                          </span>
+                        ) : log.status === 'pending' || log.status === 'queued' ? (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                            <Clock className="w-3 h-3 text-amber-600" />
+                            <span>Pending</span>
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-red-700 bg-red-50 px-2 py-0.5 rounded-full border border-red-200">
@@ -310,7 +348,7 @@ export default function AdminNotificationsPage() {
                 ) : (
                   <tr>
                     <td colSpan={5} className="py-8 text-center text-gray-400">
-                      No email delivery logs recorded yet.
+                      No communication logs recorded yet.
                     </td>
                   </tr>
                 )}

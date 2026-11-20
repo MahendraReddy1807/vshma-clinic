@@ -6,8 +6,13 @@ import Link from 'next/link';
 import {
   LayoutDashboard,
   CalendarDays,
-  BookOpen,
+  Users,
+  Inbox,
+  CheckSquare,
   Bell,
+  BarChart3,
+  BookOpen,
+  Settings,
   LogOut,
   Menu,
   X,
@@ -69,9 +74,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const navItems = [
     {
-      name: 'Overview Dashboard',
+      name: 'Overview',
       href: '/admin/dashboard',
       icon: LayoutDashboard,
+    },
+    {
+      name: 'Inbox',
+      href: '/admin/inbox',
+      icon: Inbox,
     },
     {
       name: 'Appointments',
@@ -79,14 +89,34 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       icon: CalendarDays,
     },
     {
+      name: 'Patients',
+      href: '/admin/patients',
+      icon: Users,
+    },
+    {
+      name: 'Follow-ups',
+      href: '/admin/follow-ups',
+      icon: CheckSquare,
+    },
+    {
+      name: 'Notifications',
+      href: '/admin/notifications',
+      icon: Bell,
+    },
+    {
+      name: 'Analytics',
+      href: '/admin/analytics',
+      icon: BarChart3,
+    },
+    {
       name: 'Knowledge Base',
       href: '/admin/knowledge-base',
       icon: BookOpen,
     },
     {
-      name: 'Notifications & Logs',
-      href: '/admin/notifications',
-      icon: Bell,
+      name: 'Settings',
+      href: '/admin/settings',
+      icon: Settings,
     },
   ];
 
@@ -130,20 +160,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <nav className="p-4 space-y-1.5 mt-2">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive = pathname === item.href;
+              const isActive =
+                item.href === '/admin/dashboard'
+                  ? pathname === '/admin/dashboard' || pathname === '/admin'
+                  : pathname.startsWith(item.href);
               return (
                 <Link
                   key={item.name}
                   href={item.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-colors ${
+                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-colors ${
                     isActive
                       ? 'bg-forest-light text-gold shadow-sm font-semibold'
                       : 'text-sage-light hover:bg-forest-light/50 hover:text-white'
                   }`}
                 >
-                  <Icon className="w-4 h-4 shrink-0" />
-                  <span>{item.name}</span>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Icon className="w-4 h-4 shrink-0" />
+                    <span className="truncate">{item.name}</span>
+                  </div>
                 </Link>
               );
             })}

@@ -39,6 +39,12 @@ Run the SQL migrations in order in the Supabase SQL Editor:
 3. `supabase/migrations/003_tighten_access_policies.sql`
 4. `supabase/migrations/004_signature_modules.sql`
 5. `supabase/migrations/20261120072037_vshma_resend_email_idempotency.sql`
+6. `supabase/migrations/20261120090000_vshma_whatsapp_notifications.sql`
+7. `supabase/migrations/20261120100000_vshma_crm_patients_schema.sql`
+8. `supabase/migrations/20261120110000_vshma_conversations_inbox_schema.sql`
+9. `supabase/migrations/20261120120000_vshma_crm_security_and_corrections.sql`
+10. `supabase/migrations/20261120130000_vshma_email_verification_and_whatsapp_consent.sql`
+11. `supabase/migrations/20261120140000_vshma_notification_logs_schema_fix.sql`
 
 Create an administrator in Supabase Authentication, using a strong password and email confirmation. Copy that user's UUID, then run:
 

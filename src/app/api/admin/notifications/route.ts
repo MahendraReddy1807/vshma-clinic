@@ -3,6 +3,14 @@ import { verifyAdminAuth } from '@/lib/admin-auth';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { sendTransactionalEmail } from '@/lib/email/resend';
 import { buildEmailVariables } from '@/lib/email/template-variables';
+import { formatNotificationLogDatabaseError } from '@/lib/email/database-errors';
+import {
+  notifyAdminNewBookingViaWhatsApp,
+  notifyPatientBookingAckViaWhatsApp,
+  notifyPatientAppointmentConfirmedViaWhatsApp,
+  notifyPatientAppointmentRescheduledViaWhatsApp,
+  notifyPatientAppointmentCancelledViaWhatsApp,
+} from '@/lib/whatsapp/service';
 
 export async function GET(request: Request) {
   const auth = await verifyAdminAuth(request);
@@ -18,24 +26,35 @@ export async function GET(request: Request) {
     const supabase = createServerSupabaseClient();
 
     // 1. Fetch recent in-dashboard alerts
-    const { data: notifications } = await supabase
+    const { data: notifications, error: notificationsError } = await supabase
       .from('admin_notifications')
       .select('*')
       .order('created_at', { ascending: false })
       .limit(30);
+    if (notificationsError) {
+      return NextResponse.json({ error: `Could not read admin notifications: ${notificationsError.message}` }, { status: 503 });
+    }
 
     // 2. Count unread alerts
-    const { count: unreadCount } = await supabase
+    const { count: unreadCount, error: unreadError } = await supabase
       .from('admin_notifications')
       .select('*', { count: 'exact', head: true })
       .eq('is_read', false);
+    if (unreadError) {
+      return NextResponse.json({ error: `Could not count unread notifications: ${unreadError.message}` }, { status: 503 });
+    }
 
     // 3. Fetch recent email notification logs
-    const { data: logs } = await supabase
+    const { data: logs, error: logsError } = await supabase
       .from('notification_logs')
       .select('*')
       .order('created_at', { ascending: false })
       .limit(50);
+    if (logsError) {
+      const message = formatNotificationLogDatabaseError(logsError);
+      console.error('[Admin notification logs read failed]', message);
+      return NextResponse.json({ error: message }, { status: 503 });
+    }
 
     return NextResponse.json({
       notifications: notifications || [],
@@ -113,17 +132,95 @@ export async function POST(request: Request) {
       .eq('id', log_id)
       .single();
 
-    if (error || !log) {
+    if (error) {
+      const message = formatNotificationLogDatabaseError(error);
+      console.error('[Admin notification retry lookup failed]', message);
+      return NextResponse.json({ error: message }, { status: 503 });
+    }
+    if (!log) {
       return NextResponse.json({ error: 'Notification log not found' }, { status: 404 });
     }
 
-    if (log.status !== 'failed') {
-      return NextResponse.json({ error: 'Only failed email notifications can be retried.' }, { status: 409 });
+    if (log.status !== 'failed' && log.status !== 'bounced') {
+      return NextResponse.json({ error: 'Only failed or bounced notifications can be retried.' }, { status: 409 });
     }
 
     const appt = log.appointments;
     if (!appt) {
       return NextResponse.json({ error: 'Associated appointment not found' }, { status: 404 });
+    }
+
+    // Handle WhatsApp retry
+    if (log.channel === 'whatsapp') {
+      // Admin notification retry is independent of patient consent
+      if (log.notification_type === 'admin_new_booking') {
+        const result = await notifyAdminNewBookingViaWhatsApp({
+          appointmentId: appt.id,
+          bookingReference: log.booking_reference || appt.booking_reference,
+          patientName: appt.full_name,
+          patientPhone: appt.phone,
+          appointmentDate: appt.appointment_date,
+          preferredTime: appt.preferred_time || 'Flexible',
+          consultationType: appt.consultation_type,
+        });
+        return NextResponse.json({ success: result.success, messageId: result.messageId, error: result.error });
+      }
+
+      // Patient WhatsApp retries REQUIRE patient consent
+      if (!appt.whatsapp_opt_in) {
+        return NextResponse.json({
+          error: 'Cannot retry patient WhatsApp notification: patient has not opted in to WhatsApp updates.',
+        }, { status: 400 });
+      }
+
+      let result: { success: boolean; messageId?: string; error?: string };
+      if (log.notification_type === 'booking_received') {
+        result = await notifyPatientBookingAckViaWhatsApp({
+          appointmentId: appt.id,
+          bookingReference: log.booking_reference || appt.booking_reference,
+          patientName: appt.full_name,
+          patientPhone: appt.phone,
+          appointmentDate: appt.appointment_date,
+          preferredTime: appt.preferred_time || 'Flexible',
+          consultationType: appt.consultation_type,
+          whatsappOptIn: true,
+        });
+      } else if (log.notification_type === 'appointment_confirmed') {
+        result = await notifyPatientAppointmentConfirmedViaWhatsApp({
+          appointmentId: appt.id,
+          bookingReference: log.booking_reference || appt.booking_reference,
+          patientName: appt.full_name,
+          patientPhone: appt.phone,
+          confirmedDate: appt.appointment_date,
+          confirmedTime: appt.preferred_time || '10:30 AM',
+          consultationType: appt.consultation_type,
+          whatsappOptIn: true,
+        });
+      } else if (log.notification_type === 'appointment_rescheduled') {
+        result = await notifyPatientAppointmentRescheduledViaWhatsApp({
+          appointmentId: appt.id,
+          bookingReference: log.booking_reference || appt.booking_reference,
+          patientName: appt.full_name,
+          patientPhone: appt.phone,
+          newDate: appt.rescheduled_date || appt.appointment_date,
+          newTime: appt.rescheduled_time || appt.preferred_time || '2:20 PM',
+          consultationType: appt.consultation_type,
+          whatsappOptIn: true,
+        });
+      } else if (log.notification_type === 'appointment_cancelled') {
+        result = await notifyPatientAppointmentCancelledViaWhatsApp({
+          appointmentId: appt.id,
+          bookingReference: log.booking_reference || appt.booking_reference,
+          patientName: appt.full_name,
+          patientPhone: appt.phone,
+          appointmentDate: appt.appointment_date,
+          whatsappOptIn: true,
+        });
+      } else {
+        return NextResponse.json({ error: 'This WhatsApp notification type cannot be retried.' }, { status: 400 });
+      }
+
+      return NextResponse.json({ success: result.success, messageId: result.messageId, error: result.error });
     }
 
     const allowedTypes = [
