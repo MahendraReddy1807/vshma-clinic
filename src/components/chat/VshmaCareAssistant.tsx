@@ -48,8 +48,8 @@ export default function VshmaCareAssistant() {
   const msgCounterRef = useRef(1);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Per user request, do not render Care Assistant on the landing page or admin routes
-  if (pathname === '/' || pathname?.startsWith('/admin')) {
+  // Hide on admin routes
+  if (pathname?.startsWith('/admin')) {
     return null;
   }
 
@@ -128,21 +128,13 @@ export default function VshmaCareAssistant() {
           type="button"
           onClick={() => setIsOpen(!isOpen)}
           aria-label="Open VSHMA Care Assistant"
-          className="group relative flex items-center gap-2.5 px-4 sm:px-5 py-3 rounded-full bg-forest hover:bg-forest-light text-white shadow-2xl border-2 border-gold/40 hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer"
+          className="group relative flex items-center gap-2 px-4 py-2.5 rounded-full bg-forest hover:bg-forest-light text-white shadow-2xl border border-gold/50 hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer"
         >
-          <div className="relative w-6 h-6 rounded-full overflow-hidden border border-gold/60">
-            <Image
-              src="/logo-transparent.png"
-              alt="VSHMA Emblem"
-              fill
-              sizes="24px"
-              className="object-contain"
-            />
-          </div>
-          <span className="text-xs font-semibold tracking-wide font-sans hidden sm:inline-block">
+          <Sparkles className="w-3.5 h-3.5 text-bronze shrink-0" />
+          <span className="text-xs font-semibold tracking-wide font-sans">
             Care Assistant
           </span>
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
         </button>
       </div>
 
