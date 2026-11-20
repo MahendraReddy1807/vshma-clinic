@@ -66,7 +66,7 @@ const DEFAULT_FAQS: ClinicFaq[] = [
 export async function GET(request: Request) {
   const auth = await verifyAdminAuth(request);
   if (!auth.authenticated) {
-    return NextResponse.json({ error: auth.error || 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: auth.error || 'Unauthorized' }, { status: auth.status });
   }
 
   const { searchParams } = new URL(request.url);
@@ -77,11 +77,7 @@ export async function GET(request: Request) {
     !process.env.SUPABASE_SERVICE_ROLE_KEY ||
     process.env.NEXT_PUBLIC_SUPABASE_URL === 'your_supabase_project_url'
   ) {
-    let list = DEFAULT_FAQS;
-    if (category && category !== 'all') {
-      list = list.filter((f) => f.category === category);
-    }
-    return NextResponse.json({ faqs: list });
+    return NextResponse.json({ error: 'Knowledge base service is not configured.' }, { status: 503 });
   }
 
   try {
@@ -116,7 +112,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const auth = await verifyAdminAuth(request);
   if (!auth.authenticated) {
-    return NextResponse.json({ error: auth.error || 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: auth.error || 'Unauthorized' }, { status: auth.status });
   }
 
   try {
@@ -132,18 +128,7 @@ export async function POST(request: Request) {
       !process.env.SUPABASE_SERVICE_ROLE_KEY ||
       process.env.NEXT_PUBLIC_SUPABASE_URL === 'your_supabase_project_url'
     ) {
-      const newFaq: ClinicFaq = {
-        id: `mock-${Date.now()}`,
-        category,
-        question: question.trim(),
-        answer: answer.trim(),
-        is_active: is_active ?? true,
-        is_doctor_approved: is_doctor_approved ?? true,
-        last_reviewed_at: new Date().toISOString(),
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-      return NextResponse.json({ success: true, faq: newFaq });
+      return NextResponse.json({ error: 'Knowledge base service is not configured.' }, { status: 503 });
     }
 
     const supabase = createServerSupabaseClient();
@@ -176,7 +161,7 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   const auth = await verifyAdminAuth(request);
   if (!auth.authenticated) {
-    return NextResponse.json({ error: auth.error || 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: auth.error || 'Unauthorized' }, { status: auth.status });
   }
 
   try {
@@ -192,7 +177,7 @@ export async function PUT(request: Request) {
       !process.env.SUPABASE_SERVICE_ROLE_KEY ||
       process.env.NEXT_PUBLIC_SUPABASE_URL === 'your_supabase_project_url'
     ) {
-      return NextResponse.json({ success: true, id });
+      return NextResponse.json({ error: 'Knowledge base service is not configured.' }, { status: 503 });
     }
 
     const supabase = createServerSupabaseClient();
@@ -233,7 +218,7 @@ export async function PUT(request: Request) {
 export async function DELETE(request: Request) {
   const auth = await verifyAdminAuth(request);
   if (!auth.authenticated) {
-    return NextResponse.json({ error: auth.error || 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: auth.error || 'Unauthorized' }, { status: auth.status });
   }
 
   const { searchParams } = new URL(request.url);
@@ -248,7 +233,7 @@ export async function DELETE(request: Request) {
     !process.env.SUPABASE_SERVICE_ROLE_KEY ||
     process.env.NEXT_PUBLIC_SUPABASE_URL === 'your_supabase_project_url'
   ) {
-    return NextResponse.json({ success: true, id });
+    return NextResponse.json({ error: 'Knowledge base service is not configured.' }, { status: 503 });
   }
 
   try {

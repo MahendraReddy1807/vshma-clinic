@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Search,
   Download,
@@ -29,6 +30,7 @@ import type { Appointment, AppointmentStatus } from '@/types';
 import { formatDate, generatePatientWhatsAppUrl } from '@/lib/utils';
 
 export default function AdminAppointmentsPage() {
+  const router = useRouter();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
@@ -81,88 +83,24 @@ export default function AdminAppointmentsPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      if (res.status === 401 || res.status === 403) {
+        localStorage.removeItem('vshma_admin_session');
+        localStorage.removeItem('vshma_admin_email');
+        router.push('/admin/login');
+        return;
+      }
+
       if (res.ok) {
         const data = await res.json();
         setAppointments(data.appointments || []);
         setTotal(data.total || 0);
         setTotalPages(data.totalPages || 1);
       } else {
-        const demoRecords: Appointment[] = [
-          {
-            id: 'demo-1',
-            booking_reference: 'VSHMA-892144',
-            full_name: 'Priya Sharma',
-            phone: '9845123456',
-            email: 'priya.sharma@example.com',
-            age: 32,
-            appointment_date: new Date().toISOString().split('T')[0],
-            preferred_time: 'Morning (9 AM – 12 PM)',
-            consultation_type: 'General Consultation',
-            message: 'First time consultation for recurrent migraine and sleep issues.',
-            status: 'pending',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          },
-          {
-            id: 'demo-2',
-            booking_reference: 'VSHMA-739102',
-            full_name: 'Rajesh K',
-            phone: '9741001234',
-            email: 'rajesh.k@example.com',
-            age: 45,
-            appointment_date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
-            preferred_time: 'Afternoon (12 PM – 3 PM)',
-            consultation_type: 'Ongoing Consultations',
-            message: 'Follow-up for ongoing digestive wellness plan.',
-            status: 'confirmed',
-            confirmed_at: new Date().toISOString(),
-            created_at: new Date(Date.now() - 86400000).toISOString(),
-            updated_at: new Date().toISOString(),
-          },
-          {
-            id: 'demo-3',
-            booking_reference: 'VSHMA-612984',
-            full_name: 'Sneha Patel',
-            phone: '9988776655',
-            email: 'sneha.patel@example.com',
-            age: 28,
-            appointment_date: new Date(Date.now() + 172800000).toISOString().split('T')[0],
-            preferred_time: 'Evening (3 PM – 6 PM)',
-            consultation_type: 'Pediatric Homeopathy',
-            message: 'Consultation for 5-year-old child with recurrent seasonal colds.',
-            status: 'rescheduled',
-            rescheduled_date: new Date(Date.now() + 259200000).toISOString().split('T')[0],
-            rescheduled_time: 'Morning (9 AM – 12 PM)',
-            created_at: new Date(Date.now() - 172800000).toISOString(),
-            updated_at: new Date().toISOString(),
-          },
-          {
-            id: 'demo-4',
-            booking_reference: 'VSHMA-551029',
-            full_name: 'Ananya Rao',
-            phone: '9123456789',
-            email: 'ananya.rao@example.com',
-            age: 38,
-            appointment_date: new Date(Date.now() - 259200000).toISOString().split('T')[0],
-            preferred_time: 'Morning (9 AM – 12 PM)',
-            consultation_type: "Women's Health",
-            message: 'Review completed with positive vitality.',
-            status: 'completed',
-            created_at: new Date(Date.now() - 345600000).toISOString(),
-            updated_at: new Date().toISOString(),
-          },
-        ];
-
-        let filtered = demoRecords;
-        if (search) {
-          filtered = filtered.filter(a => a.full_name.toLowerCase().includes(search.toLowerCase()) || a.phone.includes(search) || a.booking_reference.toLowerCase().includes(search.toLowerCase()));
-        }
-        if (statusFilter !== 'all') {
-          filtered = filtered.filter(a => a.status === statusFilter);
-        }
-        setAppointments(filtered);
-        setTotal(filtered.length);
+        const errData = await res.json().catch(() => ({}));
+        setAppointments([]);
+        setTotal(0);
         setTotalPages(1);
+        setFetchError(errData.error || 'Failed to fetch appointments.');
       }
     } catch (err) {
       console.error('Failed to load appointments:', err);

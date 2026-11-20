@@ -7,7 +7,7 @@ import { buildEmailVariables } from '@/lib/email/template-variables';
 export async function GET(request: Request) {
   const auth = await verifyAdminAuth(request);
   if (!auth.authenticated) {
-    return NextResponse.json({ error: auth.error || 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: auth.error || 'Unauthorized' }, { status: auth.status });
   }
 
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_URL === 'your_supabase_project_url') {
@@ -52,7 +52,7 @@ export async function GET(request: Request) {
 export async function PATCH(request: Request) {
   const auth = await verifyAdminAuth(request);
   if (!auth.authenticated) {
-    return NextResponse.json({ error: auth.error || 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: auth.error || 'Unauthorized' }, { status: auth.status });
   }
 
   try {
@@ -95,7 +95,7 @@ export async function PATCH(request: Request) {
 export async function POST(request: Request) {
   const auth = await verifyAdminAuth(request);
   if (!auth.authenticated) {
-    return NextResponse.json({ error: auth.error || 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: auth.error || 'Unauthorized' }, { status: auth.status });
   }
 
   try {

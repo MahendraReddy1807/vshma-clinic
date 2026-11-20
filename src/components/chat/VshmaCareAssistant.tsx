@@ -48,11 +48,6 @@ export default function VshmaCareAssistant() {
   const msgCounterRef = useRef(1);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Hide on admin routes
-  if (pathname?.startsWith('/admin')) {
-    return null;
-  }
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -62,6 +57,11 @@ export default function VshmaCareAssistant() {
       scrollToBottom();
     }
   }, [messages, isOpen]);
+
+  // Hide on admin routes (placed after all hooks to respect Rules of Hooks)
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
 
   const handleSend = async (messageText?: string) => {
     const textToSend = messageText || input;
@@ -122,19 +122,33 @@ export default function VshmaCareAssistant() {
 
   return (
     <>
-      {/* Floating Trigger Button */}
-      <div className="fixed bottom-24 right-5 sm:right-8 z-40">
+      {/* Floating Trigger Button: Perfectly aligned above WhatsApp button */}
+      <div className="fixed bottom-24 right-6 z-40">
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
           aria-label="Open VSHMA Care Assistant"
-          className="group relative flex items-center gap-2 px-4 py-2.5 rounded-full bg-forest hover:bg-forest-light text-white shadow-2xl border border-gold/50 hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer"
+          className="group relative flex items-center justify-center w-14 h-14 rounded-full bg-forest hover:bg-forest-light text-white shadow-2xl border-2 border-gold/40 hover:scale-108 active:scale-95 transition-all duration-300 cursor-pointer"
         >
-          <Sparkles className="w-3.5 h-3.5 text-bronze shrink-0" />
-          <span className="text-xs font-semibold tracking-wide font-sans">
+          {/* Logo Symbol inside */}
+          <div className="relative w-8 h-8 rounded-full overflow-hidden flex items-center justify-center">
+            <Image
+              src="/logo-transparent.png"
+              alt="VSHMA Emblem"
+              fill
+              sizes="32px"
+              className="object-contain"
+            />
+          </div>
+
+          {/* Active online pulse indicator dot */}
+          <span className="absolute top-1 right-1 w-3 h-3 rounded-full bg-emerald-400 border-2 border-forest" />
+          <span className="absolute top-1 right-1 w-3 h-3 rounded-full bg-emerald-400 animate-ping opacity-60" />
+
+          {/* Luxury Left Tooltip */}
+          <span className="absolute right-full mr-3 bg-white text-forest text-xs font-semibold px-3 py-1.5 rounded-xl shadow-lg border border-sage/20 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
             Care Assistant
           </span>
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
         </button>
       </div>
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   CalendarDays,
@@ -18,6 +19,7 @@ import type { DashboardStats, Appointment } from '@/types';
 import { formatDateShort } from '@/lib/utils';
 
 export default function AdminDashboardPage() {
+  const router = useRouter();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentAppointments, setRecentAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -25,7 +27,10 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     async function loadData() {
       const token = localStorage.getItem('vshma_admin_session');
-      if (!token) return;
+      if (!token) {
+        router.push('/admin/login');
+        return;
+      }
 
       try {
         const [statsRes, apptRes] = await Promise.all([
@@ -37,17 +42,24 @@ export default function AdminDashboardPage() {
           }),
         ]);
 
+        if (statsRes.status === 401 || statsRes.status === 403 || apptRes.status === 401 || apptRes.status === 403) {
+          localStorage.removeItem('vshma_admin_session');
+          localStorage.removeItem('vshma_admin_email');
+          router.push('/admin/login');
+          return;
+        }
+
         if (statsRes.ok) {
           const statsData = await statsRes.json();
           setStats(statsData);
         } else {
           setStats({
-            total: 18,
-            pending: 4,
-            confirmed: 10,
-            rescheduled: 1,
-            completed: 2,
-            cancelled: 1,
+            total: 0,
+            pending: 0,
+            confirmed: 0,
+            rescheduled: 0,
+            completed: 0,
+            cancelled: 0,
           });
         }
 
@@ -55,47 +67,7 @@ export default function AdminDashboardPage() {
           const apptData = await apptRes.json();
           setRecentAppointments(apptData.appointments || []);
         } else {
-          setRecentAppointments([
-            {
-              id: 'demo-1',
-              booking_reference: 'VSHMA-892144',
-              full_name: 'Priya Sharma',
-              phone: '9845123456',
-              appointment_date: new Date().toISOString().split('T')[0],
-              preferred_time: 'Morning (9 AM – 12 PM)',
-              consultation_type: 'General Consultation',
-              message: 'General wellness check',
-              status: 'pending',
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-            },
-            {
-              id: 'demo-2',
-              booking_reference: 'VSHMA-739102',
-              full_name: 'Rajesh K',
-              phone: '9741001234',
-              appointment_date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
-              preferred_time: 'Afternoon (12 PM – 3 PM)',
-              consultation_type: 'Ongoing Consultations',
-              message: 'Follow-up review',
-              status: 'confirmed',
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-            },
-            {
-              id: 'demo-3',
-              booking_reference: 'VSHMA-612984',
-              full_name: 'Sneha Patel',
-              phone: '9988776655',
-              appointment_date: new Date(Date.now() + 172800000).toISOString().split('T')[0],
-              preferred_time: 'Evening (3 PM – 6 PM)',
-              consultation_type: 'Pediatric Homeopathy',
-              message: 'Child consultation',
-              status: 'confirmed',
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-            },
-          ]);
+          setRecentAppointments([]);
         }
       } catch (err) {
         console.error('Error fetching dashboard records:', err);
@@ -105,7 +77,7 @@ export default function AdminDashboardPage() {
     }
 
     loadData();
-  }, []);
+  }, [router]);
 
   const statCards = [
     {

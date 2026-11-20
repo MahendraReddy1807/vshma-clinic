@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Bell,
   Mail,
@@ -18,6 +19,7 @@ import type { NotificationLog, AdminNotification } from '@/types';
 import { formatDate } from '@/lib/utils';
 
 export default function AdminNotificationsPage() {
+  const router = useRouter();
   const [notifications, setNotifications] = useState<AdminNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [logs, setLogs] = useState<NotificationLog[]>([]);
@@ -37,6 +39,13 @@ export default function AdminNotificationsPage() {
       const res = await fetch('/api/admin/notifications', {
         headers: { Authorization: `Bearer ${token}` },
       });
+
+      if (res.status === 401 || res.status === 403) {
+        localStorage.removeItem('vshma_admin_session');
+        localStorage.removeItem('vshma_admin_email');
+        router.push('/admin/login');
+        return;
+      }
 
       if (res.ok) {
         const data = await res.json();

@@ -13,7 +13,7 @@ import type { AppointmentStatus } from '@/types';
 export async function GET(request: Request) {
   const auth = await verifyAdminAuth(request);
   if (!auth.authenticated) {
-    return NextResponse.json({ error: auth.error || 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: auth.error || 'Unauthorized' }, { status: auth.status });
   }
 
   const { searchParams } = new URL(request.url);
@@ -33,79 +33,7 @@ export async function GET(request: Request) {
     !process.env.SUPABASE_SERVICE_ROLE_KEY ||
     process.env.NEXT_PUBLIC_SUPABASE_URL === 'your_supabase_project_url'
   ) {
-    const demoAppointments = [
-      {
-        id: 'demo-1',
-        booking_reference: 'VSHMA-892144',
-        full_name: 'Priya Sharma',
-        phone: '9845123456',
-        appointment_date: new Date().toISOString().split('T')[0],
-        preferred_time: 'Morning (9 AM – 12 PM)',
-        consultation_type: 'General Consultation',
-        message: 'First time consultation for recurrent migraine and sleep issues.',
-        status: 'pending' as AppointmentStatus,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      },
-      {
-        id: 'demo-2',
-        booking_reference: 'VSHMA-739102',
-        full_name: 'Rajesh K',
-        phone: '9741001234',
-        appointment_date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
-        preferred_time: 'Afternoon (12 PM – 3 PM)',
-        consultation_type: 'Ongoing Consultations',
-        message: 'Follow-up for ongoing digestive wellness plan.',
-        status: 'confirmed' as AppointmentStatus,
-        created_at: new Date(Date.now() - 86400000).toISOString(),
-        updated_at: new Date().toISOString(),
-      },
-      {
-        id: 'demo-3',
-        booking_reference: 'VSHMA-612984',
-        full_name: 'Sneha Patel',
-        phone: '9988776655',
-        appointment_date: new Date(Date.now() + 172800000).toISOString().split('T')[0],
-        preferred_time: 'Evening (3 PM – 6 PM)',
-        consultation_type: 'Pediatric Homeopathy',
-        message: 'Consultation for 5-year-old child with recurrent seasonal colds.',
-        status: 'confirmed' as AppointmentStatus,
-        created_at: new Date(Date.now() - 172800000).toISOString(),
-        updated_at: new Date().toISOString(),
-      },
-      {
-        id: 'demo-4',
-        booking_reference: 'VSHMA-551029',
-        full_name: 'Ananya Rao',
-        phone: '9123456789',
-        appointment_date: new Date(Date.now() - 259200000).toISOString().split('T')[0],
-        preferred_time: 'Morning (9 AM – 12 PM)',
-        consultation_type: "Women's Health",
-        message: 'Review completed with positive vitality.',
-        status: 'completed' as AppointmentStatus,
-        created_at: new Date(Date.now() - 345600000).toISOString(),
-        updated_at: new Date().toISOString(),
-      },
-    ];
-
-    let filtered = demoAppointments;
-    if (status && status !== 'all') {
-      filtered = filtered.filter((a) => a.status === status);
-    }
-    if (search) {
-      filtered = filtered.filter(
-        (a) =>
-          a.full_name.toLowerCase().includes(search.toLowerCase()) ||
-          a.phone.includes(search) ||
-          a.booking_reference.toLowerCase().includes(search.toLowerCase())
-      );
-    }
-    return NextResponse.json({
-      appointments: filtered,
-      total: filtered.length,
-      page: 1,
-      totalPages: 1,
-    });
+    return NextResponse.json({ error: 'Appointment service is not configured.' }, { status: 503 });
   }
 
   try {
@@ -156,7 +84,7 @@ export async function GET(request: Request) {
 export async function PATCH(request: Request) {
   const auth = await verifyAdminAuth(request);
   if (!auth.authenticated) {
-    return NextResponse.json({ error: auth.error || 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: auth.error || 'Unauthorized' }, { status: auth.status });
   }
 
   try {

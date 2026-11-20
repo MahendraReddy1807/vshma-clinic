@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Search,
   Plus,
@@ -31,6 +32,7 @@ const CATEGORIES: { value: KnowledgeCategory | 'all'; label: string }[] = [
 ];
 
 export default function AdminKnowledgeBasePage() {
+  const router = useRouter();
   const [faqs, setFaqs] = useState<ClinicFaq[]>([]);
   const [loading, setLoading] = useState(true);
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
@@ -61,6 +63,13 @@ export default function AdminKnowledgeBasePage() {
       const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
+      if (res.status === 401 || res.status === 403) {
+        localStorage.removeItem('vshma_admin_session');
+        localStorage.removeItem('vshma_admin_email');
+        router.push('/admin/login');
+        return;
+      }
 
       if (res.ok) {
         const data = await res.json();
