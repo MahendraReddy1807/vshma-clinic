@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -39,12 +40,18 @@ const SUGGESTED_QUESTIONS = [
 ];
 
 export default function VshmaCareAssistant() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([INITIAL_MESSAGE]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const msgCounterRef = useRef(1);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Per user request, do not render Care Assistant on the landing page or admin routes
+  if (pathname === '/' || pathname?.startsWith('/admin')) {
+    return null;
+  }
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

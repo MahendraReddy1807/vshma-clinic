@@ -189,7 +189,7 @@ export default function ConsultationOptionsSection() {
     <section
       id="consultations"
       ref={containerRef}
-      className="relative scroll-mt-28 lg:h-[450vh] bg-[#F7F4EC] text-charcoal border-b border-[#D8D0BD]/40 select-none overflow-clip"
+      className="relative scroll-mt-28 lg:h-[450vh] bg-[#F7F4EC] text-charcoal select-none overflow-clip"
       aria-label="Clinical Consultation Options"
     >
       {/* Anchor for treatments URL */}
@@ -231,7 +231,7 @@ export default function ConsultationOptionsSection() {
         />
 
         {/* ───────────── TOP HEADER & PROGRESS INDICATOR ───────────── */}
-        <header className="relative z-20 flex items-end justify-between border-b border-[#D8D0BD]/50 pb-4 shrink-0 px-8 lg:px-14">
+        <header className="relative z-20 flex items-end justify-between pb-4 shrink-0 px-8 lg:px-14">
           <div className="space-y-1.5 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-forest/10 text-forest text-[11px] font-semibold tracking-widest uppercase font-sans">
               <span className="w-1.5 h-1.5 rounded-full bg-bronze animate-pulse" />
@@ -242,7 +242,7 @@ export default function ConsultationOptionsSection() {
             </h2>
           </div>
 
-          {/* Live Progress Counter & Glide Bar */}
+          {/* Live Progress Counter */}
           <div className="flex flex-col items-end gap-2 shrink-0 pl-6">
             <div className="flex items-center gap-3">
               <span className="text-[11px] font-sans text-charcoal/60 uppercase tracking-widest hidden xl:inline">
@@ -254,16 +254,6 @@ export default function ConsultationOptionsSection() {
                 </span>
                 <span className="text-charcoal/40 font-sans text-[11px]">/ 06</span>
               </div>
-            </div>
-
-            {/* Continuous Horizontal Progress Track */}
-            <div className="w-48 xl:w-56 h-1 bg-[#D8D0BD]/50 rounded-full overflow-hidden">
-              <motion.div
-                className="h-full bg-gradient-to-r from-forest via-bronze to-forest rounded-full"
-                style={{
-                  width: `${((activeStep + 1) / CONSULTATIONS_DATA.length) * 100}%`,
-                }}
-              />
             </div>
           </div>
         </header>
@@ -316,14 +306,6 @@ export default function ConsultationOptionsSection() {
                       : 'bg-white/85 backdrop-blur-md border-[#D8D0BD]/75 shadow-[0_8px_24px_-8px_rgba(41,43,39,0.06)] hover:border-bronze/60 hover:shadow-[0_22px_50px_-10px_rgba(24,61,50,0.14)] scale-[0.96] opacity-65 hover:opacity-100 z-10'
                   }`}
                 >
-                  {/* Luxury Gold Hairline Accent Bar on Active Card */}
-                  {isActive && (
-                    <motion.div
-                      layoutId="cardActiveGlow"
-                      className="absolute top-0 left-6 right-6 h-[2.5px] bg-gradient-to-r from-transparent via-[#B9A477] to-transparent rounded-full"
-                    />
-                  )}
-
                   {/* Soft Background Hover Gradient */}
                   <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-white/60 via-transparent to-sage/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
@@ -412,7 +394,7 @@ export default function ConsultationOptionsSection() {
         </main>
 
         {/* ───────────── BOTTOM CONTROL BAR ───────────── */}
-        <footer className="relative z-20 flex items-center justify-between border-t border-[#D8D0BD]/50 pt-3 shrink-0 px-8 lg:px-14">
+        <footer className="relative z-20 flex items-center justify-between pt-3 shrink-0 px-8 lg:px-14">
           <div className="flex items-center gap-1.5">
             {CONSULTATIONS_DATA.map((c, i) => (
               <button
