@@ -10,8 +10,8 @@
   }
 
   body {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    color: #1a1a1a;
+    font-family: 'Manrope', 'Inter', system-ui, -apple-system, sans-serif;
+    color: #202622;
     background-color: #FAF9F4;
     overflow-x: hidden;
   }
@@ -25,6 +25,10 @@
     font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
     letter-spacing: -0.02em;
   }
+}
+
+.font-display {
+  font-family: 'Cormorant Garamond', Georgia, serif;
 }
 
 /* Glassmorphism utility */

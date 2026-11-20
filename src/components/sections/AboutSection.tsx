@@ -3,87 +3,142 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight, MapPin, GraduationCap, MessageCircle } from 'lucide-react';
-import SectionHeading from '@/components/ui/SectionHeading';
-import Button from '@/components/ui/Button';
+import { ArrowUpRight, MapPin, GraduationCap, Award } from 'lucide-react';
 import { CLINIC_INFO } from '@/lib/constants';
+import WhatsAppIcon from '@/components/ui/WhatsAppIcon';
 
 export default function AboutSection() {
   return (
-    <section id="about" className="relative scroll-mt-28 overflow-hidden bg-[#FAF9F4] py-20 sm:py-24 lg:py-28">
-      <div aria-hidden="true" className="pointer-events-none absolute -right-48 top-20 h-[34rem] w-[34rem] rounded-full bg-[radial-gradient(circle,rgba(139,168,149,.2),transparent_68%)]" />
-
-      <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8">
-        <SectionHeading
-          align="left"
-          className="mb-10 max-w-3xl sm:mb-14"
-          title="A little more about your doctor"
-          subtitle="Meet Dr. Chihnitha Reddy T and learn how to connect with VSHMA in Bengaluru."
-        />
-
-        <div className="grid items-center gap-10 lg:grid-cols-[.82fr_1.18fr] lg:gap-20">
+    <section
+      id="about"
+      className="relative scroll-mt-24 overflow-hidden bg-white py-24 sm:py-32 border-b border-sage/20"
+      aria-label="Doctor Profile and Story"
+    >
+      <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+          {/* Left Column: Large Editorial Portrait Frame */}
           <motion.div
-            initial={{ opacity: 0, y: 22 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: .2 }}
-            transition={{ duration: .65, ease: [0.2, 0.8, 0.2, 1] }}
-            className="mx-auto w-full max-w-[380px] lg:mx-0"
+            initial={{ opacity: 0, scale: 0.96 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
+            className="lg:col-span-5 relative"
           >
-            <div className="group relative rounded-[2rem] bg-white p-2.5 shadow-[0_28px_80px_-42px_rgba(24,61,50,.5)] ring-1 ring-forest/5">
-              <div className="relative aspect-[4/5] overflow-hidden rounded-[1.55rem] bg-[#e8eee8]">
+            <div className="relative mx-auto max-w-md lg:max-w-none">
+              {/* Subtle decorative offset shadow border */}
+              <div className="absolute -inset-2 rounded-[2.5rem] bg-gradient-to-tr from-gold/30 to-sage/20 blur-md transform -rotate-1" />
+
+              {/* Portrait Container */}
+              <div className="relative rounded-[2.25rem] overflow-hidden bg-forest-dark border-2 border-white shadow-2xl aspect-[3/4]">
                 <Image
                   src="/images/dr-chihnitha.jpg"
-                  alt={`Portrait of ${CLINIC_INFO.doctor}`}
+                  alt={`Dr. Chihnitha Reddy T, BHMS Homeopathy Doctor at VSHMA Clinic`}
                   fill
-                  sizes="(max-width: 1024px) 90vw, 380px"
-                  className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.025]"
+                  sizes="(max-width: 1024px) 90vw, 450px"
+                  className="object-cover object-top hover:scale-[1.02] transition-transform duration-700 ease-out"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#102a23]/75 via-transparent to-transparent" />
-                <div className="absolute inset-x-5 bottom-5 rounded-2xl border border-white/55 bg-white/85 p-4 shadow-lg backdrop-blur-xl sm:inset-x-6 sm:bottom-6">
-                  <p className="font-heading text-lg font-semibold text-forest sm:text-xl">{CLINIC_INFO.doctor}</p>
-                  <div className="mt-1.5 flex items-center justify-between gap-3">
-                    <span className="text-[11px] font-semibold uppercase tracking-[.16em] text-[#927d50]">{CLINIC_INFO.qualification}</span>
-                    <span className="inline-flex items-center gap-1.5 text-xs text-forest/65"><MapPin className="h-3.5 w-3.5" />{CLINIC_INFO.city}</span>
-                  </div>
+
+                {/* Bottom glass identity ribbon */}
+                <div className="absolute inset-x-4 bottom-4 p-4 rounded-2xl bg-forest-dark/85 backdrop-blur-md border border-white/15 text-white shadow-xl">
+                  <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold block">
+                    Lead Practitioner
+                  </span>
+                  <p className="font-heading font-semibold text-lg sm:text-xl text-ivory">
+                    {CLINIC_INFO.doctor}
+                  </p>
+                  <p className="text-xs text-sage-light font-medium mt-0.5">
+                    {CLINIC_INFO.qualification} &bull; Homeopathic Medicine
+                  </p>
                 </div>
               </div>
             </div>
           </motion.div>
 
+          {/* Right Column: Editorial Biography & Credentials */}
           <motion.div
-            initial={{ opacity: 0, y: 22 }}
+            initial={{ opacity: 0, y: 28 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: .2 }}
-            transition={{ duration: .65, delay: .08, ease: [0.2, 0.8, 0.2, 1] }}
-            className="lg:py-4"
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.85, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+            className="lg:col-span-7 space-y-6 sm:space-y-8"
           >
-            <p className="text-[11px] font-semibold uppercase tracking-[.24em] text-[#927d50]">VSHMA · Bengaluru</p>
-            <h3 className="mt-4 max-w-2xl font-heading text-3xl font-medium leading-[1.12] tracking-[-.035em] text-forest sm:text-4xl lg:text-[3.25rem]">
-              Natural care, with personal attention.
-            </h3>
-            <p className="mt-6 max-w-2xl text-base leading-8 text-[#53635a] sm:text-lg">
-              {CLINIC_INFO.fullName} is led by {CLINIC_INFO.doctor} ({CLINIC_INFO.qualification}) in {CLINIC_INFO.location}. Contact the clinic to ask about appointment availability and consultation arrangements.
-            </p>
+            <div className="space-y-3">
+              <span className="text-xs font-semibold uppercase tracking-[0.22em] text-gold block font-sans">
+                Doctor Profile &bull; Bengaluru
+              </span>
+              <h2 className="font-display font-light text-4xl sm:text-5xl lg:text-6xl text-forest leading-[1.08] tracking-tight">
+                Compassionate clinical care, rooted in personal dialogue.
+              </h2>
+            </div>
 
-            <div className="mt-8 grid gap-3 sm:grid-cols-2">
-              <div className="flex min-h-[88px] items-center gap-4 rounded-2xl border border-forest/10 bg-white/80 px-5 py-4 shadow-[0_8px_28px_-22px_rgba(24,61,50,.4)]">
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#e9f1eb] text-forest"><GraduationCap className="h-5 w-5" /></span>
-                <span><span className="block text-[10px] font-semibold uppercase tracking-[.16em] text-[#927d50]">Qualification</span><span className="mt-1 block text-sm font-medium text-forest">{CLINIC_INFO.qualification}</span></span>
+            <div className="space-y-4 text-charcoal/80 text-base sm:text-lg leading-relaxed font-sans font-light">
+              <p>
+                Dr. Chihnitha Reddy T is a dedicated Homeopathy Practitioner holding a{' '}
+                <strong className="font-semibold text-forest">
+                  Bachelor of Homeopathic Medicine and Surgery (BHMS)
+                </strong>
+                . She founded VSHMA Homeopathy Clinic to create an unhurried, welcoming clinical environment for patients seeking natural and personalized healthcare.
+              </p>
+              <p>
+                Her practice emphasizes thorough case evaluations—taking the time to understand each patient&apos;s lifestyle, stress factors, emotional disposition, and constitutional characteristics before recommending individualized homeopathic care plans.
+              </p>
+            </div>
+
+            {/* Verified Credential Badges */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+              <div className="p-4 rounded-2xl bg-ivory border border-sage/25 flex items-start gap-3.5 shadow-sm">
+                <div className="w-10 h-10 rounded-xl bg-forest/10 flex items-center justify-center shrink-0 text-forest">
+                  <GraduationCap className="w-5 h-5 text-forest" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-gold block">
+                    Degree &amp; Training
+                  </span>
+                  <p className="font-heading font-semibold text-forest text-sm sm:text-base">
+                    BHMS
+                  </p>
+                  <p className="text-[11px] text-charcoal/65">
+                    Bachelor of Homeopathic Medicine &amp; Surgery
+                  </p>
+                </div>
               </div>
-              <div className="flex min-h-[88px] items-center gap-4 rounded-2xl border border-forest/10 bg-white/80 px-5 py-4 shadow-[0_8px_28px_-22px_rgba(24,61,50,.4)]">
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#e9f1eb] text-forest"><MapPin className="h-5 w-5" /></span>
-                <span><span className="block text-[10px] font-semibold uppercase tracking-[.16em] text-[#927d50]">Location</span><span className="mt-1 block text-sm font-medium text-forest">{CLINIC_INFO.location}</span></span>
+
+              <div className="p-4 rounded-2xl bg-ivory border border-sage/25 flex items-start gap-3.5 shadow-sm">
+                <div className="w-10 h-10 rounded-xl bg-forest/10 flex items-center justify-center shrink-0 text-forest">
+                  <MapPin className="w-5 h-5 text-forest" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-gold block">
+                    Clinical Location
+                  </span>
+                  <p className="font-heading font-semibold text-forest text-sm sm:text-base">
+                    {CLINIC_INFO.city}
+                  </p>
+                  <p className="text-[11px] text-charcoal/65">
+                    Karnataka, India &bull; Prior Appointment
+                  </p>
+                </div>
               </div>
             </div>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <Link href="/book">
-                <Button size="lg" className="group min-h-12 rounded-full px-6 shadow-lg">
-                  Book a consultation <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Button>
+            {/* Action Buttons (Fixed nested interactive element issue) */}
+            <div className="pt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+              <Link
+                href="/book"
+                className="group inline-flex items-center justify-center px-7 py-3.5 rounded-full bg-forest hover:bg-forest-light text-white font-sans font-semibold text-sm tracking-wide transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
+              >
+                <span>Book Consultation</span>
+                <ArrowUpRight className="w-4 h-4 ml-2 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </Link>
-              <a href={CLINIC_INFO.whatsappUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-5 text-sm font-medium text-forest transition-colors hover:bg-mint/70">
-                <MessageCircle className="h-4 w-4 text-[#238c57]" /> Ask on WhatsApp
+
+              <a
+                href={CLINIC_INFO.whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200/80 font-sans font-medium text-sm transition-all duration-300"
+              >
+                <WhatsAppIcon className="w-4 h-4 text-[#25D366]" />
+                <span>Message on WhatsApp</span>
               </a>
             </div>
           </motion.div>

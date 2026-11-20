@@ -27,15 +27,15 @@ export const CLINIC_INFO = {
   whatsappNumber: '917416001477',
   whatsappUrl: 'https://wa.me/917416001477',
   /* Editable: replace with actual email */
-  email: '',
+  email: 'care@vshma.in',
 } as const;
 
 /* ───────────── Navigation ───────────── */
 export const NAV_LINKS: NavLink[] = [
   { label: 'Home', href: '/' },
   { label: 'About Doctor', href: '/about' },
-  { label: 'Treatments', href: '/treatments' },
-  { label: 'Why VSHMA', href: '/#why-vshma' },
+  { label: 'Our Approach', href: '/#our-approach' },
+  { label: 'Consultations', href: '/treatments' },
   { label: 'Contact', href: '/contact' },
 ];
 

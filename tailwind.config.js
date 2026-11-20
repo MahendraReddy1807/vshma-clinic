@@ -10,12 +10,19 @@ module.exports = {
       colors: {
         forest: {
           DEFAULT: "#183D32",
-          light: "#235445",
-          dark: "#112B23",
+          light: "#254D3D",
+          dark: "#10271F",
+          deep: "#091712",
+        },
+        emerald: {
+          DEFAULT: "#254D3D",
+          dark: "#1C3E31",
+          light: "#356B55",
         },
         sage: {
           DEFAULT: "#8BA895",
-          light: "#AEC5B6",
+          light: "#DCE8DD",
+          soft: "#EAF1EB",
           dark: "#6C8E77",
         },
         mint: {
@@ -25,17 +32,27 @@ module.exports = {
         },
         ivory: {
           DEFAULT: "#FAF9F4",
-          warm: "#F4F1E8",
+          warm: "#F5F3EC",
+        },
+        cream: {
+          DEFAULT: "#F1EEE4",
+          soft: "#F8F6F0",
         },
         gold: {
           DEFAULT: "#B9A477",
           light: "#D4C39B",
           dark: "#978358",
         },
+        charcoal: {
+          DEFAULT: "#202622",
+          light: "#2D3630",
+          dark: "#151A17",
+        },
       },
       fontFamily: {
-        heading: ["Playfair Display", "Georgia", "serif"],
-        sans: ["Inter", "system-ui", "sans-serif"],
+        display: ["'Cormorant Garamond'", "Georgia", "serif"],
+        heading: ["'Playfair Display'", "Georgia", "serif"],
+        sans: ["'Manrope'", "'Inter'", "system-ui", "-apple-system", "sans-serif"],
       },
     },
   },

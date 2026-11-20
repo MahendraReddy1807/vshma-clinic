@@ -1,9 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { MapPin, Phone, Mail, Clock, Send, CheckCircle2 } from 'lucide-react';
+import {
+  MapPin,
+  Phone,
+  Mail,
+  Clock,
+  Send,
+  CheckCircle2,
+  AlertCircle,
+  ExternalLink,
+} from 'lucide-react';
 import WhatsAppIcon from '@/components/ui/WhatsAppIcon';
-import SectionHeading from '@/components/ui/SectionHeading';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Textarea from '@/components/ui/Textarea';
@@ -13,219 +21,265 @@ export default function ContactSection() {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    email: '',
     message: '',
   });
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitted, setSubmitted] = useState(false);
+  const [whatsappUrl, setWhatsappUrl] = useState('');
+
+  const clearFieldError = (field: string) => {
+    if (errors[field]) {
+      setErrors((prev) => {
+        const copy = { ...prev };
+        delete copy[field];
+        return copy;
+      });
+    }
+  };
+
+  const validate = () => {
+    const newErrors: Record<string, string> = {};
+    if (!formData.name.trim()) newErrors.name = 'Please enter your name.';
+
+    const cleanPhone = formData.phone.replace(/[\s\-()]/g, '');
+    if (!cleanPhone) {
+      newErrors.phone = 'Please enter your mobile number.';
+    } else if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
+      newErrors.phone = 'Please enter a valid 10-digit mobile number.';
+    }
+
+    if (!formData.message.trim()) {
+      newErrors.message = 'Please enter a brief message or question.';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setStatus('loading');
+    if (!validate()) return;
+
+    const text = `Hello Dr. Chihnitha / VSHMA Clinic,\n\nName: ${formData.name}\nPhone: ${formData.phone}\nInquiry: ${formData.message}`;
+    const url = `https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent(text)}`;
+    setWhatsappUrl(url);
+    setSubmitted(true);
 
     try {
-      const text = `Hello VSHMA,\n\nInquiry from website:\nName: ${formData.name}\nPhone: ${formData.phone}\nEmail: ${formData.email || 'Not provided'}\nMessage: ${formData.message}`;
-      window.open(
-        `${CLINIC_INFO.whatsappUrl}?text=${encodeURIComponent(text)}`,
-        '_blank',
-        'noopener,noreferrer'
-      );
-      setStatus('success');
-      setFormData({ name: '', phone: '', email: '', message: '' });
+      window.open(url, '_blank', 'noopener,noreferrer');
     } catch {
-      setStatus('error');
+      // Manual fallback button available
     }
   };
 
   return (
-    <section id="contact" className="py-24 lg:py-32 bg-[#FAF9F4] relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SectionHeading
-          title="Connect with VSHMA"
-          subtitle="Direct consultation inquiries, directions to clinic, or questions for Dr. Chihnitha Reddy T."
-        />
+    <section className="py-20 lg:py-28 bg-ivory text-charcoal" aria-label="Contact VSHMA Clinic">
+      <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+          {/* Left Column: Direct Clinic Coordinates */}
+          <div className="lg:col-span-5 space-y-8">
+            <div className="space-y-3">
+              <span className="text-xs font-semibold uppercase tracking-widest text-gold block font-sans">
+                Get in Touch
+              </span>
+              <h1 className="font-display font-light text-4xl sm:text-5xl text-forest leading-tight">
+                Connect with VSHMA
+              </h1>
+              <p className="text-charcoal/75 text-base leading-relaxed font-light font-sans">
+                We are here to answer your questions regarding appointment availability, consultation formats, and clinical care.
+              </p>
+            </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mt-14 items-start">
-          {/* Clinic Details Card */}
-          <div className="lg:col-span-5 space-y-6">
-            <div className="p-8 sm:p-10 rounded-[2.5rem] bg-white border border-sage/20 shadow-md space-y-6">
-              <h3 className="font-heading text-2xl font-bold text-forest">
-                Clinic Location &amp; Hours
-              </h3>
-
-              <div className="space-y-5">
+            {/* Clinic Info Cards */}
+            <div className="space-y-4">
+              <div className="p-6 rounded-3xl bg-white border border-sage/25 shadow-sm space-y-4">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-mint text-forest flex items-center justify-center shrink-0 shadow-sm">
-                    <MapPin className="w-6 h-6" />
+                  <div className="w-10 h-10 rounded-2xl bg-forest/10 flex items-center justify-center text-forest shrink-0">
+                    <MapPin className="w-5 h-5" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-forest">Consultation Clinic</h4>
-                    <p className="text-sm text-gray-600 mt-0.5">{CLINIC_INFO.location}</p>
-                    <p className="text-[11px] text-sage font-medium mt-1">
-                      * Complete street map coordinates provided on booking confirmation.
-                    </p>
+                    <p className="font-heading font-semibold text-forest text-base">Location</p>
+                    <p className="text-xs sm:text-sm text-charcoal/75 mt-0.5">{CLINIC_INFO.location}</p>
+                    <p className="text-[11px] text-sage-dark font-medium mt-1">In-Clinic &amp; Virtual Consultations</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-mint text-forest flex items-center justify-center shrink-0 shadow-sm">
-                    <Phone className="w-6 h-6" />
+                <div className="flex items-start gap-4 pt-4 border-t border-sage/15">
+                  <div className="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-800 shrink-0">
+                    <WhatsAppIcon className="w-5 h-5 text-[#25D366]" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-forest">WhatsApp / Call</h4>
+                    <p className="font-heading font-semibold text-forest text-base">WhatsApp Hotline</p>
                     <a
                       href={CLINIC_INFO.whatsappUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-forest font-semibold hover:text-sage transition-colors block mt-0.5"
+                      className="text-xs sm:text-sm font-semibold text-emerald-800 hover:text-emerald-950 underline underline-offset-2 mt-0.5 block"
                     >
                       +91 {CLINIC_INFO.phone}
                     </a>
+                    <p className="text-[11px] text-charcoal/65 mt-0.5">Quick responses during clinical hours</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-mint text-forest flex items-center justify-center shrink-0 shadow-sm">
-                    <Mail className="w-6 h-6" />
+                <div className="flex items-start gap-4 pt-4 border-t border-sage/15">
+                  <div className="w-10 h-10 rounded-2xl bg-forest/10 flex items-center justify-center text-forest shrink-0">
+                    <Mail className="w-5 h-5" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-forest">Email Inquiries</h4>
+                    <p className="font-heading font-semibold text-forest text-base">Email</p>
                     <a
                       href={`mailto:${CLINIC_INFO.email}`}
-                      className="text-sm text-forest font-medium hover:underline block mt-0.5"
+                      className="text-xs sm:text-sm text-charcoal/80 hover:text-forest underline underline-offset-2 mt-0.5 block"
                     >
                       {CLINIC_INFO.email}
                     </a>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-mint text-forest flex items-center justify-center shrink-0 shadow-sm">
-                    <Clock className="w-6 h-6" />
+                <div className="flex items-start gap-4 pt-4 border-t border-sage/15">
+                  <div className="w-10 h-10 rounded-2xl bg-forest/10 flex items-center justify-center text-forest shrink-0">
+                    <Clock className="w-5 h-5" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-forest">Consultations</h4>
-                    <p className="text-sm text-gray-600 mt-0.5">
-                      Monday to Saturday &bull; Prior Appointment Only
+                    <p className="font-heading font-semibold text-forest text-base">Clinical Hours</p>
+                    <p className="text-xs sm:text-sm text-charcoal/75 mt-0.5">
+                      Monday &ndash; Saturday &bull; By Prior Appointment
                     </p>
+                    <p className="text-[11px] text-charcoal/65 mt-0.5">Sunday closed</p>
                   </div>
                 </div>
-              </div>
-            </div>
-
-            {/* Direct WhatsApp Quick Contact Card */}
-            <div className="rounded-[2.5rem] bg-gradient-to-br from-forest to-forest-light text-white p-8 shadow-xl relative overflow-hidden">
-              <div className="relative z-10 space-y-4">
-                <span className="text-xs uppercase tracking-widest text-gold font-bold">
-                  Instant Support
-                </span>
-                <h4 className="font-heading text-2xl font-bold text-white">
-                  Prefer directly chatting on WhatsApp?
-                </h4>
-                <p className="text-sage-light text-xs sm:text-sm font-light">
-                  Skip the web form and start a direct conversation with clinic staff right away.
-                </p>
-                <a
-                  href={CLINIC_INFO.whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block pt-1"
-                >
-                  <Button className="bg-[#25D366] hover:bg-[#20ba5a] text-white border-none shadow-lg flex items-center justify-center gap-2">
-                    <WhatsAppIcon className="w-4 h-4 text-white" />
-                    <span>WhatsApp Us Now</span>
-                  </Button>
-                </a>
               </div>
             </div>
           </div>
 
-          {/* Contact Message Form */}
-          <div className="lg:col-span-7 bg-white p-8 sm:p-12 rounded-[2.5rem] border border-sage/20 shadow-md">
-            <h3 className="font-heading text-2xl sm:text-3xl font-bold text-forest mb-2">
-              Send a General Inquiry
-            </h3>
-            <p className="text-sm text-gray-600 mb-8 font-light">
-              Have questions about constitutional evaluation, remedies, or online appointments? Drop us a note below.
-            </p>
-
-            {status === 'success' ? (
-              <div className="p-8 rounded-3xl bg-mint text-forest text-center space-y-4">
-                <CheckCircle2 className="w-12 h-12 mx-auto text-forest" />
-                <h4 className="font-heading font-bold text-2xl">Message Ready on WhatsApp!</h4>
-                <p className="text-sm text-gray-700 max-w-md mx-auto">
-                  Your inquiry message has opened in WhatsApp for instant direct messaging.
+          {/* Right Column: Direct Inquiry Message Form */}
+          <div className="lg:col-span-7">
+            <div className="p-8 sm:p-12 rounded-[2.5rem] bg-white border border-sage/30 shadow-xl relative overflow-hidden">
+              <div className="space-y-3 mb-8">
+                <h2 className="font-display text-2xl sm:text-3xl text-forest font-normal">
+                  Send a Message to the Clinic
+                </h2>
+                <p className="text-xs sm:text-sm text-charcoal/75 font-light leading-relaxed">
+                  Fill in your details below and your message will open directly in WhatsApp for Dr. Chihnitha and her team.
                 </p>
-                <Button variant="secondary" size="sm" onClick={() => setStatus('idle')}>
-                  Send Another Inquiry
-                </Button>
               </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+              {submitted ? (
+                <div className="text-center py-8 space-y-6">
+                  <div className="w-16 h-16 rounded-3xl bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto shadow-sm">
+                    <CheckCircle2 className="w-8 h-8 text-emerald-700" />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="font-display text-2xl font-normal text-forest">
+                      Message Prepared for WhatsApp
+                    </h3>
+                    <p className="text-xs sm:text-sm text-charcoal/75 max-w-sm mx-auto font-light leading-relaxed">
+                      If WhatsApp did not open automatically, click the button below to connect with Dr. Chihnitha.
+                    </p>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <a
+                      href={whatsappUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-[#25D366] hover:bg-[#20ba5a] text-white text-xs font-semibold tracking-wide shadow-md font-sans"
+                    >
+                      <WhatsAppIcon className="w-4 h-4 text-white" />
+                      <span>Open in WhatsApp</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => {
+                        setSubmitted(false);
+                        setFormData({ name: '', phone: '', message: '' });
+                      }}
+                    >
+                      Send Another Message
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-6" noValidate>
                   <div>
-                    <label className="block text-xs font-bold text-forest uppercase tracking-wider mb-2">
-                      Full Name <span className="text-red-500">*</span>
+                    <label
+                      htmlFor="contact-name"
+                      className="block text-xs font-bold text-forest uppercase tracking-wider mb-2 font-sans"
+                    >
+                      Your Name <span className="text-red-500">*</span>
                     </label>
                     <Input
-                      placeholder="Your name"
+                      id="contact-name"
+                      placeholder="e.g. Ramesh Kumar"
                       value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      onChange={(e) => {
+                        setFormData({ ...formData, name: e.target.value });
+                        clearFieldError('name');
+                      }}
                       className="rounded-2xl"
+                      error={errors.name}
                       required
                     />
                   </div>
+
                   <div>
-                    <label className="block text-xs font-bold text-forest uppercase tracking-wider mb-2">
-                      Phone Number <span className="text-red-500">*</span>
+                    <label
+                      htmlFor="contact-phone"
+                      className="block text-xs font-bold text-forest uppercase tracking-wider mb-2 font-sans"
+                    >
+                      Mobile Number <span className="text-red-500">*</span>
                     </label>
                     <Input
+                      id="contact-phone"
                       type="tel"
-                      placeholder="10-digit number"
+                      placeholder="10-digit mobile number"
                       value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      onChange={(e) => {
+                        setFormData({ ...formData, phone: e.target.value });
+                        clearFieldError('phone');
+                      }}
                       className="rounded-2xl"
+                      error={errors.phone}
                       required
                     />
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-forest uppercase tracking-wider mb-2">
-                    Email Address (Optional)
-                  </label>
-                  <Input
-                    type="email"
-                    placeholder="name@example.com"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="rounded-2xl"
-                  />
-                </div>
+                  <div>
+                    <label
+                      htmlFor="contact-message"
+                      className="block text-xs font-bold text-forest uppercase tracking-wider mb-2 font-sans"
+                    >
+                      Your Question or Inquiry <span className="text-red-500">*</span>
+                    </label>
+                    <Textarea
+                      id="contact-message"
+                      placeholder="Ask about consultation slots, virtual consultation options, or general clinic inquiries..."
+                      value={formData.message}
+                      onChange={(e) => {
+                        setFormData({ ...formData, message: e.target.value });
+                        clearFieldError('message');
+                      }}
+                      rows={4}
+                      className="rounded-2xl"
+                      error={errors.message}
+                      required
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-forest uppercase tracking-wider mb-2">
-                    Your Message or Query <span className="text-red-500">*</span>
-                  </label>
-                  <Textarea
-                    placeholder="How can VSHMA assist you?"
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    rows={4}
-                    className="rounded-2xl"
-                    required
-                  />
-                </div>
-
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="w-full sm:w-auto shadow-lg"
-                >
-                  <Send className="w-4 h-4 mr-2" />
-                  <span>Send via WhatsApp</span>
-                </Button>
-              </form>
-            )}
+                  <Button
+                    type="submit"
+                    size="lg"
+                    className="w-full py-4 text-sm font-semibold tracking-wide shadow-lg hover:shadow-xl font-sans"
+                  >
+                    <Send className="w-4 h-4 mr-2" />
+                    <span>Send Inquiry to Clinic WhatsApp</span>
+                  </Button>
+                </form>
+              )}
+            </div>
           </div>
         </div>
       </div>

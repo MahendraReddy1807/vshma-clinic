@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import {
   Stethoscope,
@@ -8,21 +9,16 @@ import {
   Flower2,
   Sparkles,
   Apple,
-  ArrowRight,
   Clock,
+  ArrowRight,
   ShieldCheck,
   CheckCircle2,
-  MapPin,
-  Calendar,
-  HelpCircle,
-  ShieldAlert,
-  Leaf,
+  CalendarCheck,
 } from 'lucide-react';
 import WhatsAppIcon from '@/components/ui/WhatsAppIcon';
-import Button from '@/components/ui/Button';
 import { CLINIC_INFO } from '@/lib/constants';
 
-interface FullTreatmentDetail {
+interface TreatmentDetail {
   id: string;
   number: string;
   title: string;
@@ -32,142 +28,134 @@ interface FullTreatmentDetail {
   overview: string;
   depthDescription: string;
   doctorPhilosophy: string;
-  sessionSteps: {
-    step: string;
-    title: string;
-    detail: string;
-  }[];
+  sessionSteps: { step: string; title: string; detail: string }[];
   discussionTopics: string[];
-  icon: React.ElementType;
+  icon: typeof Stethoscope;
 }
 
-const FULL_TREATMENTS: FullTreatmentDetail[] = [
+const TREATMENTS_DATA: TreatmentDetail[] = [
   {
-    id: 'general',
+    id: 'general-consultation',
     number: '01',
     title: 'General Consultation',
-    category: 'Primary Constitutional Care',
+    category: 'Initial Clinical Evaluation',
     format: 'In-Clinic (Bengaluru) & Online Video',
     duration: '45 to 60 Minutes',
     overview:
-      'A thorough, unhurried initial assessment that forms the cornerstone of homeopathic care. Homeopathy views health as an integrated harmony between mind, body, and emotional constitution rather than a collection of disconnected symptoms.',
+      'A thorough, unhurried initial assessment that forms the cornerstone of homeopathic care. Homeopathy evaluates health through an integrated view of physical, emotional, and lifestyle factors.',
     depthDescription:
-      'During your general consultation, Dr. Chihnitha Reddy T takes the time to listen to your entire health chronology — from earliest medical history and family predispositions to current complaints, sleep habits, thermal preferences, and emotional stresses. This granular mapping enables the identification of a single constitutional simillimum remedy designed to stimulate your body’s self-regulatory vital force.',
+      'During your general consultation, Dr. Chihnitha Reddy T takes the time to listen to your entire health chronology — from past medical history and family wellness patterns to daily energy cycles, sleep quality, and emotional stressors. This granular understanding enables the selection of individualized constitutional remedies tailored to your system.',
     doctorPhilosophy:
-      'In classic homeopathy, we do not treat the disease in isolation — we treat the individual experiencing it. Understanding who you are is just as important as knowing what symptoms you experience.',
+      'In classical homeopathy, we do not view symptoms in isolation — we listen to the individual experiencing them. Understanding your unique constitution is central to providing thoughtful, personalized care.',
     sessionSteps: [
       {
         step: '01',
-        title: 'Exhaustive Case Taking',
+        title: 'Attentive Case Review',
         detail:
-          'Deep conversation covering physical symptoms, emotional state, food desires/aversions, energy cycles, and lifestyle environment.',
+          'Deep conversation covering current concerns, physical sensations, lifestyle environment, sleep, and emotional wellbeing.',
       },
       {
         step: '02',
-        title: 'Constitutional Repertorization',
+        title: 'Constitutional Evaluation',
         detail:
-          'Systematic analysis of your symptom totality to match your distinct physical-emotional profile with the precise homeopathic remedy.',
+          'Systematic analysis of your symptom totality to select homeopathic therapeutics aligned with your unique personal profile.',
       },
       {
         step: '03',
-        title: 'Treatment Roadmap & Lifestyle Advice',
+        title: 'Care Roadmap & Guidance',
         detail:
-          'Clear guidance on remedy dosage, storage, dietary precautions (e.g. avoiding strong antidotes), and a structured follow-up timeline.',
+          'Clear explanations on remedy usage, dietary precautions, lifestyle alignment, and structured review timelines.',
       },
     ],
     discussionTopics: [
       'Chronic recurring complaints & vitality dips',
-      'Stress-induced physical symptoms & tension',
-      'Sleep disturbances & chronic fatigue',
-      'Seasonal sensitivities & allergic tendencies',
-      'Metabolic imbalances & lifestyle alignment',
-      'Preventive wellness & vitality maintenance',
+      'Stress-related physical tension & fatigue',
+      'Sleep patterns & daytime energy rhythms',
+      'Seasonal sensitivities & environmental reactions',
+      'Lifestyle balance & preventive wellness',
     ],
     icon: Stethoscope,
   },
   {
-    id: 'ongoing',
+    id: 'ongoing-consultations',
     number: '02',
     title: 'Ongoing Consultations',
     category: 'Continuity & Progress Monitoring',
     format: 'In-Clinic & Follow-up Telehealth',
     duration: '20 to 30 Minutes',
     overview:
-      'Regular follow-up appointments are vital to assess how your system has responded to the prescribed remedy, observe symptom shifts, and guide ongoing healing.',
+      'Regular follow-up appointments are designed to assess response to prescribed remedies, track symptom progression, and adjust care plans.',
     depthDescription:
-      'Homeopathic healing often unfolds in layers following Hering’s Law of Cure — symptoms moving from more vital organs to less vital ones, or from within outward. Ongoing reviews ensure that your response is evaluated methodically, avoiding premature remedy changes while refining potencies when indicated.',
+      'Individual responses to homeopathic therapeutics vary. Follow-up reviews provide a dedicated space to discuss observed changes in your overall energy, sleep, and primary symptoms. Dosages and remedy selections are calibrated progressively to support your evolving health journey.',
     doctorPhilosophy:
-      'Healing is a progressive partnership. Each review helps us calibrate remedy potency and dosage to your evolving biological rhythm.',
+      'Care is an ongoing collaborative partnership. Each review helps us understand your body’s response and make informed adjustments.',
     sessionSteps: [
       {
         step: '01',
         title: 'Response Assessment',
         detail:
-          'Detailed review of initial improvements, subtle shifts in energy, sleep, mood, and changes in target physical symptoms.',
+          'Structured review of shifts in energy, sleep quality, mood, and target physical concerns since your last visit.',
       },
       {
         step: '02',
-        title: 'Posology & Potency Calibration',
+        title: 'Care Plan Calibration',
         detail:
-          'Careful decision whether to maintain current remedy action, wait for continued response, or step up potency.',
+          'Thoughtful clinical decision whether to continue the current regimen, pause for further observation, or adjust remedy selection.',
       },
       {
         step: '03',
-        title: 'Continuing Support Plan',
+        title: 'Continuing Support',
         detail:
-          'Scheduled check-ins and direct guidance regarding ongoing care and constitutional resilience.',
+          'Direct guidance on lifestyle modifications and scheduling your next review interval.',
       },
     ],
     discussionTopics: [
-      'Symptom frequency & intensity changes',
-      'Overall vitality, stamina & sleep quality',
-      'Response to current remedy potency',
-      'Intercurrent health episodes or stresses',
-      'Long-term constitutional stabilization',
-      'Gradual reduction in symptom dependency',
+      'Rate and quality of symptomatic changes',
+      'Changes in stamina, mood, and sleep patterns',
+      'Remedy tolerance and dosage adjustments',
+      'Long-term constitutional health goals',
     ],
     icon: HeartPulse,
   },
   {
-    id: 'pediatric',
+    id: 'pediatric-homeopathy',
     number: '03',
     title: 'Pediatric Homeopathy',
-    category: 'Gentle Care for Children',
-    format: 'In-Clinic (Bengaluru) & Online Consultation',
+    category: 'Gentle Care for Infants & Children',
+    format: 'In-Clinic (Bengaluru) & Telehealth',
     duration: '30 to 45 Minutes',
     overview:
-      'Natural, non-invasive, sweet-tasting remedies tailored for newborns, toddlers, school-age children, and adolescents in a gentle, warm clinical environment.',
+      'Gentle, child-friendly consultations tailored for infants, toddlers, and school-age children, conducted with warmth and active parental involvement.',
     depthDescription:
-      'Children respond remarkably well to homeopathic remedies due to their dynamic, unencumbered vital force. Our consultations are designed to be completely calm, non-traumatic, and free of unpleasant medical procedures. Parents and guardians are central partners in observing behavior, appetite changes, sleep habits, and emotional dispositions.',
+      'Children often respond sensitively to gentle interventions. Consultations for younger patients involve a detailed conversation with parents regarding feeding habits, milestones, sleep patterns, emotional disposition, and recurrent seasonal complaints. Remedies are pleasant-tasting and easy to administer.',
     doctorPhilosophy:
-      'A child’s body has an inherent resilience. Our role is to support their natural defense mechanisms with gentle, sweet remedies that children take without fear.',
+      'Working with children requires patience, keen clinical observation, and trust. We ensure young patients feel safe while partnering closely with parents.',
     sessionSteps: [
       {
         step: '01',
-        title: 'Parental Observation Interview',
+        title: 'Parent-Practitioner Dialogue',
         detail:
-          'Listening to parents regarding birth history, milestones, dietary preferences, temperature sensitivity, and temperament.',
+          'Detailed discussion of birth history, milestones, appetite, sleep patterns, and family health tendencies.',
       },
       {
         step: '02',
-        title: 'Child-Centric Interaction',
+        title: 'Gentle Child Observation',
         detail:
-          'Gentle, friendly interaction with the child in an unhurried, reassuring environment without scary instruments.',
+          'Evaluating temperament, physical constitution, and natural behavioral responses in a calm, non-threatening environment.',
       },
       {
         step: '03',
-        title: 'Safe Sugar-Globule Dispensation',
+        title: 'Pediatric Care Plan',
         detail:
-          'Sweet lactose globule remedies that dissolve easily in the mouth, accompanied by clear storage and dosage instructions.',
+          'Easy-to-administer sweet globule remedies paired with practical parental guidance on nutrition, hydration, and restful routines.',
       },
     ],
     discussionTopics: [
-      'Recurrent seasonal coughs, colds & runny noses',
-      'Digestive colic, finicky eating & appetite issues',
-      'Teething discomfort & infant sleep rhythms',
-      'Skin dryness, rashes & sensitive skin',
-      'School stress, anxiety & exam nervousness',
-      'Natural immunity & general physical growth',
+      'Recurrent seasonal coughs, colds & nasal congestion',
+      'Digestive comfort & fussy eating patterns',
+      'Sleep restlessness & bed-time anxiety',
+      'Skin comfort & sensitivity reactions',
+      'General growth, vitality & childhood wellness',
     ],
     icon: Baby,
   },
@@ -175,427 +163,396 @@ const FULL_TREATMENTS: FullTreatmentDetail[] = [
     id: 'womens-health',
     number: '04',
     title: "Women's Health",
-    category: 'Holistic Female Wellness',
+    category: 'Supportive Female Wellness',
     format: 'Private In-Clinic & Confidential Video',
     duration: '40 to 50 Minutes',
     overview:
-      'Compassionate, completely confidential consultations honoring the biological and emotional phases of womanhood — from adolescence to motherhood and menopause.',
+      'Compassionate, confidential consultations honoring the physical and emotional phases of womanhood — from adolescence to postpartum recovery and menopausal transitions.',
     depthDescription:
-      'A woman’s endocrine and reproductive health is intimately linked to emotional equilibrium, stress levels, nutrition, and metabolic vitality. Rather than artificially suppressing hormonal fluctuations with synthetic agents, constitutional homeopathy seeks to restore organic equilibrium to the hypothalamic-pituitary-ovarian axis naturally.',
+      'A woman’s physiological and emotional wellbeing is closely connected with sleep, nutrition, stress, and hormonal transitions. Dr. Chihnitha provides an empathetic, supportive environment to discuss menstrual cycle changes, perimenopausal fluctuations, emotional stress, and vitality, offering personalized homeopathic options complementary to conventional gynecological care.',
     doctorPhilosophy:
-      'Every phase of a woman’s life brings unique biological shifts. We provide a safe, respectful space to discuss concerns and nurture organic hormonal harmony.',
+      'Every phase of a woman’s life brings distinct biological and emotional shifts. We provide a respectful, private space to explore these changes with empathy.',
     sessionSteps: [
       {
         step: '01',
-        title: 'Confidential Case History',
+        title: 'Confidential History Taking',
         detail:
-          'Sensitive discussion of menstrual cycles, flow characteristics, pain patterns, mood swings, and emotional pressures.',
+          'Private discussion of menstrual rhythms, cycle discomfort, sleep quality, energy levels, and life stressors.',
       },
       {
         step: '02',
-        title: 'Hormonal & Lifestyle Assessment',
+        title: 'Holistic Lifestyle Assessment',
         detail:
-          'Evaluating thyroid health, stress markers, dietary balance, sleep adequacy, and reproductive history.',
+          'Evaluating dietary habits, physical activity, emotional pressures, and medical history.',
       },
       {
         step: '03',
-        title: 'Constitutional Treatment Protocol',
+        title: 'Individualized Protocol',
         detail:
-          'Remedies chosen to harmonize menstrual rhythm, ease transitions, and elevate overall day-to-day vitality.',
+          'Selection of constitutional remedies aimed at supporting vitality, ease during transitions, and overall emotional balance.',
       },
     ],
     discussionTopics: [
-      'Irregular, painful, or heavy menstrual cycles',
-      'Premenstrual mood changes & physical discomfort',
-      'Perimenopause & menopausal hot flashes/night sweats',
-      'Postpartum emotional well-being & recovery',
-      'Stress-induced hormonal & sleep imbalances',
-      'Overall reproductive and metabolic vitality',
+      'Menstrual cycle regularity and related discomfort',
+      'Perimenopause and menopausal physical/emotional transitions',
+      'Postpartum emotional adjustment and vitality',
+      'Stress-associated fatigue and sleep disturbances',
+      'Integrative support alongside gynecological care',
     ],
     icon: Flower2,
   },
   {
-    id: 'skin-hair',
+    id: 'skin-hair-care',
     number: '05',
     title: 'Skin & Hair Care',
-    category: 'Root-Cause Dermatology Support',
+    category: 'Constitutional Dermatology Support',
     format: 'In-Clinic & Visual Telehealth',
     duration: '35 to 45 Minutes',
     overview:
-      'Targeting internal systemic triggers, food sensitivities, and constitutional factors behind recurrent skin flare-ups and hair concerns without relying on suppressive topical steroids.',
+      'Exploring systemic factors, environmental triggers, stress markers, and constitutional predispositions contributing to persistent skin or scalp concerns.',
     depthDescription:
-      'In homeopathic philosophy, the skin is an excretory organ and a sensitive mirror of internal systemic health. Suppressing chronic skin eruptions with strong chemical topicals often forces the disturbance deeper into internal organs. Our approach investigates digestive health, liver function, stress levels, and genetic tendencies to stimulate internal cleansing and lasting skin balance.',
+      'The skin and hair often reflect broader constitutional wellbeing, stress levels, hydration, and digestion. Rather than looking solely at surface manifestations, our homeopathic evaluation investigates underlying stress patterns, seasonal triggers, and nutritional rhythms to recommend individualized remedies that support constitutional balance.',
     doctorPhilosophy:
-      'Healthy skin and lustrous hair reflect internal metabolic equilibrium. We work from within outward rather than masking surface signs.',
+      'Skin and scalp comfort are deeply connected with internal balance, stress management, and daily habits. We seek to understand the whole person behind the condition.',
     sessionSteps: [
       {
         step: '01',
-        title: 'Trigger & Chronology Mapping',
+        title: 'Chronology & Trigger Mapping',
         detail:
-          'Identifying seasonal patterns, weather sensitivities, food allergies, emotional stressors, and past topical suppressions.',
+          'Documenting when flare-ups occur, weather influences, stress correlations, and personal hygiene habits.',
       },
       {
         step: '02',
-        title: 'Constitutional Selection',
+        title: 'Constitutional Remedy Selection',
         detail:
-          'Selecting remedies matching both your skin manifestation (dryness, itching, burning) and your holistic personal constitution.',
+          'Selecting remedies matching both the specific characteristics of your skin or scalp discomfort and your general constitutional profile.',
       },
       {
         step: '03',
-        title: 'Skin Barrier Protection Advice',
+        title: 'Gentle Care & Lifestyle Advice',
         detail:
-          'Practical guidance on gentle natural skincare, hydration, non-irritating fabrics, and nutritional support.',
+          'Recommendations on gentle cleansing, hydration, stress reduction techniques, and dietary considerations.',
       },
     ],
     discussionTopics: [
-      'Chronic eczema, dry flaky patches & itching',
-      'Recurrent acne & hormonal skin eruptions',
-      'Scalp sensitivities, dandruff & excessive hair fall',
-      'Urticaria (hives) & allergic skin flare-ups',
-      'Hyperpigmentation & constitutional skin support',
-      'Nail strength & healthy keratin growth',
+      'Dryness, sensitivity, and seasonal skin reactivity',
+      'Stress-related skin flare-ups and itching',
+      'Scalp health and hair fall concerns',
+      'Digestive correlations with skin appearance',
+      'Support alongside conventional dermatological care',
     ],
     icon: Sparkles,
   },
   {
-    id: 'digestive',
+    id: 'digestive-health',
     number: '06',
-    title: 'Digestive Health',
-    category: 'Gastrointestinal & Metabolic Vitality',
-    format: 'In-Clinic & Online Consultation',
+    title: 'Digestive & Metabolic Wellness',
+    category: 'Gastrointestinal & Lifestyle Rhythms',
+    format: 'In-Clinic & Telehealth',
     duration: '35 to 45 Minutes',
     overview:
-      'Comprehensive assessment of recurrent digestive sensitivities, gut-brain axis disturbances, acid imbalances, and metabolic sluggishness.',
+      'Comprehensive evaluations of digestive comfort, appetite patterns, bowel regularity, and stress-related gut reactions with individualized homeopathic guidance.',
     depthDescription:
-      'The digestive tract is often referred to as the second brain. Stress, emotional turmoil, irregular eating hours, and sedentary routines deeply impact peristalsis, bile production, and gut microbiome balance. Homeopathic constitutional treatment aims to restore the tone of digestive organs and re-establish regular organic rhythm.',
+      'Digestive health is profoundly influenced by meal timings, emotional stress, anxiety, and constitutional sensitivities. In our consultations, Dr. Chihnitha reviews food preferences, bloating triggers, metabolic energy dips, and bowel habits to formulate a tailored homeopathic approach that supports natural digestive rhythm.',
     doctorPhilosophy:
-      'Optimal digestion is the foundation of whole-body energy and immunity. We address both the emotional and physical facets of gut health.',
+      'The gut is a sensitive barometer of both physical habits and emotional state. Restoring digestive comfort requires addressing both.',
     sessionSteps: [
       {
         step: '01',
-        title: 'Digestive Habit Analysis',
+        title: 'Dietary & Rhythm Analysis',
         detail:
-          'Review of meal timings, specific food intolerances, bloating patterns, bowel regularity, and hydration.',
+          'Detailed review of meal schedules, trigger foods, appetite fluctuations, and gastrointestinal symptoms.',
       },
       {
         step: '02',
         title: 'Stress-Gut Correlation',
         detail:
-          'Evaluating how daily stress and emotional tension correlate with flare-ups of acid reflux or abdominal discomfort.',
+          'Investigating the connection between emotional tension, work rhythms, and digestive discomfort.',
       },
       {
         step: '03',
-        title: 'Remedy & Dietary Recommendations',
+        title: 'Targeted Constitutional Care',
         detail:
-          'Tailored remedies to calm digestive spasms and optimize nutrient absorption, paired with sustainable dietary habits.',
+          'Prescribing remedies tailored to your specific digestive tendencies alongside actionable dietary and hydration advice.',
       },
     ],
     discussionTopics: [
-      'Chronic acidity, heartburn & acid reflux',
-      'Persistent bloating, gas & indigestion',
-      'Irregular bowel habits (constipation/sluggishness)',
-      'Stress-induced abdominal cramps & tension',
-      'Food intolerances & post-meal heavy sensations',
-      'Metabolic vitality & post-illness digestive recovery',
+      'Frequent acidity, reflux sensations & bloating',
+      'Irregular bowel motility & sluggish digestion',
+      'Stress-induced abdominal cramps or discomfort',
+      'Food sensitivities & post-meal lethargy',
+      'Nutritional rhythm & digestive wellness',
     ],
     icon: Apple,
   },
 ];
 
+const TREATMENTS_FAQ = [
+  {
+    question: 'How long does an initial consultation take?',
+    answer:
+      'Initial general consultations typically last 45 to 60 minutes. This allows Dr. Chihnitha to thoroughly evaluate your medical chronology, lifestyle, emotional stress, and constitutional traits without rushing.',
+  },
+  {
+    question: 'Can I take homeopathic remedies alongside my allopathic medications?',
+    answer:
+      'Yes, in most cases homeopathic remedies can be safely used alongside conventional treatments. However, it is essential to inform Dr. Chihnitha as well as your prescribing physician of all treatments, supplements, and remedies you are taking.',
+  },
+  {
+    question: 'Are online consultations as thorough as in-clinic visits?',
+    answer:
+      'Yes. Our video consultations follow the exact same classical case-taking methodology. They are ideal for follow-ups, remote patients, or individuals who cannot travel to the Bengaluru clinic.',
+  },
+  {
+    question: 'How are prescribed remedies received after an online appointment?',
+    answer:
+      'Following a virtual consultation, Dr. Chihnitha provides a clear clinical guidance slip and instructions on obtaining authentic remedies, or coordinates local courier delivery where appropriate.',
+  },
+];
+
 export default function TreatmentDirectory() {
+  const [activeFaq, setActiveFaq] = useState<number | null>(null);
+
+  const toggleFaq = (index: number) => {
+    setActiveFaq(activeFaq === index ? null : index);
+  };
+
   return (
-    <div className="bg-[#FAF9F4] min-h-screen">
-      {/* =========================================================================
-          PAGE HEADER
-          ========================================================================= */}
-      <header className="relative bg-white border-b border-sage/20 pt-28 pb-14 sm:pb-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          {/* Pill Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-mint/70 border border-sage/30 text-forest text-xs font-semibold uppercase tracking-wider mb-4">
-            <Leaf className="w-3.5 h-3.5 text-sage-dark" />
-            <span>VSHMA Clinical Directory &bull; Bengaluru</span>
+    <div className="bg-ivory text-charcoal">
+      {/* Page Header */}
+      <section className="relative py-20 sm:py-28 bg-forest text-white overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gold/15 rounded-full blur-[120px] pointer-events-none" />
+        <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 relative z-10">
+          <div className="max-w-3xl space-y-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-ivory text-xs font-semibold uppercase tracking-widest font-sans border border-white/15">
+              <span>Clinical Practice Guide</span>
+            </div>
+            <h1 className="font-display font-light text-4xl sm:text-6xl lg:text-7xl text-ivory leading-[1.05] tracking-tight">
+              Consultations &amp; Care Directory
+            </h1>
+            <p className="text-sage-light text-base sm:text-lg lg:text-xl font-light font-sans leading-relaxed">
+              Explore our clinical consultation offerings, case-taking procedures, and areas of focus with Dr. Chihnitha Reddy T (BHMS) in Bengaluru.
+            </p>
           </div>
+        </div>
+      </section>
 
-          <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-forest tracking-tight max-w-4xl leading-[1.1]">
-            Comprehensive Consultation &amp; Treatment Guide
-          </h1>
+      {/* Ethical Medical Notice Bar */}
+      <section className="bg-white border-b border-sage/20 py-4">
+        <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 flex items-center gap-3 text-xs text-charcoal/75 font-sans">
+          <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
+          <span>
+            <strong>Practitioner Note: </strong> Homeopathy is an individualized therapeutic system. Consultations are exploratory and tailored to individual constitutions, working responsibly alongside evidence-based healthcare.
+          </span>
+        </div>
+      </section>
 
-          <p className="mt-4 max-w-3xl text-base sm:text-lg text-gray-700 leading-relaxed font-light">
-            Explore detailed information on consultation methodologies, case-taking procedures, and constitutional homeopathic care led by{' '}
-            <strong className="font-semibold text-forest">{CLINIC_INFO.doctor}</strong> ({CLINIC_INFO.qualification}) in Bengaluru.
-          </p>
-
-          {/* Quick-Jump Treatment Navigation Bar */}
-          <div className="mt-8 pt-6 border-t border-sage/20 flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
-            <span className="text-xs font-semibold uppercase tracking-wider text-gray-500 whitespace-nowrap mr-2">
-              Jump To:
-            </span>
-            {FULL_TREATMENTS.map((t) => (
+      {/* Quick Jump Bar */}
+      <section className="sticky top-20 z-30 bg-white/95 backdrop-blur-md border-b border-sage/20 py-3 shadow-xs">
+        <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar text-xs font-semibold font-sans">
+            <span className="text-gold uppercase tracking-wider text-[10px] shrink-0 mr-2">Jump to:</span>
+            {TREATMENTS_DATA.map((t) => (
               <a
                 key={t.id}
                 href={`#${t.id}`}
-                className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white border border-sage/30 text-forest hover:bg-forest hover:text-white transition-colors whitespace-nowrap shadow-sm"
+                className="px-3 py-1.5 rounded-full bg-ivory hover:bg-forest hover:text-white text-forest/80 border border-sage/25 whitespace-nowrap transition-colors"
               >
-                {t.number} {t.title}
+                {t.title}
               </a>
             ))}
           </div>
         </div>
-      </header>
+      </section>
 
-      {/* =========================================================================
-          MAIN CONTENT AREA
-          ========================================================================= */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-        {/* Ethical Medical Information Notice */}
-        <div className="mb-14 p-5 sm:p-6 rounded-2xl bg-white border border-sage/30 shadow-sm flex items-start gap-4">
-          <ShieldAlert className="w-6 h-6 text-gold shrink-0 mt-0.5" />
-          <div className="space-y-1">
-            <h2 className="text-sm font-bold text-forest">
-              Clinical &amp; Educational Scope Notice
-            </h2>
-            <p className="text-xs sm:text-sm text-gray-600 leading-relaxed font-light">
-              This guide provides general clinical information regarding the constitutional homeopathic consultation process. Homeopathic care is tailored individually to each patient’s unique symptoms and constitution. It is not an alternative for emergency trauma care, acute surgical emergencies, or life-threatening conditions. Always consult a qualified medical professional for urgent health matters.
-            </p>
-          </div>
-        </div>
-
-        {/* =========================================================================
-            6 DETAILED TREATMENT SECTIONS (Subtle, Natural Scrolling, Zero Clunky Animation)
-            ========================================================================= */}
-        <div className="space-y-16 sm:space-y-20">
-          {FULL_TREATMENTS.map((treatment) => {
-            const Icon = treatment.icon;
-
-            return (
-              <article
-                key={treatment.id}
-                id={treatment.id}
-                className="scroll-mt-28 bg-white rounded-3xl p-6 sm:p-10 border border-sage/25 shadow-sm hover:shadow-md transition-shadow"
-              >
-                {/* Section Header */}
-                <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6 pb-6 border-b border-sage/20">
-                  <div className="flex items-start gap-4 sm:gap-5">
-                    <div className="w-16 h-16 rounded-2xl bg-forest text-gold flex items-center justify-center shrink-0 shadow-md">
-                      <Icon className="w-8 h-8" />
-                    </div>
-
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2 mb-2">
-                        <span className="text-xs font-bold uppercase tracking-wider px-3 py-0.5 rounded-full bg-forest text-gold">
-                          Option {treatment.number}
-                        </span>
-                        <span className="text-xs font-semibold text-forest px-3 py-0.5 rounded-full bg-mint border border-sage/30">
-                          {treatment.category}
-                        </span>
-                      </div>
-
-                      <h2 className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold text-forest">
-                        {treatment.title}
-                      </h2>
-                    </div>
+      {/* Detailed Treatment Articles */}
+      <section className="py-16 sm:py-24 max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 space-y-20">
+        {TREATMENTS_DATA.map((item) => {
+          const Icon = item.icon;
+          return (
+            <article
+              key={item.id}
+              id={item.id}
+              className="scroll-mt-36 p-8 sm:p-12 lg:p-14 rounded-[2.5rem] bg-white border border-sage/25 shadow-md space-y-10"
+            >
+              {/* Header row */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-sage/15">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <span className="font-display text-2xl font-light text-gold">{item.number}</span>
+                    <span className="px-3 py-1 rounded-full bg-forest/10 text-forest text-xs font-semibold uppercase tracking-wider font-sans">
+                      {item.category}
+                    </span>
                   </div>
-
-                  {/* Consultation Logistics Specs */}
-                  <div className="flex flex-wrap items-center gap-3 bg-[#FAF9F4] p-3 rounded-2xl border border-sage/20 lg:shrink-0 text-xs text-gray-700">
-                    <div className="flex items-center gap-1.5">
-                      <Clock className="w-4 h-4 text-gold" />
-                      <span><strong>Duration:</strong> {treatment.duration}</span>
-                    </div>
-                    <span className="text-gray-300">|</span>
-                    <div className="flex items-center gap-1.5">
-                      <MapPin className="w-4 h-4 text-forest" />
-                      <span>{treatment.format}</span>
-                    </div>
-                  </div>
+                  <h2 className="font-display font-light text-3xl sm:text-4xl lg:text-5xl text-forest leading-tight">
+                    {item.title}
+                  </h2>
                 </div>
 
-                {/* Narrative Overview */}
-                <div className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                  <div className="lg:col-span-8 space-y-4">
-                    <p className="text-base sm:text-lg text-gray-800 leading-relaxed font-normal">
-                      {treatment.overview}
-                    </p>
-                    <p className="text-sm sm:text-base text-gray-600 leading-relaxed font-light">
-                      {treatment.depthDescription}
-                    </p>
-
-                    {/* Doctor's Philosophy Quote Box */}
-                    <div className="p-4 sm:p-5 rounded-2xl bg-mint/50 border border-sage/25 flex items-start gap-3 text-sm text-forest/90 italic font-light mt-4">
-                      <Leaf className="w-5 h-5 text-forest shrink-0 mt-0.5" />
-                      <div>
-                        <p>&ldquo;{treatment.doctorPhilosophy}&rdquo;</p>
-                        <p className="text-xs font-semibold not-italic text-forest mt-2">
-                          — {CLINIC_INFO.doctor} ({CLINIC_INFO.qualification}), Homeopathy Practitioner
-                        </p>
-                      </div>
-                    </div>
+                <div className="flex flex-wrap items-center gap-4 text-xs text-charcoal/75 font-sans">
+                  <div className="flex items-center gap-1.5 bg-ivory px-3.5 py-2 rounded-xl border border-sage/20">
+                    <Clock className="w-4 h-4 text-gold" />
+                    <span>{item.duration}</span>
                   </div>
-
-                  {/* Common Discussion Topics */}
-                  <div className="lg:col-span-4 bg-[#FAF9F4] p-6 rounded-2xl border border-sage/20">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-forest mb-4 flex items-center gap-2">
-                      <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                      Common Discussion Topics
-                    </h3>
-                    <ul className="space-y-2.5">
-                      {treatment.discussionTopics.map((topic) => (
-                        <li key={topic} className="flex items-start gap-2 text-xs sm:text-sm text-gray-700">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                          <span>{topic}</span>
-                        </li>
-                      ))}
-                    </ul>
+                  <div className="flex items-center gap-1.5 bg-ivory px-3.5 py-2 rounded-xl border border-sage/20">
+                    <Icon className="w-4 h-4 text-forest" />
+                    <span>{item.format}</span>
                   </div>
                 </div>
+              </div>
 
-                {/* What Happens During the Session (3 Structured Steps) */}
-                <div className="mt-10 pt-8 border-t border-sage/20">
-                  <h3 className="font-heading text-xl font-bold text-forest mb-6">
-                    What to Expect During Your Consultation
-                  </h3>
+              {/* Overview & Depth Description */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <div className="lg:col-span-8 space-y-4 text-charcoal/85 text-base sm:text-lg leading-relaxed font-sans font-light">
+                  <p className="font-normal text-forest">{item.overview}</p>
+                  <p>{item.depthDescription}</p>
+                </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {treatment.sessionSteps.map((step) => (
-                      <div
-                        key={step.step}
-                        className="p-5 rounded-2xl bg-[#FAF9F4] border border-sage/15 space-y-2"
+                {/* Doctor Philosophy Quote Box */}
+                <div className="lg:col-span-4 p-6 rounded-3xl bg-forest-dark text-white space-y-3 shadow-lg">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-gold block font-sans">
+                    Doctor&apos;s Philosophy
+                  </span>
+                  <p className="font-serif italic text-sm text-ivory/90 leading-relaxed">
+                    &ldquo;{item.doctorPhilosophy}&rdquo;
+                  </p>
+                  <p className="text-[11px] text-sage-light pt-2 border-t border-white/10 font-sans">
+                    &mdash; {CLINIC_INFO.doctor} ({CLINIC_INFO.qualification})
+                  </p>
+                </div>
+              </div>
+
+              {/* 3 Steps of this consultation */}
+              <div className="space-y-4 pt-4">
+                <h3 className="font-heading font-semibold text-forest text-xl">
+                  Consultation Progression
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {item.sessionSteps.map((s) => (
+                    <div key={s.step} className="p-5 rounded-2xl bg-ivory border border-sage/20 space-y-2">
+                      <span className="font-display text-lg text-gold font-semibold">{s.step}</span>
+                      <h4 className="font-heading font-semibold text-forest text-base">{s.title}</h4>
+                      <p className="text-xs text-charcoal/70 leading-relaxed font-light">{s.detail}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Discussion Topics & CTA */}
+              <div className="pt-6 border-t border-sage/15 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div className="space-y-2">
+                  <p className="text-xs font-bold uppercase tracking-wider text-gold font-sans">
+                    Common Consultation Focus Areas:
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {item.discussionTopics.map((topic) => (
+                      <span
+                        key={topic}
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-sage/30 text-xs text-charcoal/80 font-sans"
                       >
-                        <div className="flex items-center justify-between">
-                          <span className="font-heading text-2xl font-bold text-gold">
-                            {step.step}
-                          </span>
-                          <span className="w-2 h-2 rounded-full bg-forest" />
-                        </div>
-                        <h4 className="font-heading text-base font-bold text-forest">
-                          {step.title}
-                        </h4>
-                        <p className="text-xs text-gray-600 leading-relaxed font-light">
-                          {step.detail}
-                        </p>
-                      </div>
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                        <span>{topic}</span>
+                      </span>
                     ))}
                   </div>
                 </div>
 
-                {/* Treatment Direct Actions */}
-                <div className="mt-8 pt-6 border-t border-sage/20 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-                  <div className="text-xs text-gray-500">
-                    Consultation available in-person in Bengaluru or online via video.
-                  </div>
+                <div className="flex flex-wrap items-center gap-3 shrink-0">
+                  <Link
+                    href={`/book?type=${encodeURIComponent(item.title)}`}
+                    className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-forest hover:bg-forest-light text-white text-xs font-semibold font-sans tracking-wide shadow-md transition-all"
+                  >
+                    <span>Request Slot</span>
+                    <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+                  </Link>
 
-                  <div className="flex items-center gap-3">
-                    <Link href={`/book?type=${encodeURIComponent(treatment.title)}`}>
-                      <Button size="md" className="rounded-full shadow-md text-xs font-semibold">
-                        <span>Book {treatment.title}</span>
-                        <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
-                      </Button>
-                    </Link>
-
-                    <a
-                      href={`https://wa.me/917416001477?text=${encodeURIComponent(
-                        `Hello Dr. Chihnitha / VSHMA Clinic, I would like to inquire about the ${treatment.title}.`
-                      )}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-colors"
-                    >
-                      <WhatsAppIcon className="w-4 h-4 text-[#25D366]" />
-                      <span>WhatsApp Inquire</span>
-                    </a>
-                  </div>
+                  <a
+                    href={`https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent(
+                      `Hello Dr. Chihnitha, I would like to schedule a ${item.title} at VSHMA Clinic.`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 text-xs font-semibold font-sans transition-all"
+                  >
+                    <WhatsAppIcon className="w-4 h-4 text-[#25D366]" />
+                    <span>WhatsApp</span>
+                  </a>
                 </div>
-              </article>
-            );
-          })}
-        </div>
+              </div>
+            </article>
+          );
+        })}
+      </section>
 
-        {/* =========================================================================
-            FREQUENTLY ASKED QUESTIONS SECTION
-            ========================================================================= */}
-        <section className="mt-20 pt-16 border-t border-sage/25">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <span className="text-xs font-bold uppercase tracking-wider text-forest px-3 py-1 rounded-full bg-mint">
-              Patient Guidance
-            </span>
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-forest mt-3">
+      {/* Directory FAQ Accordion */}
+      <section className="py-20 bg-white border-t border-sage/20">
+        <div className="max-w-4xl mx-auto px-5 sm:px-8 space-y-12">
+          <div className="text-center space-y-3">
+            <span className="text-xs font-semibold uppercase tracking-widest text-gold block font-sans">
               Frequently Asked Questions
+            </span>
+            <h2 className="font-display font-light text-3xl sm:text-4xl text-forest">
+              About Our Consultations
             </h2>
-            <p className="text-gray-600 text-sm mt-2 font-light">
-              Clear, transparent answers regarding consultation arrangements and homeopathic care.
-            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-            <div className="p-6 rounded-2xl bg-white border border-sage/20 shadow-sm space-y-2">
-              <h3 className="font-heading text-lg font-bold text-forest flex items-start gap-2">
-                <HelpCircle className="w-5 h-5 text-gold shrink-0 mt-0.5" />
-                <span>What should I prepare for my first consultation?</span>
-              </h3>
-              <p className="text-xs sm:text-sm text-gray-600 leading-relaxed font-light pl-7">
-                Bring any recent medical reports, test results, and a list of all current medications or supplements you are taking. Be prepared to talk about your sleep, appetite, thermal preferences, and emotional stresses in addition to your physical symptoms.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-white border border-sage/20 shadow-sm space-y-2">
-              <h3 className="font-heading text-lg font-bold text-forest flex items-start gap-2">
-                <HelpCircle className="w-5 h-5 text-gold shrink-0 mt-0.5" />
-                <span>Can I consult online if I live outside Bengaluru?</span>
-              </h3>
-              <p className="text-xs sm:text-sm text-gray-600 leading-relaxed font-light pl-7">
-                Yes. Online consultations are conducted over private, secure video appointments. Detailed case taking is performed in the same depth as in-clinic visits, with prescriptions and remedy guidance provided directly.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-white border border-sage/20 shadow-sm space-y-2">
-              <h3 className="font-heading text-lg font-bold text-forest flex items-start gap-2">
-                <HelpCircle className="w-5 h-5 text-gold shrink-0 mt-0.5" />
-                <span>Can I take homeopathic medicines alongside other prescriptions?</span>
-              </h3>
-              <p className="text-xs sm:text-sm text-gray-600 leading-relaxed font-light pl-7">
-                Yes. Homeopathic micro-dilutions do not interact with allopathic pharmacological receptors. You should never stop prescribed conventional medicines without the advice of your treating physician. Always inform Dr. Chihnitha of all active medications.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-white border border-sage/20 shadow-sm space-y-2">
-              <h3 className="font-heading text-lg font-bold text-forest flex items-start gap-2">
-                <HelpCircle className="w-5 h-5 text-gold shrink-0 mt-0.5" />
-                <span>How long does homeopathic treatment typically take?</span>
-              </h3>
-              <p className="text-xs sm:text-sm text-gray-600 leading-relaxed font-light pl-7">
-                The timeframe depends on whether the complaint is acute (where response can occur quickly) or chronic and deep-seated (which requires progressive constitutional adjustment over several months). Dr. Chihnitha will outline realistic expectations during your initial session.
-              </p>
-            </div>
+          <div className="space-y-3">
+            {TREATMENTS_FAQ.map((faq, idx) => {
+              const isOpen = activeFaq === idx;
+              return (
+                <div
+                  key={faq.question}
+                  className="rounded-2xl border border-sage/25 bg-ivory overflow-hidden transition-colors"
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggleFaq(idx)}
+                    className="w-full flex items-center justify-between p-5 text-left font-heading font-semibold text-forest text-base cursor-pointer"
+                  >
+                    <span>{faq.question}</span>
+                    <span className="text-gold text-xl font-mono">{isOpen ? '−' : '+'}</span>
+                  </button>
+                  {isOpen && (
+                    <div className="px-5 pb-5 text-sm text-charcoal/80 leading-relaxed font-sans font-light border-t border-sage/15 pt-3">
+                      {faq.answer}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Bottom CTA Card */}
-        <div className="mt-16 p-8 sm:p-12 rounded-3xl bg-forest text-white text-center max-w-4xl mx-auto shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-gold/10 rounded-full blur-3xl pointer-events-none" />
-          <h3 className="font-heading text-2xl sm:text-3xl font-bold mb-3">
-            Ready to Begin Your Personal Health Journey?
-          </h3>
-          <p className="text-sage-light text-sm sm:text-base max-w-xl mx-auto mb-8 font-light">
-            Schedule a consultation with Dr. Chihnitha Reddy T in Bengaluru or inquire directly via WhatsApp.
+      {/* Bottom Booking CTA Banner */}
+      <section className="py-20 bg-forest text-white text-center">
+        <div className="max-w-4xl mx-auto px-5 sm:px-8 space-y-6">
+          <h2 className="font-display font-light text-3xl sm:text-5xl text-ivory">
+            Ready to schedule your consultation?
+          </h2>
+          <p className="text-sage-light text-base sm:text-lg font-light max-w-xl mx-auto font-sans">
+            Connect with VSHMA in Bengaluru. Experience unhurried clinical attention and personalized homeopathic care.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/book">
-              <Button size="lg" className="bg-gold hover:bg-gold-dark text-forest font-semibold rounded-full shadow-lg">
-                Schedule Consultation Now
-              </Button>
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              href="/book"
+              className="inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-gold hover:bg-gold-light text-forest-deep font-sans font-semibold text-xs tracking-wider uppercase shadow-lg transition-all"
+            >
+              <CalendarCheck className="w-4 h-4 mr-2" />
+              <span>Book an Appointment</span>
             </Link>
             <a
               href={CLINIC_INFO.whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/20 text-xs font-semibold font-sans tracking-wide transition-all"
             >
               <WhatsAppIcon className="w-4 h-4 text-[#25D366]" />
-              <span>Ask on WhatsApp ({CLINIC_INFO.phone})</span>
+              <span>WhatsApp: +91 {CLINIC_INFO.phone}</span>
             </a>
           </div>
         </div>
-      </main>
+      </section>
     </div>
   );
 }
