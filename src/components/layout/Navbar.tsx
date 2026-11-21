@@ -104,13 +104,12 @@ export default function Navbar() {
   return (
     <header
       ref={headerRef}
-      className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-400 ease-[cubic-bezier(0.2,0.7,0.2,1)] ${
-        isTransparent
-          ? 'py-4 sm:py-5 bg-transparent border-b border-[#D8D0BD]/25 text-[#161815]'
-          : isDark
+      className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-400 ease-[cubic-bezier(0.2,0.7,0.2,1)] ${isTransparent
+        ? 'py-4 sm:py-5 bg-transparent border-b border-[#D8D0BD]/25 text-[#161815]'
+        : isDark
           ? 'py-3 bg-[#121A15]/95 backdrop-blur-md shadow-sm border-b border-[#B89B5E]/30 text-[#F7F3EC]'
           : 'py-3 bg-[#F7F3EC]/95 backdrop-blur-md shadow-2xs border-b border-[#D8D0BD]/70 text-[#161815]'
-      }`}
+        }`}
     >
       <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
         <div className="flex items-center justify-between">
@@ -126,11 +125,10 @@ export default function Navbar() {
           {/* Desktop Floating Navigation Capsule */}
           <nav
             aria-label="Main Navigation"
-            className={`hidden lg:flex items-center gap-1 px-5 py-1.5 rounded-full border shadow-2xs backdrop-blur-md transition-all duration-400 ${
-              isDark
-                ? 'bg-[#18231C]/90 border-[#B89B5E]/40 text-[#EDE6D3]'
-                : 'bg-white/85 border-[#D8D0BD] text-[#161815]'
-            }`}
+            className={`hidden lg:flex items-center gap-1 px-5 py-1.5 rounded-full border shadow-2xs backdrop-blur-md transition-all duration-400 ${isDark
+              ? 'bg-[#18231C]/90 border-[#B89B5E]/40 text-[#EDE6D3]'
+              : 'bg-white/85 border-[#D8D0BD] text-[#161815]'
+              }`}
           >
             {NAV_LINKS.map((link) => {
               const isActive = pathname === link.href;
@@ -138,15 +136,14 @@ export default function Navbar() {
                 <Link
                   key={link.label}
                   href={link.href}
-                  className={`relative px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide font-sans transition-all duration-200 ${
-                    isActive
-                      ? isDark
-                        ? 'text-[#121A15] bg-[#D4D8BA] shadow-xs'
-                        : 'text-[#F7F3EC] bg-[#121A15] shadow-xs'
-                      : isDark
+                  className={`relative px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide font-sans transition-all duration-200 ${isActive
+                    ? isDark
+                      ? 'text-[#121A15] bg-[#D4D8BA] shadow-xs'
+                      : 'text-[#F7F3EC] bg-[#121A15] shadow-xs'
+                    : isDark
                       ? 'text-[#EDE6D3]/75 hover:text-[#F7F3EC] hover:bg-white/10'
                       : 'text-[#161815]/75 hover:text-[#121A15] hover:bg-[#121A15]/5'
-                  }`}
+                    }`}
                 >
                   {link.label}
                 </Link>
@@ -158,11 +155,10 @@ export default function Navbar() {
           <div className="hidden sm:flex items-center gap-3">
             <a
               href={contact.phoneTelHref}
-              className={`text-xs font-medium flex items-center gap-1.5 px-3.5 py-2 rounded-full border shadow-2xs transition-all duration-300 ${
-                isDark
-                  ? 'bg-[#18231C]/90 border-[#B89B5E]/40 text-[#EDE6D3] hover:bg-[#202E25]'
-                  : 'bg-white/85 border-[#D8D0BD] text-[#121A15] hover:bg-[#EDE6D3]'
-              }`}
+              className={`text-xs font-medium flex items-center gap-1.5 px-3.5 py-2 rounded-full border shadow-2xs transition-all duration-300 ${isDark
+                ? 'bg-[#18231C]/90 border-[#B89B5E]/40 text-[#EDE6D3] hover:bg-[#202E25]'
+                : 'bg-white/85 border-[#D8D0BD] text-[#121A15] hover:bg-[#EDE6D3]'
+                }`}
             >
               <Phone className="w-3.5 h-3.5 text-[#B89B5E]" />
               <span className="font-sans">{contact.phoneDisplay}</span>
@@ -170,16 +166,14 @@ export default function Navbar() {
 
             <Link
               href="/book"
-              className={`group inline-flex items-center gap-1.5 px-5 py-2 rounded-full text-xs font-semibold font-sans uppercase tracking-wider transition-all duration-300 shadow-xs hover:shadow-md hover:-translate-y-0.5 ${
-                isDark
-                  ? 'bg-[#B89B5E] hover:bg-[#C9AE73] text-[#121A15] border border-[#B89B5E]'
-                  : 'bg-[#121A15] hover:bg-[#1F2B23] text-[#F7F3EC] border border-[#B89B5E]/70'
-              }`}
+              className={`group inline-flex items-center gap-1.5 px-5 py-2 rounded-full text-xs font-semibold font-sans uppercase tracking-wider transition-all duration-300 shadow-xs hover:shadow-md hover:-translate-y-0.5 ${isDark
+                ? 'bg-[#B89B5E] hover:bg-[#C9AE73] text-[#121A15] border border-[#B89B5E]'
+                : 'bg-[#121A15] hover:bg-[#1F2B23] text-[#F7F3EC] border border-[#B89B5E]/70'
+                }`}
             >
               <span>Book</span>
-              <ArrowUpRight className={`w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 ${
-                isDark ? 'text-[#121A15]' : 'text-[#B89B5E]'
-              }`} />
+              <ArrowUpRight className={`w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 ${isDark ? 'text-[#121A15]' : 'text-[#B89B5E]'
+                }`} />
             </Link>
           </div>
 
@@ -187,11 +181,10 @@ export default function Navbar() {
           <button
             type="button"
             onClick={() => setMobileOpen(!mobileOpen)}
-            className={`lg:hidden p-2.5 rounded-full border shadow-xs cursor-pointer transition-colors duration-300 ${
-              isDark
-                ? 'bg-[#18231C] border-[#B89B5E]/40 text-[#EDE6D3]'
-                : 'bg-white border-[#D8D0BD] text-[#121A15]'
-            }`}
+            className={`lg:hidden p-2.5 rounded-full border shadow-xs cursor-pointer transition-colors duration-300 ${isDark
+              ? 'bg-[#18231C] border-[#B89B5E]/40 text-[#EDE6D3]'
+              : 'bg-white border-[#D8D0BD] text-[#121A15]'
+              }`}
             aria-expanded={mobileOpen}
             aria-label="Toggle Navigation Menu"
           >

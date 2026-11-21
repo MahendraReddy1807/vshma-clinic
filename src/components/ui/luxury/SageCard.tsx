@@ -84,21 +84,20 @@ export default function SageCard({
         animate={
           isHovered
             ? {
-                rotateX: tilt.rotateX,
-                rotateY: tilt.rotateY,
-                y: -6,
-                scale: 1.015,
-              }
+              rotateX: tilt.rotateX,
+              rotateY: tilt.rotateY,
+              y: -6,
+              scale: 1.015,
+            }
             : {
-                rotateX: 0,
-                rotateY: 0,
-                y: 0,
-                scale: 1,
-              }
+              rotateX: 0,
+              rotateY: 0,
+              y: 0,
+              scale: 1,
+            }
         }
-        className={`relative rounded-[18px] p-6 sm:p-8 transition-colors duration-300 overflow-hidden ${variantStyles} ${
-          onClick ? 'cursor-pointer' : ''
-        } ${className}`}
+        className={`relative rounded-[18px] p-6 sm:p-8 transition-colors duration-300 overflow-hidden ${variantStyles} ${onClick ? 'cursor-pointer' : ''
+          } ${className}`}
         style={{ transformStyle: 'preserve-3d' }}
       >
         {/* Dynamic radial highlight that follows cursor */}
