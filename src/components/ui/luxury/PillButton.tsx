@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { useCapability } from '@/lib/useCapability';
 
 export interface PillButtonProps {
   children: React.ReactNode;
@@ -33,6 +34,23 @@ export default function PillButton({
   target,
   rel,
 }: PillButtonProps) {
+  const { isTouch, prefersReducedMotion } = useCapability();
+  const [magneticOffset, setMagneticOffset] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    if (disabled || isTouch || prefersReducedMotion) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const dx = (e.clientX - centerX) * 0.18;
+    const dy = (e.clientY - centerY) * 0.18;
+    setMagneticOffset({ x: dx, y: dy });
+  };
+
+  const handleMouseLeave = () => {
+    setMagneticOffset({ x: 0, y: 0 });
+  };
+
   const sizeStyles = {
     sm: 'px-4 py-2 text-xs gap-1.5',
     md: 'px-6 py-3 text-sm gap-2',
@@ -48,33 +66,67 @@ export default function PillButton({
 
   const content = (
     <>
-      {icon && iconPosition === 'left' && <span className="shrink-0 transition-transform duration-300 group-hover:-translate-x-0.5">{icon}</span>}
-      <span className="tracking-wide font-sans font-medium">{children}</span>
-      {icon && iconPosition === 'right' && <span className="shrink-0 transition-transform duration-300 group-hover:translate-x-0.5">{icon}</span>}
+      {/* Fill-sweep hover sheen */}
+      <span
+        aria-hidden="true"
+        className="absolute inset-0 -translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-out bg-white/10 pointer-events-none rounded-full"
+      />
+      {icon && iconPosition === 'left' && (
+        <span className="shrink-0 transition-transform duration-300 group-hover:-translate-x-0.5">
+          {icon}
+        </span>
+      )}
+      <span className="relative z-10">{children}</span>
+      {icon && iconPosition === 'right' && (
+        <span className="shrink-0 transition-transform duration-300 group-hover:translate-x-0.5">
+          {icon}
+        </span>
+      )}
     </>
   );
 
-  const baseClasses = `group inline-flex items-center justify-center rounded-full transition-all duration-300 cursor-pointer select-none disabled:opacity-50 disabled:pointer-events-none ${sizeStyles} ${variantStyles} ${className}`;
+  const baseClasses = `relative group inline-flex items-center justify-center rounded-full font-sans tracking-wide transition-colors duration-300 select-none overflow-hidden ${sizeStyles} ${variantStyles} ${
+    disabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'cursor-pointer'
+  } ${className}`;
 
   if (href) {
     return (
-      <Link href={href} className={baseClasses} target={target} rel={rel}>
-        {content}
-      </Link>
+      <motion.div
+        animate={{ x: magneticOffset.x, y: magneticOffset.y }}
+        transition={{ type: 'spring', stiffness: 220, damping: 18, mass: 0.2 }}
+        className="inline-block"
+      >
+        <Link
+          href={href}
+          onClick={onClick}
+          target={target}
+          rel={rel}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          className={baseClasses}
+        >
+          {content}
+        </Link>
+      </motion.div>
     );
   }
 
   return (
-    <motion.button
-      type={type}
-      onClick={onClick}
-      disabled={disabled}
-      whileHover={{ y: -1 }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ duration: 0.15, ease: 'easeOut' }}
-      className={baseClasses}
+    <motion.div
+      animate={{ x: magneticOffset.x, y: magneticOffset.y }}
+      transition={{ type: 'spring', stiffness: 220, damping: 18, mass: 0.2 }}
+      className="inline-block"
     >
-      {content}
-    </motion.button>
+      <button
+        type={type}
+        onClick={onClick}
+        disabled={disabled}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        className={baseClasses}
+      >
+        {content}
+      </button>
+    </motion.div>
   );
 }

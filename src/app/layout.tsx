@@ -7,6 +7,8 @@ import VshmaCareAssistant from '@/components/chat/VshmaCareAssistant';
 import SmoothScrollProvider from '@/components/layout/SmoothScrollProvider';
 import FilmGrain from '@/components/ui/FilmGrain';
 import BrandIntro from '@/components/layout/BrandIntro';
+import CustomCursor from '@/components/ui/CustomCursor';
+import FloatingGlyphs from '@/components/ui/FloatingGlyphs';
 
 const newsreader = Newsreader({
   subsets: ['latin'],
@@ -87,8 +89,10 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
       </head>
       <body className="min-h-full flex flex-col font-sans bg-[#F7F3EC] text-[#161815] selection:bg-[#D4D8BA]/40 selection:text-[#121A15]">
+        <CustomCursor />
         <FilmGrain />
         <BrandIntro />
+        <FloatingGlyphs />
         <SmoothScrollProvider>
           <MotionProvider>
             {children}
