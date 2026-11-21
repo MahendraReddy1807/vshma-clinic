@@ -40,9 +40,9 @@ export class WhatsAppProvider {
 
     try {
       const provider = getGreenApi();
-      const result = await provider.sendMessage({
-        to: targetPhone,
-        text: finalMessage,
+      const result = await provider.sendTextMessage({
+        recipientPhone: targetPhone,
+        messageText: finalMessage,
       });
 
       if (!result.success) {
