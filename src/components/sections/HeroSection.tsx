@@ -52,8 +52,8 @@ export default function HeroSection() {
           </motion.div>
         </div>
 
-        {/* ───────────── MAIN EDITORIAL CONTENT (Centered vertically) ───────────── */}
-        <div className="relative z-10 max-w-3xl my-auto space-y-4 sm:space-y-5 lg:space-y-6">
+        {/* ───────────── MAIN EDITORIAL CONTENT (Centered vertically with soft bone scrim) ───────────── */}
+        <div className="relative z-10 max-w-3xl my-auto p-4 sm:p-6 lg:p-8 rounded-3xl bg-gradient-to-r from-[#F7F3EC]/95 via-[#F7F3EC]/85 to-transparent space-y-4 sm:space-y-5 lg:space-y-6">
           {/* Three-Line Masked Serif Headline */}
           <motion.h1
             initial={{ opacity: 0, y: 24 }}
@@ -69,9 +69,9 @@ export default function HeroSection() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.85, delay: 0.25, ease: [0.2, 0.7, 0.2, 1] }}
-            className="text-[#161815]/80 text-sm sm:text-base lg:text-lg font-light leading-relaxed max-w-2xl font-sans"
+            className="text-[#161815]/90 text-sm sm:text-base lg:text-lg font-light leading-relaxed max-w-2xl font-sans"
           >
-            Led by <strong className="font-semibold text-[#121A15]">{doctor.name}</strong> ({doctor.degree}), VSHMA provides unhurried, private clinical consultations in Bengaluru, understanding each patient&apos;s physical complaints and lifestyle rhythms.
+            Led by <strong className="font-semibold text-[#121A15]">{doctor.name}</strong> ({doctor.degree}), VSHMA provides focused, private clinical consultations in Bengaluru, listening attentively to your physical symptoms and personal health story.
           </motion.p>
 
           {/* Action Row */}

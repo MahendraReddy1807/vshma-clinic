@@ -67,6 +67,44 @@ export default function AdminNotificationsPage() {
   const [dispatcherResult, setDispatcherResult] = useState<string | null>(null);
   const [retryingJobId, setRetryingJobId] = useState<string | null>(null);
 
+  // Gmail SMTP Connection Test State
+  const [testingGmail, setTestingGmail] = useState(false);
+  const [gmailStatus, setGmailStatus] = useState<{
+    success: boolean;
+    message: string;
+    quota?: { count: number; limit: number; isWarning: boolean };
+  } | null>(null);
+
+  const handleTestGmail = async () => {
+    setTestingGmail(true);
+    setGmailStatus(null);
+    const token = typeof window !== 'undefined' ? localStorage.getItem('vshma_admin_session') : null;
+    try {
+      const res = await fetch('/api/admin/emails/test-gmail', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token || ''}`,
+        },
+        body: JSON.stringify({ testEmail: 'mahendrart07@gmail.com' }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        setGmailStatus({ success: false, message: data.error || 'Connection handshake failed' });
+      } else {
+        setGmailStatus({
+          success: true,
+          message: data.message + (data.sendResult?.success ? ' (Live test message dispatched)' : ''),
+          quota: data.quota,
+        });
+      }
+    } catch (err: unknown) {
+      setGmailStatus({ success: false, message: err instanceof Error ? err.message : 'Network error' });
+    } finally {
+      setTestingGmail(false);
+    }
+  };
+
   const fetchData = useCallback(async () => {
     setLoading(true);
     const token = typeof window !== 'undefined' ? localStorage.getItem('vshma_admin_session') : null;
@@ -277,6 +315,58 @@ export default function AdminNotificationsPage() {
           <span className="text-[10px] font-bold uppercase tracking-wider text-charcoal/50 block">Opt-out Skipped</span>
           <p className="text-2xl font-serif text-charcoal/70 font-light mt-1">{jobStats.skipped}</p>
           <span className="text-[10px] text-sage">STOP / Consent honoured</span>
+        </div>
+      </div>
+
+      {/* Gmail SMTP Integration & Quota Card */}
+      <div className="p-4 sm:p-5 rounded-3xl bg-white border border-sage/20 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center shrink-0 text-blue-700">
+            <Mail className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold text-sm text-forest">Email via Gmail SMTP</h3>
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200">
+                smtp.gmail.com:465
+              </span>
+            </div>
+            <p className="text-xs text-charcoal/70 mt-0.5">
+              Secure SSL dispatch via Nodemailer using Google App Password. 500 emails/day quota monitored.
+            </p>
+            {gmailStatus && (
+              <p
+                className={`text-xs mt-2 font-medium flex items-center gap-1.5 ${
+                  gmailStatus.success ? 'text-emerald-700' : 'text-rose-700'
+                }`}
+              >
+                {gmailStatus.success ? (
+                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                ) : (
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                )}
+                <span>{gmailStatus.message}</span>
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2 self-start md:self-auto shrink-0">
+          <button
+            onClick={handleTestGmail}
+            disabled={testingGmail}
+            className="px-4 py-2 rounded-xl bg-ivory hover:bg-sage/30 text-forest text-xs font-semibold border border-sage/40 flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
+          >
+            <RotateCw className={`w-3.5 h-3.5 text-[#B89B5E] ${testingGmail ? 'animate-spin' : ''}`} />
+            <span>{testingGmail ? 'Testing Handshake...' : 'Test Gmail Connection'}</span>
+          </button>
+
+          <Link
+            href="/admin/emails/preview"
+            className="px-4 py-2 rounded-xl bg-[#121A15] hover:bg-[#1F2B23] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-2xs"
+          >
+            <span>Preview Templates &rarr;</span>
+          </Link>
         </div>
       </div>
 

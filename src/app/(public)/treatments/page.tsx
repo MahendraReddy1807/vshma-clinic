@@ -1,7 +1,4 @@
 import type { Metadata } from 'next';
-import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
-import ScrollToTop from '@/components/layout/ScrollToTop';
 import TreatmentDirectory from '@/components/sections/TreatmentDirectory';
 import { CLINIC_INFO } from '@/lib/constants';
 
@@ -12,13 +9,8 @@ export const metadata: Metadata = {
 
 export default function TreatmentsPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-white">
-      <Navbar />
-      <main className="flex-1">
-        <TreatmentDirectory />
-      </main>
-      <Footer />
-      <ScrollToTop />
+    <div className="w-full">
+      <TreatmentDirectory />
     </div>
   );
 }

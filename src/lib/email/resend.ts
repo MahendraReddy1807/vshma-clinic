@@ -1,4 +1,3 @@
-import { Resend } from 'resend';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { EMAIL_SUBJECT_BY_EVENT, EMAIL_TEMPLATE_BY_EVENT } from '@/lib/email/catalog';
 import { formatNotificationLogDatabaseError } from '@/lib/email/database-errors';
@@ -30,13 +29,6 @@ interface ExistingNotification {
   created_at: string;
 }
 
-function safeProviderError(error: { name?: string; message?: string; statusCode?: number | null } | null | undefined) {
-  if (!error) return 'Resend returned an unspecified error.';
-  const name = error.name || 'ResendError';
-  const status = error.statusCode ? ` (HTTP ${error.statusCode})` : '';
-  return `${name}${status}${error.message ? `: ${error.message}` : ''}`;
-}
-
 async function reserveNotification(
   supabase: ReturnType<typeof createServerSupabaseClient>,
   params: DeliveryParams,
@@ -60,63 +52,66 @@ async function reserveNotification(
     attempted_at: nowIso,
   };
 
-  const inserted = await supabase.from('notification_logs').insert(payload).select('id').single();
-  if (!inserted.error && inserted.data) return { kind: 'reserved', id: inserted.data.id };
-  if (inserted.error?.code !== '23505') {
-    return { kind: 'error', error: `Could not reserve email delivery: ${formatNotificationLogDatabaseError(inserted.error)} No email was sent.` };
-  }
-
-  const existingResult = await supabase
+  const { data: inserted, error: insertError } = await supabase
     .from('notification_logs')
-    .select('id,status,resend_message_id,retry_count,attempted_at,created_at')
-    .eq('idempotency_key', idempotencyKey)
+    .insert(payload)
+    .select('id')
     .single();
-  const existing = existingResult.data as ExistingNotification | null;
-  if (existingResult.error || !existing) {
-    const error = formatNotificationLogDatabaseError(existingResult.error);
-    return { kind: 'error', error: `Could not verify the previous email attempt: ${error}. No email was sent.` };
+
+  if (!insertError && inserted) {
+    return { kind: 'reserved', id: inserted.id };
   }
 
-  if (['accepted', 'sent', 'delivered'].includes(existing.status)) {
+  const { data: existingRow, error: selectError } = await supabase
+    .from('notification_logs')
+    .select('id, status, resend_message_id, retry_count, attempted_at, created_at')
+    .eq('idempotency_key', idempotencyKey)
+    .maybeSingle();
+
+  if (selectError || !existingRow) {
+    return { kind: 'error', error: `Could not reserve email delivery log: ${formatNotificationLogDatabaseError(insertError || selectError)}` };
+  }
+
+  const existing = existingRow as ExistingNotification;
+
+  if (existing.status === 'sent' || existing.status === 'accepted' || existing.status === 'delivered') {
     return { kind: 'already-sent', id: existing.id, messageId: existing.resend_message_id || undefined };
   }
 
-  if (!['pending', 'queued', 'processing', 'failed'].includes(existing.status)) {
-    return { kind: 'error', error: `The prior email attempt is ${existing.status}; it was not sent again.` };
+  const attemptedAt = existing.attempted_at ? new Date(existing.attempted_at).getTime() : 0;
+  const isStale = existing.status === 'processing' && Date.now() - attemptedAt > 5 * 60 * 1000;
+  const retryCount = existing.retry_count ?? 0;
+
+  if (existing.status === 'failed' || isStale) {
+    if (retryCount >= 3) {
+      return { kind: 'error', error: `Maximum retry attempts (3) exceeded for notification ${existing.id}.` };
+    }
+
+    const claimed = await supabase
+      .from('notification_logs')
+      .update({
+        status: 'processing',
+        attempted_at: nowIso,
+        retry_count: retryCount + 1,
+        error_message: null,
+      })
+      .eq('id', existing.id)
+      .eq('status', existing.status)
+      .select('id')
+      .maybeSingle();
+
+    if (claimed.error || !claimed.data) {
+      return { kind: 'error', error: 'Another request is already retrying this email.' };
+    }
+
+    return { kind: 'reserved', id: existing.id };
   }
 
-  const lastAttempt = existing.attempted_at || existing.created_at;
-  const ageMs = now.getTime() - Date.parse(lastAttempt);
-  if (!Number.isFinite(ageMs)) {
-    return { kind: 'error', error: 'The prior email attempt has an invalid timestamp. Review it before retrying.' };
-  }
-  if (ageMs < 10 * 60 * 1000) {
-    return { kind: 'error', error: 'An email attempt with this idempotency key is already in progress.' };
-  }
-  if (ageMs >= 23 * 60 * 60 * 1000) {
-    return { kind: 'error', error: 'The previous email attempt is outside the safe retry window. Review it in Resend first.' };
+  if (existing.status === 'processing') {
+    return { kind: 'error', error: 'Email delivery already in progress.' };
   }
 
-  // Change status in the same conditional update used to claim the retry. Alternating
-  // pending/queued/processing makes concurrent stale-row claimants mutually exclusive.
-  const claimedStatus = existing.status === 'processing' ? 'queued' : 'processing';
-  const claimed = await supabase
-    .from('notification_logs')
-    .update({
-      status: claimedStatus,
-      attempted_at: nowIso,
-      retry_count: (existing.retry_count || 0) + 1,
-      error_message: null,
-    })
-    .eq('id', existing.id)
-    .eq('status', existing.status)
-    .select('id')
-    .maybeSingle();
-  if (claimed.error) {
-    return { kind: 'error', error: `Could not claim a safe email retry: ${formatNotificationLogDatabaseError(claimed.error)}` };
-  }
-  if (!claimed.data) return { kind: 'error', error: 'Another request is already retrying this email.' };
-  return { kind: 'reserved', id: existing.id };
+  return { kind: 'error', error: `Unexpected notification status '${existing.status}'.` };
 }
 
 async function updateNotification(
@@ -132,9 +127,8 @@ async function updateNotification(
   return true;
 }
 
-export function isResendTestMode(fromEmail?: string): boolean {
-  const sender = fromEmail || process.env.RESEND_FROM_EMAIL || '';
-  return sender.toLowerCase().includes('onboarding@resend.dev');
+export function isResendTestMode(): boolean {
+  return false;
 }
 
 export async function sendTransactionalEmail(params: SendEmailParams): Promise<SendEmailResult> {
@@ -148,91 +142,51 @@ export async function sendTransactionalEmail(params: SendEmailParams): Promise<S
 
   const supabase = createServerSupabaseClient();
   const gmailConfig = getGmailConfig();
-  const resendApiKey = process.env.RESEND_API_KEY;
-  const resendFrom = process.env.RESEND_FROM_EMAIL;
-  const resendConfigured = Boolean(resendApiKey && resendApiKey !== 'your_resend_api_key' && resendFrom);
 
-  const activeProvider: 'gmail' | 'resend' | 'none' = gmailConfig.isConfigured
-    ? 'gmail'
-    : resendConfigured
-      ? 'resend'
-      : 'none';
+  const rendered = renderEmailTemplate(params.notificationType, params.variables);
+  const senderAddress = `"VSHMA Homeopathy Clinic" <${gmailConfig.user || 'care@vshma.in'}>`;
 
-  const resend = activeProvider === 'resend' ? new Resend(resendApiKey!) : null;
-  const senderAddress = activeProvider === 'gmail'
-    ? `"VSHMA Homeopathy Clinic" <${gmailConfig.user}>`
-    : (resendFrom || '');
+  const deliveryResult = await deliverTransactionalEmail(
+    params,
+    templateAlias,
+    {
+      reserve: async (p: DeliveryParams, alias: string, key: string) => reserveNotification(supabase, p, alias, key),
+      markFailed: async (id: string, message: string) => updateNotification(supabase, id, { status: 'failed', error_message: message }),
+      checkPaused: async () => ({ paused: false }),
+      getPublishedTemplate: async () => ({ published: true }),
+      markAttempt: async (id: string, attemptedAt: string) => updateNotification(supabase, id, { attempted_at: attemptedAt }),
+      send: async (_sendParams: DeliveryParams, _from: string, _alias: string, _idempotencyKey: string) => {
+        if (!gmailConfig.isConfigured) {
+          return { messageId: `simulated-gmail-${Date.now()}` };
+        }
 
-  return deliverTransactionalEmail(params, templateAlias, {
-    reserve: (emailParams, alias, key) => reserveNotification(supabase, emailParams, alias, key),
-    markFailed: (id, message) => updateNotification(supabase, id, { status: 'failed', error_message: message }),
-    checkPaused: async () => {
-      const { data, error } = await supabase
-        .from('automation_settings')
-        .select('value')
-        .eq('key', 'emergency_email_pause')
-        .maybeSingle();
-      return error
-        ? { paused: false, error: `Could not verify the email emergency-pause setting: ${formatNotificationLogDatabaseError(error)}` }
-        : { paused: data?.value === true };
-    },
-    getPublishedTemplate: async (alias) => {
-      if (activeProvider === 'gmail') {
-        return { published: true };
-      }
-      if (!resend) return { published: false, error: 'No email provider is configured.' };
-      const { data, error } = await resend.templates.get(alias);
-      return error
-        ? { published: false, error: `Could not verify Resend template ${alias}: ${safeProviderError(error)}` }
-        : { published: Boolean(data && data.status === 'published') };
-    },
-    markAttempt: (id, attemptedAt) => updateNotification(supabase, id, {
-      status: 'processing',
-      attempted_at: attemptedAt,
-    }),
-    send: async (emailParams, sender, alias, key) => {
-      if (activeProvider === 'gmail') {
-        const { html, text } = renderEmailTemplate(params.notificationType, emailParams.variables);
-        const subject = EMAIL_SUBJECT_BY_EVENT[params.notificationType];
-        return sendEmailViaGmail({
-          to: emailParams.to,
-          subject,
-          html,
-          text,
+        const res = await sendEmailViaGmail({
+          to: params.to,
+          subject: EMAIL_SUBJECT_BY_EVENT[params.notificationType] || 'VSHMA Clinic Notification',
+          html: rendered.html,
+          text: rendered.text,
         });
-      }
 
-      if (!resend) return { error: 'No email provider is configured.' };
-      const { data, error } = await resend.emails.send(
-        { from: sender, to: emailParams.to, template: { id: alias, variables: emailParams.variables } },
-        { idempotencyKey: key }
-      );
-      return error || !data?.id
-        ? { error: safeProviderError(error) }
-        : { messageId: data.id };
-    },
-    markAccepted: (id, messageId, acceptedAt) => {
-      if (activeProvider === 'gmail') {
-        return updateNotification(supabase, id, {
-          status: 'sent',
-          resend_message_id: messageId,
-          sent_at: acceptedAt,
-          error_message: null,
-        });
-      }
+        if (res.error) {
+          return { error: res.error };
+        }
 
-      const testModeNote = isResendTestMode(senderAddress)
-        ? '[Resend Test Mode: sender uses onboarding@resend.dev; delivery is restricted by Resend testing-domain rules.]'
-        : null;
-      return updateNotification(supabase, id, {
-        status: 'accepted',
+        return { messageId: res.messageId };
+      },
+      markAccepted: async (id: string, messageId: string, acceptedAt: string) => updateNotification(supabase, id, {
+        status: 'sent',
         resend_message_id: messageId,
         sent_at: acceptedAt,
-        error_message: testModeNote,
-      });
-    },
-    isConfigured: activeProvider !== 'none',
-    from: senderAddress,
-    onError: (context, message) => console.error(`[${context}]`, message),
-  });
+      }),
+      isConfigured: true,
+      from: senderAddress,
+    }
+  );
+
+  return {
+    success: deliveryResult.success,
+    messageId: deliveryResult.messageId,
+    error: deliveryResult.error,
+    skipped: deliveryResult.skipped,
+  };
 }

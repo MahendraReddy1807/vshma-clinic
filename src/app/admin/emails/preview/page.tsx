@@ -12,7 +12,8 @@ import {
   CheckCircle2,
   AlertCircle,
   ArrowLeft,
-  Sparkles,
+  Moon,
+  Sun,
 } from 'lucide-react';
 import { LUXURY_EMAIL_TEMPLATES, type LuxuryEmailProps } from '@/lib/notifications/email-templates';
 
@@ -20,59 +21,60 @@ type TemplateKey = keyof typeof LUXURY_EMAIL_TEMPLATES;
 
 const TEMPLATE_METADATA: Array<{ key: TemplateKey; label: string; role: 'patient' | 'clinic' | 'doctor'; desc: string }> = [
   { key: 'booking_received', label: '1. Booking Received', role: 'patient', desc: 'Sent to patient upon web reservation' },
-  { key: 'clinic_new_booking_alert', label: '2. Clinic Alert', role: 'clinic', desc: 'Staff alert with patient details & admin button' },
-  { key: 'confirmed', label: '3. Confirmed & Calendar', role: 'patient', desc: 'Confirmed slot with .ics & Google Cal links' },
-  { key: 'rescheduled', label: '4. Rescheduled', role: 'patient', desc: 'Notifies patient of slot adjustment' },
-  { key: 'cancelled', label: '5. Cancelled', role: 'patient', desc: 'Notification of cancelled slot + rebook link' },
-  { key: 'completed', label: '6. Post-Visit Completed', role: 'patient', desc: 'Thank-you note & 3-4 week follow-up callout' },
-  { key: 'no_show', label: '7. No-Show Rebook', role: 'patient', desc: 'Gentle patient message offering to reschedule' },
-  { key: 'reminder_24h', label: '8. Reminder (24h)', role: 'patient', desc: 'Pre-visit reminder day before appointment' },
-  { key: 'reminder_2h', label: '9. Reminder (2h)', role: 'patient', desc: 'Pre-visit reminder 2 hours prior to arrival' },
-  { key: 'reminder_1h', label: '10. Reminder (1h)', role: 'patient', desc: 'Last hour reminder before consultation' },
-  { key: 'reminder_10m', label: '11. Reminder (10m)', role: 'patient', desc: 'Final arrival call to step into consulting room' },
-  { key: 'doctor_reminder', label: '12. Doctor Alert (1h)', role: 'doctor', desc: 'Advance alert for Dr. Chihnitha before next patient' },
-  { key: 'doctor_daily_digest', label: '13. Doctor Daily Digest', role: 'doctor', desc: 'Morning 8:00 AM IST digest of the full day' },
+  { key: 'clinic_new_booking_alert', label: '2. Clinic Alert', role: 'clinic', desc: 'Staff alert with patient details & portal link' },
+  { key: 'doctor_new_booking_alert', label: '3. Doctor Schedule Alert', role: 'doctor', desc: 'Schedule alert for Dr. Chihnitha with patient details' },
+  { key: 'booking_confirmed', label: '4. Booking Confirmed', role: 'patient', desc: 'Confirmed slot with calendar invite and clinic address' },
+  { key: 'booking_rescheduled', label: '5. Booking Rescheduled', role: 'patient', desc: 'Notifies patient of slot change with new time' },
+  { key: 'booking_cancelled', label: '6. Booking Cancelled', role: 'patient', desc: 'Notification of cancelled slot + rebook link' },
+  { key: 'reminder_24h', label: '7. Reminder (24h Ahead)', role: 'patient', desc: 'Pre-visit reminder the day before consultation' },
+  { key: 'reminder_2h', label: '8. Reminder (2h Ahead)', role: 'patient', desc: 'Final arrival call 2 hours prior to appointment' },
+  { key: 'post_consultation_followup', label: '9. Post-Consultation Followup', role: 'patient', desc: 'Care notes, remedy instructions & follow-up guide' },
+  { key: 'remedy_tracking_checkin', label: '10. Weekly Remedy Check-In', role: 'patient', desc: '7-day check-in on natural vitality response' },
+  { key: 'daily_clinic_digest', label: '11. Daily Clinic Digest', role: 'doctor', desc: 'Morning schedule roster for clinic & doctor' },
+  { key: 'opt_out_confirmed', label: '12. Opt-Out Confirmed', role: 'patient', desc: 'Confirmation of communication preferences' },
+  { key: 'inactivity_reengagement', label: '13. Seasonal Care Review', role: 'patient', desc: '90-day check-in for recurring health reviews' },
 ];
 
 export default function EmailPreviewPage() {
-  const [selectedKey, setSelectedKey] = useState<TemplateKey>('confirmed');
+  const [selectedKey, setSelectedKey] = useState<TemplateKey>('booking_confirmed');
   const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
   const [tabMode, setTabMode] = useState<'html' | 'text'>('html');
+  const [simulateDarkMode, setSimulateDarkMode] = useState(false);
   const [testEmail, setTestEmail] = useState('mahendrart07@gmail.com');
   const [isSending, setIsSending] = useState(false);
   const [sendResult, setSendResult] = useState<{ success: boolean; message: string } | null>(null);
 
-  // Sample data
+  // Sample data (zero medical jargon)
   const sampleData: LuxuryEmailProps = {
     patientName: 'Rajesh Sharma',
     referenceNumber: 'VSHMA-2026-8941',
     appointmentDate: 'Saturday, 28 Nov 2026',
     appointmentTime: '10:30 AM IST',
-    consultationType: 'Comprehensive Constitutional Intake',
+    consultationType: 'Comprehensive Homeopathic Intake',
     mode: 'In-Clinic Consultation',
     doctorName: 'Dr. Chihnitha Reddy T (BHMS)',
     location: 'VSHMA Homeopathy Clinic, Bengaluru, Karnataka (By Prior Appt)',
-    notes: 'Mild eczema flare-up, past records available.',
+    notes: 'Mild eczema flare-up, previous records available.',
     phone: '+91 98765 43210',
     email: 'rajesh.sharma@example.com',
     oldDate: 'Friday, 27 Nov 2026',
     oldTime: '4:00 PM IST',
-    calendarUrl: 'https://calendar.google.com',
-    rescheduleUrl: 'https://vshma.in/book/reschedule?token=demo',
-    cancelUrl: 'https://vshma.in/book/cancel?token=demo',
+    calendarUrl: 'https://vshma.in/contact',
+    rescheduleUrl: 'https://vshma.in/book',
+    cancelUrl: 'https://vshma.in/book',
     totalAppointments: 5,
     digestListHtml: `
-      <div style="background:#FAF8F5;padding:12px;border-radius:10px;border:1px solid #E5E0D4;margin-bottom:8px;">
-        <strong>10:30 AM</strong> - Rajesh Sharma (Constitutional Intake)<br>
-        <span style="font-size:11px;color:#8F9489;">Ref: VSHMA-8941 &bull; Phone: +91 98xxx</span>
+      <div style="background:#FAF8F5;padding:12px;border-radius:10px;border:1px solid #D4D8BA;margin-bottom:8px;">
+        <strong>10:30 AM</strong> - Rajesh Sharma (First-Time Intake)<br>
+        <span style="font-size:11px;color:#5A635B;">Ref: VSHMA-8941 &bull; Phone: +91 98xxx</span>
       </div>
-      <div style="background:#FAF8F5;padding:12px;border-radius:10px;border:1px solid #E5E0D4;margin-bottom:8px;">
-        <strong>11:45 AM</strong> - Sneha Rao (PCOS Follow-up)<br>
-        <span style="font-size:11px;color:#8F9489;">Ref: VSHMA-8945 &bull; Phone: +91 97xxx</span>
+      <div style="background:#FAF8F5;padding:12px;border-radius:10px;border:1px solid #D4D8BA;margin-bottom:8px;">
+        <strong>11:45 AM</strong> - Sneha Rao (Follow-up Care)<br>
+        <span style="font-size:11px;color:#5A635B;">Ref: VSHMA-8945 &bull; Phone: +91 97xxx</span>
       </div>
-      <div style="background:#FAF8F5;padding:12px;border-radius:10px;border:1px solid #E5E0D4;">
-        <strong>03:00 PM</strong> - Vikram Desai (Migraine Assessment)<br>
-        <span style="font-size:11px;color:#8F9489;">Ref: VSHMA-8950 &bull; Phone: +91 94xxx</span>
+      <div style="background:#FAF8F5;padding:12px;border-radius:10px;border:1px solid #D4D8BA;">
+        <strong>03:00 PM</strong> - Vikram Desai (Health Assessment)<br>
+        <span style="font-size:11px;color:#5A635B;">Ref: VSHMA-8950 &bull; Phone: +91 94xxx</span>
       </div>
     `,
   };
@@ -81,6 +83,11 @@ export default function EmailPreviewPage() {
     const generator = LUXURY_EMAIL_TEMPLATES[selectedKey];
     return generator(sampleData);
   }, [selectedKey]);
+
+  // Replace cid: with actual public web URL for local browser preview in iframe
+  const previewHtml = useMemo(() => {
+    return rendered.html.replace(/src="cid:vshma-logo"/g, 'src="/logo-transparent.png"');
+  }, [rendered.html]);
 
   const handleSendTest = async () => {
     if (!testEmail || isSending) return;
@@ -105,59 +112,54 @@ export default function EmailPreviewPage() {
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to dispatch test email');
+        setSendResult({ success: false, message: data.error || 'Failed to dispatch test email' });
+      } else {
+        setSendResult({ success: true, message: data.message || `Test email dispatched to ${testEmail}` });
       }
-
-      setSendResult({
-        success: true,
-        message: data.message || `Test email sent to ${testEmail}!`,
-      });
     } catch (err: unknown) {
-      setSendResult({
-        success: false,
-        message: err instanceof Error ? err.message : String(err),
-      });
+      setSendResult({ success: false, message: err instanceof Error ? err.message : 'Network error' });
     } finally {
       setIsSending(false);
     }
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 max-w-7xl mx-auto font-sans pb-12">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-sage/20">
-        <div>
-          <div className="flex items-center gap-2">
-            <Link
-              href="/admin/settings"
-              className="p-1.5 rounded-lg bg-forest/5 hover:bg-forest/10 text-forest transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </Link>
-            <h1 className="text-2xl sm:text-3xl font-serif font-light text-forest tracking-tight">
-              Luxury Email Templates Preview
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-sage/20 shadow-sm">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/admin/notifications"
+            className="w-10 h-10 rounded-2xl bg-ivory hover:bg-sage/30 flex items-center justify-center text-forest transition-colors shrink-0"
+            title="Back to Notifications"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
+          <div>
+            <h1 className="text-xl sm:text-2xl font-serif text-forest font-normal leading-tight">
+              Email Template Gallery
             </h1>
+            <p className="text-xs text-charcoal/60 mt-0.5">
+              13 light-first luxury email templates with Gmail SMTP & embedded CID logo
+            </p>
           </div>
-          <p className="text-xs sm:text-sm text-charcoal/70 mt-1">
-            Production 600px bulletproof table layout with dark-mode support and plain text fallback.
-          </p>
         </div>
 
-        {/* Test Send Form */}
-        <div className="flex items-center gap-2 bg-white p-2 rounded-2xl border border-sage/30 shadow-2xs">
+        {/* Test Send Controls */}
+        <div className="flex flex-wrap items-center gap-2">
           <input
             type="email"
             value={testEmail}
             onChange={(e) => setTestEmail(e.target.value)}
             placeholder="Recipient email..."
-            className="px-3 py-1.5 rounded-xl bg-ivory/50 border border-sage/30 text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-forest/30 w-52"
+            className="px-3.5 py-2 rounded-xl bg-ivory border border-sage/30 text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-forest/30 w-56"
           />
           <button
             onClick={handleSendTest}
             disabled={isSending}
-            className="px-3.5 py-1.5 rounded-xl bg-forest hover:bg-forest-light text-white text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50 shadow-xs cursor-pointer"
+            className="px-4 py-2 rounded-xl bg-[#121A15] hover:bg-[#1F2B23] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50 shadow-xs cursor-pointer"
           >
-            <Send className="w-3.5 h-3.5 text-gold" />
+            <Send className="w-3.5 h-3.5 text-[#B89B5E]" />
             <span>{isSending ? 'Sending...' : 'Send Test'}</span>
           </button>
         </div>
@@ -201,16 +203,16 @@ export default function EmailPreviewPage() {
                   }}
                   className={`w-full text-left p-3 rounded-2xl transition-all cursor-pointer flex flex-col gap-0.5 ${
                     isSelected
-                      ? 'bg-forest text-white shadow-xs'
+                      ? 'bg-[#121A15] text-white shadow-xs'
                       : 'hover:bg-ivory text-charcoal'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-xs tracking-tight">{tmpl.label}</span>
                     <span
-                      className={`text-[9px] uppercase px-1.5 py-0.2 rounded-md font-bold tracking-wider ${
+                      className={`text-[9px] uppercase px-1.5 py-0.5 rounded-md font-bold tracking-wider ${
                         isSelected
-                          ? 'bg-gold/20 text-gold'
+                          ? 'bg-[#B89B5E]/30 text-[#D4D8BA]'
                           : tmpl.role === 'patient'
                           ? 'bg-emerald-100 text-emerald-800'
                           : tmpl.role === 'clinic'
@@ -223,7 +225,7 @@ export default function EmailPreviewPage() {
                   </div>
                   <p
                     className={`text-[11px] truncate ${
-                      isSelected ? 'text-sage-light/80' : 'text-charcoal/60'
+                      isSelected ? 'text-[#D4D8BA]/80' : 'text-charcoal/60'
                     }`}
                   >
                     {tmpl.desc}
@@ -237,85 +239,107 @@ export default function EmailPreviewPage() {
         {/* Preview Frame Container (8 Cols) */}
         <div className="lg:col-span-8 bg-white rounded-3xl border border-sage/20 shadow-sm overflow-hidden flex flex-col">
           {/* Preview Toolbar */}
-          <div className="p-4 border-b border-sage/20 bg-ivory/30 flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="text-xs font-semibold text-forest flex items-center gap-1.5">
-                <Mail className="w-3.5 h-3.5 text-gold" />
-                <span>Subject: {rendered.subject}</span>
+          <div className="p-4 border-b border-sage/20 bg-ivory/40 flex flex-wrap items-center justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-semibold text-forest flex items-center gap-1.5 truncate">
+                <Mail className="w-3.5 h-3.5 text-[#B89B5E] shrink-0" />
+                <span className="truncate">Subject: {rendered.subject}</span>
               </p>
             </div>
 
             <div className="flex items-center gap-2">
+              {/* Simulate Dark Mode Toggle */}
+              <button
+                type="button"
+                onClick={() => setSimulateDarkMode(!simulateDarkMode)}
+                title="Toggle forced dark mode simulation"
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-medium transition-colors cursor-pointer ${
+                  simulateDarkMode
+                    ? 'bg-[#121A15] text-[#EDE6D3] border-[#B89B5E]'
+                    : 'bg-white text-charcoal/80 border-sage/30 hover:bg-ivory'
+                }`}
+              >
+                {simulateDarkMode ? <Moon className="w-3.5 h-3.5 text-[#B89B5E]" /> : <Sun className="w-3.5 h-3.5 text-amber-500" />}
+                <span>{simulateDarkMode ? 'Dark Sim ON' : 'Dark Sim OFF'}</span>
+              </button>
+
               {/* HTML / Plain Text Toggle */}
               <div className="flex bg-white rounded-xl border border-sage/30 p-0.5 text-xs font-medium">
                 <button
                   onClick={() => setTabMode('html')}
-                  className={`px-3 py-1 rounded-lg transition-colors cursor-pointer flex items-center gap-1 ${
-                    tabMode === 'html' ? 'bg-forest text-white' : 'text-charcoal/70'
+                  className={`px-3 py-1 rounded-lg transition-colors flex items-center gap-1 cursor-pointer ${
+                    tabMode === 'html' ? 'bg-[#121A15] text-white shadow-2xs' : 'text-charcoal/70 hover:text-charcoal'
                   }`}
                 >
-                  <Eye className="w-3.5 h-3.5" />
+                  <Eye className="w-3 h-3" />
                   <span>HTML</span>
                 </button>
                 <button
                   onClick={() => setTabMode('text')}
-                  className={`px-3 py-1 rounded-lg transition-colors cursor-pointer flex items-center gap-1 ${
-                    tabMode === 'text' ? 'bg-forest text-white' : 'text-charcoal/70'
+                  className={`px-3 py-1 rounded-lg transition-colors flex items-center gap-1 cursor-pointer ${
+                    tabMode === 'text' ? 'bg-[#121A15] text-white shadow-2xs' : 'text-charcoal/70 hover:text-charcoal'
                   }`}
                 >
-                  <FileText className="w-3.5 h-3.5" />
+                  <FileText className="w-3 h-3" />
                   <span>Plain Text</span>
                 </button>
               </div>
 
-              {/* Desktop / Mobile Frame Viewport */}
-              {tabMode === 'html' && (
-                <div className="flex bg-white rounded-xl border border-sage/30 p-0.5 text-xs">
-                  <button
-                    onClick={() => setViewMode('desktop')}
-                    className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-                      viewMode === 'desktop' ? 'bg-forest text-white' : 'text-charcoal/70'
-                    }`}
-                    title="Desktop Preview (600px)"
-                  >
-                    <Monitor className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={() => setViewMode('mobile')}
-                    className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-                      viewMode === 'mobile' ? 'bg-forest text-white' : 'text-charcoal/70'
-                    }`}
-                    title="Mobile Preview (375px)"
-                  >
-                    <Smartphone className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              )}
+              {/* Desktop / Mobile Device Viewport Switcher */}
+              <div className="flex bg-white rounded-xl border border-sage/30 p-0.5 text-xs">
+                <button
+                  onClick={() => setViewMode('desktop')}
+                  className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                    viewMode === 'desktop' ? 'bg-sage/40 text-forest' : 'text-charcoal/50 hover:text-charcoal'
+                  }`}
+                  title="Desktop View (640px)"
+                >
+                  <Monitor className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode('mobile')}
+                  className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                    viewMode === 'mobile' ? 'bg-sage/40 text-forest' : 'text-charcoal/50 hover:text-charcoal'
+                  }`}
+                  title="Mobile View (375px)"
+                >
+                  <Smartphone className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Preview Canvas Area */}
-          <div className="p-6 bg-[#EBE7DF] min-h-[640px] flex items-center justify-center overflow-auto">
+          {/* Render Area */}
+          <div
+            className={`p-4 sm:p-8 flex justify-center min-h-[640px] transition-colors duration-300 ${
+              simulateDarkMode ? 'bg-[#0E1410]' : 'bg-[#EFECE5]'
+            }`}
+          >
             {tabMode === 'html' ? (
               <div
-                className={`transition-all duration-300 shadow-xl rounded-2xl overflow-hidden bg-white border border-sage/30 ${
-                  viewMode === 'desktop' ? 'w-[640px]' : 'w-[375px]'
-                }`}
+                style={{
+                  width: viewMode === 'mobile' ? '375px' : '100%',
+                  maxWidth: viewMode === 'mobile' ? '375px' : '640px',
+                  transition: 'all 0.3s ease',
+                  filter: simulateDarkMode ? 'invert(0.92) hue-rotate(180deg)' : 'none',
+                }}
+                className="rounded-2xl overflow-hidden shadow-xl border border-sage/20 bg-white"
               >
                 <iframe
-                  title="Email Preview"
-                  srcDoc={rendered.html}
-                  className="w-full h-[720px] border-none"
+                  title="Email Template Preview"
+                  srcDoc={previewHtml}
+                  className="w-full h-[620px] border-0"
                 />
               </div>
             ) : (
-              <div className="w-full max-w-2xl bg-white p-6 rounded-2xl border border-sage/30 shadow-md">
-                <p className="text-[10px] uppercase font-bold text-brass tracking-wider mb-2 font-mono">
-                  Plain-Text MIME Alternative:
-                </p>
-                <pre className="text-xs text-charcoal/80 font-mono whitespace-pre-wrap leading-relaxed bg-ivory/50 p-4 rounded-xl border border-sage/20">
-                  {rendered.text}
-                </pre>
+              <div
+                style={{
+                  width: viewMode === 'mobile' ? '375px' : '100%',
+                  maxWidth: viewMode === 'mobile' ? '375px' : '640px',
+                }}
+                className="bg-white rounded-2xl p-6 font-mono text-xs text-charcoal/85 whitespace-pre-wrap border border-sage/20 shadow-sm leading-relaxed overflow-y-auto max-h-[620px]"
+              >
+                {rendered.text}
               </div>
             )}
           </div>

@@ -2,15 +2,6 @@ import type { Metadata, Viewport } from 'next';
 import { Newsreader, Instrument_Sans } from 'next/font/google';
 import './globals.css';
 import { CLINIC_INFO } from '@/lib/constants';
-import MotionProvider from '@/components/layout/MotionProvider';
-import VshmaCareAssistant from '@/components/chat/VshmaCareAssistant';
-import SmoothScrollProvider from '@/components/layout/SmoothScrollProvider';
-import FilmGrain from '@/components/ui/FilmGrain';
-import BrandIntro from '@/components/layout/BrandIntro';
-import CustomCursor from '@/components/ui/CustomCursor';
-import FloatingGlyphs from '@/components/ui/FloatingGlyphs';
-import FloatingDock from '@/components/layout/FloatingDock';
-import ChapterDepthTransitions from '@/components/layout/ChapterDepthTransitions';
 
 const newsreader = Newsreader({
   subsets: ['latin'],
@@ -83,7 +74,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`h-full antialiased scroll-smooth ${newsreader.variable} ${instrumentSans.variable}`}>
+    <html lang="en" className={`h-full antialiased ${newsreader.variable} ${instrumentSans.variable}`}>
       <head>
         <link rel="icon" href="/icon.png?v=2" type="image/png" sizes="32x32 48x48 192x192 512x512" />
         <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
@@ -140,18 +131,7 @@ export default function RootLayout({
             }),
           }}
         />
-        <CustomCursor />
-        <FilmGrain />
-        <BrandIntro />
-        <FloatingGlyphs />
-        <SmoothScrollProvider>
-          <MotionProvider>
-            {children}
-            <VshmaCareAssistant />
-            <FloatingDock />
-            <ChapterDepthTransitions />
-          </MotionProvider>
-        </SmoothScrollProvider>
+        {children}
       </body>
     </html>
   );

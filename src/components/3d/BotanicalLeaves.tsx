@@ -8,7 +8,6 @@ interface BotanicalLeavesProps {
   count?: number;
 }
 
-// Pure deterministic pseudo-random generator (avoids Math.random during render)
 function createPrng(seed = 108) {
   let s = seed;
   return () => {
@@ -17,24 +16,23 @@ function createPrng(seed = 108) {
   };
 }
 
-export default function BotanicalLeaves({ count = 30 }: BotanicalLeavesProps) {
+export default function BotanicalLeaves({ count = 18 }: BotanicalLeavesProps) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
-  // Sculpt procedural curved leaf geometry using Bezier curves
   const leafGeometry = useMemo(() => {
     const shape = new THREE.Shape();
-    shape.moveTo(0, -0.5);
-    shape.bezierCurveTo(0.35, -0.15, 0.35, 0.35, 0, 0.7);
-    shape.bezierCurveTo(-0.35, 0.35, -0.35, -0.15, 0, -0.5);
+    shape.moveTo(0, -0.4);
+    shape.bezierCurveTo(0.25, -0.1, 0.25, 0.3, 0, 0.55);
+    shape.bezierCurveTo(-0.25, 0.3, -0.25, -0.1, 0, -0.4);
 
     const extrudeSettings: THREE.ExtrudeGeometryOptions = {
-      depth: 0.02,
+      depth: 0.015,
       bevelEnabled: true,
-      bevelSegments: 2,
+      bevelSegments: 1,
       steps: 1,
-      bevelSize: 0.015,
-      bevelThickness: 0.015,
+      bevelSize: 0.01,
+      bevelThickness: 0.01,
     };
 
     const geom = new THREE.ExtrudeGeometry(shape, extrudeSettings);
@@ -42,22 +40,20 @@ export default function BotanicalLeaves({ count = 30 }: BotanicalLeavesProps) {
     return geom;
   }, []);
 
-  // Generate leaf drift data with deterministic PRNG
+  // Position leaves strictly on the RIGHT side of the canvas (x: 1.0 to 4.2)
   const leafData = useMemo(() => {
     const rand = createPrng(924);
     const data = [];
     for (let i = 0; i < count; i++) {
-      const radius = 3.0 + rand() * 5.0;
-      const angle = rand() * Math.PI * 2;
-      const x = radius * Math.cos(angle);
-      const y = (rand() - 0.5) * 5.0;
-      const z = -1.5 + rand() * 5.0;
+      const x = 1.0 + rand() * 3.4;
+      const y = -2.0 + rand() * 4.2;
+      const z = -1.2 + rand() * 3.5;
 
-      const scale = 0.4 + rand() * 0.45;
-      const speed = 0.35 + rand() * 0.6;
-      const rotSpeedX = (rand() - 0.5) * 0.4;
-      const rotSpeedY = (rand() - 0.5) * 0.4;
-      const rotSpeedZ = (rand() - 0.5) * 0.4;
+      const scale = 0.35 + rand() * 0.35;
+      const speed = 0.25 + rand() * 0.45;
+      const rotSpeedX = (rand() - 0.5) * 0.25;
+      const rotSpeedY = (rand() - 0.5) * 0.25;
+      const rotSpeedZ = (rand() - 0.5) * 0.25;
       const offset = rand() * Math.PI * 2;
 
       data.push({ x, y, z, scale, speed, rotSpeedX, rotSpeedY, rotSpeedZ, offset });
@@ -70,15 +66,15 @@ export default function BotanicalLeaves({ count = 30 }: BotanicalLeavesProps) {
     const t = clock.getElapsedTime();
 
     leafData.forEach((leaf, i) => {
-      const ySway = Math.sin(t * leaf.speed + leaf.offset) * 0.45;
-      const xDrift = Math.cos(t * leaf.speed * 0.7 + leaf.offset) * 0.25;
+      const ySway = Math.sin(t * leaf.speed + leaf.offset) * 0.35;
+      const xDrift = Math.cos(t * leaf.speed * 0.6 + leaf.offset) * 0.18;
 
       dummy.position.set(leaf.x + xDrift, leaf.y + ySway, leaf.z);
       dummy.scale.setScalar(leaf.scale);
       dummy.rotation.set(
         t * leaf.rotSpeedX + leaf.offset,
         t * leaf.rotSpeedY + leaf.offset * 0.5,
-        t * leaf.rotSpeedZ + Math.sin(t * 0.5) * 0.2
+        t * leaf.rotSpeedZ + Math.sin(t * 0.3) * 0.15
       );
       dummy.updateMatrix();
 
@@ -94,15 +90,11 @@ export default function BotanicalLeaves({ count = 30 }: BotanicalLeavesProps) {
       args={[leafGeometry, undefined, count]}
       frustumCulled={false}
     >
-      <meshPhysicalMaterial
-        color="#2D4A38"
-        roughness={0.28}
-        metalness={0.05}
-        transmission={0.4}
-        thickness={0.3}
-        ior={1.42}
-        clearcoat={0.3}
-        side={THREE.DoubleSide}
+      {/* Light pale-sage translucent color - NEVER dark or black */}
+      <meshStandardMaterial
+        color="#8FA89B"
+        roughness={0.42}
+        metalness={0.04}
       />
     </instancedMesh>
   );

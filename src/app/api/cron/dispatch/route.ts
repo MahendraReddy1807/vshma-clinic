@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { NotificationDispatcher } from '@/lib/notifications/dispatcher';
 
+export const runtime = 'nodejs';
+
 export async function GET(request: Request) {
   return handleDispatch(request);
 }

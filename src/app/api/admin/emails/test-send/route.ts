@@ -3,6 +3,8 @@ import { verifyAdminAuth } from '@/lib/admin-auth';
 import { EmailProvider } from '@/lib/notifications/providers/email-provider';
 import { LUXURY_EMAIL_TEMPLATES, type LuxuryEmailProps } from '@/lib/notifications/email-templates';
 
+export const runtime = 'nodejs';
+
 export async function POST(request: Request) {
   const auth = await verifyAdminAuth(request);
   if (!auth.authenticated) {

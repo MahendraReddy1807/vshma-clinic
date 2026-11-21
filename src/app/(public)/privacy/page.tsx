@@ -1,5 +1,3 @@
-import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
 import type { Metadata } from 'next';
 import { SITE_CONFIG } from '@/lib/site-config';
 import SectionTag from '@/components/ui/luxury/SectionTag';
@@ -11,9 +9,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-bone text-ink">
-      <Navbar />
-      <main className="flex-1 pt-32 pb-24">
+    <div className="w-full pt-32 pb-24">
         <div className="max-w-4xl mx-auto px-5 sm:px-8">
           <div className="mb-12 text-center space-y-3">
             <SectionTag>DPDP Act 2023 &bull; Patient Data Protection</SectionTag>
@@ -99,8 +95,6 @@ export default function PrivacyPage() {
             </section>
           </div>
         </div>
-      </main>
-      <Footer />
     </div>
   );
 }

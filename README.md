@@ -20,13 +20,13 @@ Set these variables in `.env.local`:
 NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
 SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVER_ONLY_SERVICE_ROLE_KEY
-NEXT_PUBLIC_SITE_URL=http://localhost:3007
-RESEND_API_KEY=YOUR_RESEND_API_KEY
-RESEND_FROM_EMAIL=VSHMA <verified-sender@your-domain.example>
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+GMAIL_USER=your_clinic_gmail@gmail.com
+GMAIL_APP_PASSWORD=your_16_char_google_app_password
 ADMIN_NOTIFICATION_EMAIL=
 ```
 
-Never expose `SUPABASE_SERVICE_ROLE_KEY` or `RESEND_API_KEY` as a `NEXT_PUBLIC_` variable or commit `.env.local`. Booking, administrator, and email APIs fail closed when their required services are not configured; they do not create simulated bookings or mock email-delivery successes.
+Never expose `SUPABASE_SERVICE_ROLE_KEY` or `GMAIL_APP_PASSWORD` as a `NEXT_PUBLIC_` variable or commit `.env.local`. Enable 2-Step Verification on your Google Account, generate a 16-character Google App Password, and paste it with no spaces into `.env.local` and Vercel environment variables.
 
 Set `ADMIN_NOTIFICATION_EMAIL` to the clinic's confirmed, authorized admin inbox before enabling admin email notifications. Leave it blank until that address is provided. A blank or malformed value is rejected by the email sender and recorded as a failed notification; appointment creation may still succeed, but the application does not report that email as sent.
 
@@ -55,19 +55,16 @@ VALUES ('AUTH_USER_UUID', 'AUTH_USER_EMAIL', 'admin');
 
 Replace both values with the administrator's actual Supabase Auth UUID and email. Only users with an `admin` profile can use the admin API. The app does not contain default credentials. Sign in at `/admin/login`; use the password reset link there if needed. Configure the Supabase Auth password recovery redirect URL for your deployment (for example, `https://your-domain.example/admin/login`).
 
-## Resend templates and email delivery
+## Gmail SMTP Email Delivery
 
-Six responsive hosted templates are defined in `emails/resend/templates.mjs` using stable aliases. All sends use the Resend Node SDK and require a published matching template. Email logs record the alias, booking reference, Resend message ID, idempotency key, status, and timestamps. The Resend API key stays server-side.
+Outbound transactional emails are delivered directly via Gmail SMTP (`smtp.gmail.com:465`) through Nodemailer.
 
-Create local previews without contacting Resend:
-
-```powershell
-npm run email:preview
-```
-
-Review the generated files in `emails/previews/`. To create or update Resend drafts, run `npm run email:sync -- --sync-drafts`. To publish after review, run `npm run email:sync -- --publish`. The sync script never sends test emails; publishing is an explicit action. Set `RESEND_FROM_EMAIL` to a sender on a verified Resend domain and set `ADMIN_NOTIFICATION_EMAIL` to the clinic’s authorized administrator address. Admin notification sending fails and is logged if that recipient is not configured.
-
-Before production email sending, apply the email metadata migration, sync and publish all six aliases in Resend, verify the sending domain, and set `ADMIN_NOTIFICATION_EMAIL` in the hosting environment.
+1. Enable 2-Step Verification on the clinic's Google Account.
+2. Generate a 16-character Google App Password (select App: 'Mail', Device: 'Other/Custom').
+3. Set `GMAIL_USER` and `GMAIL_APP_PASSWORD` in `.env.local` and in Vercel environment variables.
+4. Preview all 13 light-first email templates and test live sends at `/admin/emails/preview`.
+5. Run the SMTP connection handshake test at `/admin/notifications` via the "Test Gmail Connection" button.
+6. A 500 emails/day quota is monitored, alerting in the admin portal when 80% is reached.
 
 ## Main routes and behavior
 

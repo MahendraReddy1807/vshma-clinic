@@ -1,9 +1,6 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
-import ScrollToTop from '@/components/layout/ScrollToTop';
 import { CLINIC_INFO } from '@/lib/constants';
 import WhatsAppIcon from '@/components/ui/WhatsAppIcon';
 import {
@@ -23,10 +20,7 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-ivory text-charcoal">
-      <Navbar />
-
-      <main className="flex-1 pt-28 sm:pt-36">
+    <div className="w-full pt-28 sm:pt-36">
         {/* Editorial Hero Header */}
         <section className="relative py-12 sm:py-16 bg-forest text-white overflow-hidden">
           <div className="absolute top-0 right-0 w-96 h-96 bg-gold/15 rounded-full blur-[120px] pointer-events-none" />
@@ -173,10 +167,6 @@ export default function AboutPage() {
             </div>
           </div>
         </section>
-      </main>
-
-      <Footer />
-      <ScrollToTop />
     </div>
   );
 }

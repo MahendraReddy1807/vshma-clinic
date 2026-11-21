@@ -1,194 +1,270 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { ArrowUpRight } from 'lucide-react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import SectionTag from '@/components/ui/luxury/SectionTag';
-import AccordionRow from '@/components/ui/luxury/AccordionRow';
-import SplitSemis from '@/components/ui/luxury/SplitSemis';
-import PillButton from '@/components/ui/luxury/PillButton';
-import GlyphIcon from '@/components/ui/luxury/GlyphIcon';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import Link from 'next/link';
+import { motion, AnimatePresence, useMotionValue } from 'framer-motion';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  MapPin,
+  Video,
+  ArrowUpRight,
+} from 'lucide-react';
 import { SITE_CONFIG } from '@/lib/site-config';
-import { useCapability } from '@/lib/useCapability';
-
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
-}
+import SectionTag from '@/components/ui/luxury/SectionTag';
+import GlyphIcon from '@/components/ui/luxury/GlyphIcon';
 
 export default function ConsultationsSection() {
-  const [openIndex, setOpenIndex] = useState<number>(0);
   const { consultations } = SITE_CONFIG;
-  const { isTouch, prefersReducedMotion, tier } = useCapability();
-
+  const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
+  const total = consultations.length;
 
+  const nextCard = useCallback(() => {
+    setActiveIndex((prev) => (prev + 1) % total);
+  }, [total]);
+
+  const prevCard = useCallback(() => {
+    setActiveIndex((prev) => (prev - 1 + total) % total);
+  }, [total]);
+
+  // Keyboard navigation (ArrowLeft / ArrowRight)
   useEffect(() => {
-    // Only enable GSAP horizontal pin-scroll on desktop workstations with high/mid capability
-    if (isTouch || prefersReducedMotion || tier === 'low') return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const inView = rect.top < window.innerHeight && rect.bottom > 0;
+      if (!inView) return;
 
-    const container = containerRef.current;
-    const track = trackRef.current;
-    if (!container || !track) return;
+      if (e.key === 'ArrowRight') nextCard();
+      else if (e.key === 'ArrowLeft') prevCard();
+    };
 
-    // Calculate total horizontal scroll width
-    const totalScroll = track.scrollWidth - window.innerWidth + 120;
-    if (totalScroll <= 0) return;
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [nextCard, prevCard]);
 
-    const ctx = gsap.context(() => {
-      gsap.to(track, {
-        x: -totalScroll,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: container,
-          start: () => 'top top+=' + (parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 88),
-          end: `+=${totalScroll * 1.1}`,
-          pin: true,
-          pinSpacing: true,
-          scrub: 1,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-        },
-      });
-    }, container);
-
-    return () => ctx.revert();
-  }, [isTouch, prefersReducedMotion, tier]);
+  // Plain descriptions tailored to 2 clean lines without truncation
+  const shortDescriptions: Record<string, string> = {
+    'general-consultation':
+      'Comprehensive intake evaluating your physical complaints, lifestyle rhythms, and medical history.',
+    'ongoing-review':
+      'Focused follow-up sessions tracking remedy response, adjusting potencies, and guiding recovery.',
+    'pediatric-care':
+      'Gentle, taste-free natural remedies for childhood immunity, sleep rhythms, and gentle growth support.',
+    'womens-health':
+      'Holistic care for hormonal cycles, menstrual balance, postpartum recovery, and life transitions.',
+    'skin-dermatology':
+      'Internal constitutional care addressing eczema, allergies, and acne from root sensitivities.',
+    'digestive-health':
+      'Individualized support restoring gut balance, digestion rhythms, and soothing food sensitivities.',
+  };
 
   return (
     <section
       id="consultations"
+      ref={containerRef}
       data-nav-theme="dark"
-      data-snap-section
-      className="relative scroll-mt-[var(--nav-h)] bg-[#0A0F0C] text-[#F7F3EC] overflow-hidden"
-      aria-label="Clinical Consultation Specialties"
+      className="relative scroll-mt-[var(--nav-h)] bg-[#0A0F0C] text-[#F7F3EC] py-6 lg:py-8 min-h-[calc(100svh-var(--nav-h))] lg:h-[calc(100svh-var(--nav-h))] flex flex-col justify-between overflow-hidden"
+      aria-label="Clinical Consultations CoverFlow"
     >
       {/* Ambient background glows */}
-      <div className="absolute top-1/4 -right-48 w-96 h-96 rounded-full bg-[#D4D8BA]/5 blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-10 -left-48 w-96 h-96 rounded-full bg-[#B89B5E]/8 blur-[160px] pointer-events-none" />
+      <div className="absolute top-1/4 -right-40 w-80 h-80 rounded-full bg-[#D4D8BA]/5 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-10 -left-40 w-80 h-80 rounded-full bg-[#B89B5E]/8 blur-[140px] pointer-events-none" />
 
-      {/* ───────────── DESKTOP PINNED HORIZONTAL CAROUSEL (Large Screens) ───────────── */}
-      <div ref={containerRef} className="hidden lg:flex flex-col justify-between h-[calc(100svh-var(--nav-h))] py-6 px-8 relative z-10 max-w-7xl mx-auto w-full">
-        <div className="flex items-end justify-between pt-2">
-          <div className="max-w-2xl space-y-2">
-            <SectionTag variant="dark">Specialties &bull; Care Formats</SectionTag>
+      <div className="max-w-7xl mx-auto px-5 sm:px-8 w-full h-full flex flex-col justify-between z-10">
+        {/* ───────────── TOP HEADER ROW ───────────── */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pt-1 sm:pt-2">
+          <div className="max-w-2xl space-y-1.5 sm:space-y-2">
+            <SectionTag variant="dark">Consultations</SectionTag>
             <h2 className="font-serif font-light text-chapter-title text-[#F7F3EC] leading-[1.05] tracking-tight">
               Consultations tailored to your personal health story.
             </h2>
-            <p className="text-[#D8D0BD]/75 text-sm font-light font-sans max-w-xl">
-              Each clinical session provides dedicated time to explore your complaints, lifestyle rhythms, and constitutional response.
+            <p className="text-[#D8D0BD]/80 text-xs sm:text-sm font-light font-sans max-w-xl">
+              Each clinical session provides dedicated time to explore your symptoms, lifestyle rhythms, and remedy response.
             </p>
           </div>
-          <div className="pb-1">
-            <PillButton variant="brass" href="/book" className="in-page-book-btn" icon={<ArrowUpRight className="w-4 h-4 text-[#121A15]" />}>
-              Request a Slot
-            </PillButton>
+
+          {/* Desktop Arrow Controls */}
+          <div className="hidden sm:flex items-center gap-2 pb-1">
+            <button
+              type="button"
+              onClick={prevCard}
+              aria-label="Previous consultation"
+              className="w-11 h-11 rounded-full border border-white/20 bg-white/5 hover:bg-[#B89B5E] hover:text-[#0A0F0C] hover:border-[#B89B5E] text-[#EDE6D3] flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-95"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              type="button"
+              onClick={nextCard}
+              aria-label="Next consultation"
+              className="w-11 h-11 rounded-full border border-white/20 bg-white/5 hover:bg-[#B89B5E] hover:text-[#0A0F0C] hover:border-[#B89B5E] text-[#EDE6D3] flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-95"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
           </div>
         </div>
 
-        {/* Horizontal Track of 6 Luxury Cards */}
-        <div className="overflow-visible py-2 my-auto">
-          <div ref={trackRef} className="flex gap-6 w-max will-change-transform">
-            {consultations.map((item) => (
-              <div
-                key={item.id}
-                className="w-[360px] max-h-[48vh] rounded-[22px] border border-white/15 bg-[#121A15]/85 backdrop-blur-md p-6 flex flex-col justify-between shadow-2xl transition-all duration-300 hover:border-[#B89B5E]/50 group"
-              >
-                <div className="space-y-4">
-                  {/* Card Header with Glyph and Number */}
-                  <div className="flex items-center justify-between pb-3 border-b border-white/10">
-                    <span className="font-serif text-2xl font-light text-[#B89B5E]">{item.number}</span>
-                    <GlyphIcon name={item.glyph} size={20} className="text-[#D4D8BA]" />
+        {/* ───────────── 3D COVERFLOW STAGE ───────────── */}
+        <div className="relative w-full my-auto py-3 select-none" style={{ perspective: '1100px' }}>
+          {/* Coverflow Flex Track */}
+          <div className="relative flex items-center justify-center h-[340px] sm:h-[370px] lg:h-[390px] w-full">
+            {consultations.map((item, idx) => {
+              // Calculate offset relative to active card (-2, -1, 0, 1, 2)
+              let offset = idx - activeIndex;
+              if (offset > total / 2) offset -= total;
+              if (offset < -total / 2) offset += total;
+
+              const isCenter = offset === 0;
+              const isVisible = Math.abs(offset) <= 2;
+
+              if (!isVisible) return null;
+
+              // 3D coverflow transforms
+              // Active: rotateY 0, scale 1.0, zIndex 30, dim 1.0
+              // Side: rotateY ~32 deg, scale 0.86, zIndex 20/10, dimmed to 0.55
+              const rotateY = isCenter ? 0 : offset > 0 ? -32 : 32;
+              const scale = isCenter ? 1.0 : 0.86;
+              const xTranslation = isCenter
+                ? 0
+                : offset > 0
+                ? offset === 1
+                  ? 260
+                  : 430
+                : offset === -1
+                ? -260
+                : -430;
+              const opacity = isCenter ? 1.0 : Math.abs(offset) === 1 ? 0.65 : 0.3;
+              const zIndex = isCenter ? 30 : 20 - Math.abs(offset);
+
+              const desc =
+                shortDescriptions[item.id] ||
+                item.description ||
+                'Personalized clinical homeopathic consultation with comprehensive intake.';
+
+              return (
+                <motion.div
+                  key={item.id}
+                  onClick={() => setActiveIndex(idx)}
+                  animate={{
+                    x: xTranslation,
+                    rotateY,
+                    scale,
+                    opacity,
+                    zIndex,
+                  }}
+                  transition={{
+                    type: 'spring',
+                    stiffness: 280,
+                    damping: 26,
+                  }}
+                  style={{
+                    transformStyle: 'preserve-3d',
+                  }}
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  onDragEnd={(_e, info) => {
+                    if (info.offset.x > 50) prevCard();
+                    else if (info.offset.x < -50) nextCard();
+                  }}
+                  className={`absolute w-[300px] sm:w-[350px] lg:w-[380px] h-[320px] sm:h-[350px] lg:h-[365px] rounded-[24px] p-5 sm:p-6 flex flex-col justify-between border cursor-pointer transition-colors duration-300 ${
+                    isCenter
+                      ? 'bg-[#121A15] border-[#B89B5E]/70 shadow-[0_20px_50px_rgba(0,0,0,0.6)] ring-1 ring-[#B89B5E]/30'
+                      : 'bg-[#121A15]/75 border-white/10 shadow-xl hover:border-white/25'
+                  }`}
+                >
+                  {/* Top Bar: Number & Glyph */}
+                  <div>
+                    <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                      <div className="flex items-center gap-2">
+                        <span className="font-sans font-semibold text-xs tracking-wider text-[#B89B5E]">
+                          {item.number}
+                        </span>
+                        <span className="text-white/20">&bull;</span>
+                        <span className="text-[11px] font-sans text-[#D4D8BA]/70 uppercase tracking-wider">
+                          {item.category || 'Specialty'}
+                        </span>
+                      </div>
+                      <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#B89B5E]">
+                        <GlyphIcon name={item.glyph} size={18} />
+                      </div>
+                    </div>
+
+                    {/* Title & 2-Line Plain Description */}
+                    <div className="mt-3.5 space-y-1.5">
+                      <h3 className="font-serif font-light text-xl sm:text-2xl text-[#F7F3EC] leading-snug">
+                        {item.title}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-[#D8D0BD]/80 font-sans font-light leading-relaxed line-clamp-2">
+                        {desc}
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="space-y-1">
-                    <span className="text-[10px] uppercase font-bold tracking-widest text-[#B89B5E] block font-sans">
-                      {item.category}
-                    </span>
-                    <h3 className="font-serif font-normal text-xl text-[#FAF8F2] group-hover:text-[#B89B5E] transition-colors leading-snug">
-                      {item.title}
-                    </h3>
+                  {/* Bottom Metadata & Book Button */}
+                  <div className="pt-3 border-t border-white/10 space-y-3">
+                    {/* Chips Row: Duration, In-Clinic, Video */}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/5 text-[11px] font-sans text-[#EDE6D3] border border-white/10">
+                        <Clock className="w-3 h-3 text-[#B89B5E]" />
+                        <span>{item.durationInitial}</span>
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/5 text-[11px] font-sans text-[#EDE6D3] border border-white/10">
+                        <MapPin className="w-3 h-3 text-[#D4D8BA]" />
+                        <span>In-Clinic</span>
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/5 text-[11px] font-sans text-[#EDE6D3] border border-white/10">
+                        <Video className="w-3 h-3 text-[#D4D8BA]" />
+                        <span>Video</span>
+                      </span>
+                    </div>
+
+                    {/* Book Button: Solid Brass Pill (Prominent, Accessible) */}
+                    <div>
+                      <Link
+                        href={`/book?consultation=${item.id}`}
+                        className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-full font-sans text-xs font-semibold uppercase tracking-wider transition-all duration-300 ${
+                          isCenter
+                            ? 'bg-[#B89B5E] hover:bg-[#CEB57D] text-[#121A15] shadow-md hover:shadow-lg'
+                            : 'bg-white/10 text-white/80 hover:bg-white/20'
+                        }`}
+                      >
+                        <span>Book this</span>
+                        <ArrowUpRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
                   </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
 
-                  <p className="text-xs text-[#FAF8F2]/75 leading-relaxed font-sans font-light line-clamp-2">
-                    {item.description}
-                  </p>
-
-                  {/* Mode & Duration Chips */}
-                  <div className="flex flex-wrap items-center gap-2 pt-1">
-                    <span className="px-2.5 py-1 rounded-full bg-white/10 text-[10px] font-sans font-medium text-[#D4D8BA]">
-                      {item.durationInitial} initial
-                    </span>
-                    <span className="px-2.5 py-1 rounded-full bg-[#B89B5E]/20 text-[10px] font-sans font-medium text-[#B89B5E]">
-                      In-Clinic &bull; Video
-                    </span>
-                  </div>
-                </div>
-
-                <div className="pt-4 border-t border-white/10 flex items-center justify-between">
-                  <span className="text-xs font-mono text-[#D8D0BD]/70">{item.durationReview} review</span>
-                  <PillButton variant="outline" size="sm" href={`/book?type=${encodeURIComponent(item.title)}`}>
-                    Reserve
-                  </PillButton>
-                </div>
-              </div>
+        {/* ───────────── BOTTOM CONTROLS & PAGINATION DOTS ───────────── */}
+        <div className="pb-1 sm:pb-2 flex items-center justify-between">
+          {/* Dots Indicator */}
+          <div className="flex items-center gap-2">
+            {consultations.map((_, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => setActiveIndex(idx)}
+                aria-label={`Go to consultation ${idx + 1}`}
+                className={`transition-all duration-300 rounded-full cursor-pointer ${
+                  activeIndex === idx
+                    ? 'w-7 h-2 bg-[#B89B5E]'
+                    : 'w-2 h-2 bg-white/20 hover:bg-white/40'
+                }`}
+              />
             ))}
           </div>
-        </div>
 
-        {/* Bottom subtle indicator */}
-        <div className="pb-2 text-xs text-[#D8D0BD]/50 font-sans flex items-center justify-between border-t border-white/10 pt-2">
-          <span>6 Clinical Specialties Available</span>
-          <span className="font-mono text-[10px] text-[#B89B5E]">Scroll horizontally on desktop</span>
-        </div>
-      </div>
-
-      {/* ───────────── MOBILE & TABLET STACK (Clean Vertical Accordion) ───────────── */}
-      <div className="lg:hidden py-16 px-5 sm:px-8 relative z-10">
-        <div className="max-w-3xl space-y-3 mb-10">
-          <SectionTag variant="dark">Specialties &bull; Formats</SectionTag>
-          <h2 className="font-serif font-light text-3xl sm:text-4xl text-[#F7F3EC] leading-[1.08] tracking-tight">
-            Consultations tailored to your personal health story.
-          </h2>
-          <p className="text-[#D8D0BD]/75 text-sm font-light leading-relaxed font-sans">
-            Every clinical session is private and personalized. Tap any specialty below to explore session formats.
-          </p>
-        </div>
-
-        {/* SplitSemis Visual for Mobile */}
-        <div className="mb-8">
-          <SplitSemis
-            src="/images/hero-homeo.jpg"
-            alt="Natural botanical remedies at VSHMA Clinic"
-            aspect="aspect-[4/5]"
-            badgeContent={
-              <div className="p-3.5 rounded-2xl bg-[#121A15]/95 backdrop-blur-md border border-white/15 text-[#F7F3EC] shadow-xl">
-                <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#B89B5E] block font-sans">
-                  Session Structure
-                </span>
-                <p className="font-serif text-sm text-[#F7F3EC]">45–60 min initial &bull; 20–30 min review</p>
-              </div>
-            }
-          />
-        </div>
-
-        {/* 6 Accordion Rows */}
-        <div className="rounded-[22px] border border-white/10 bg-[#121A15]/60 backdrop-blur-md overflow-hidden shadow-2xl mb-8">
-          {consultations.map((item, index) => (
-            <AccordionRow
-              key={item.id}
-              item={item}
-              isOpen={openIndex === index}
-              onToggle={() => setOpenIndex(openIndex === index ? -1 : index)}
-            />
-          ))}
-        </div>
-
-        <div className="text-center">
-          <PillButton variant="brass" href="/book" className="in-page-book-btn" icon={<ArrowUpRight className="w-4 h-4 text-[#121A15]" />}>
-            Request a Consultation Slot
-          </PillButton>
+          {/* Quick Counter */}
+          <span className="text-xs font-sans text-[#D4D8BA]/70">
+            {activeIndex + 1} of {total}
+          </span>
         </div>
       </div>
     </section>

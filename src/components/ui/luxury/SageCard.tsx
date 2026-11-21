@@ -26,32 +26,47 @@ export default function SageCard({
   const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0, glowX: 50, glowY: 50 });
   const [isHovered, setIsHovered] = useState(false);
 
+  const rafId = useRef<number | null>(null);
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!hoverEffect || isTouch || prefersReducedMotion || !cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    if (rafId.current !== null) return; // Throttled to display refresh rate
 
-    const xPct = (x / rect.width - 0.5) * 2;
-    const yPct = (y / rect.height - 0.5) * 2;
+    const clientX = e.clientX;
+    const clientY = e.clientY;
 
-    // Maximum 8 degrees tilt
-    const rotateY = xPct * 7.5;
-    const rotateX = -yPct * 7.5;
+    rafId.current = requestAnimationFrame(() => {
+      rafId.current = null;
+      if (!cardRef.current) return;
+      const rect = cardRef.current.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
 
-    setTilt({
-      rotateX,
-      rotateY,
-      glowX: (x / rect.width) * 100,
-      glowY: (y / rect.height) * 100,
+      const xPct = (x / rect.width - 0.5) * 2;
+      const yPct = (y / rect.height - 0.5) * 2;
+
+      // Maximum 6 degrees tilt (Phase 2.3 spec)
+      const rotateY = xPct * 5.8;
+      const rotateX = -yPct * 5.8;
+
+      setTilt({
+        rotateX,
+        rotateY,
+        glowX: (x / rect.width) * 100,
+        glowY: (y / rect.height) * 100,
+      });
     });
   };
 
   const handleMouseEnter = () => {
-    if (hoverEffect && !isTouch && !prefersReducedMotion) setIsHovered(true);
+    setIsHovered(true);
   };
 
   const handleMouseLeave = () => {
+    if (rafId.current !== null) {
+      cancelAnimationFrame(rafId.current);
+      rafId.current = null;
+    }
     setIsHovered(false);
     setTilt({ rotateX: 0, rotateY: 0, glowX: 50, glowY: 50 });
   };

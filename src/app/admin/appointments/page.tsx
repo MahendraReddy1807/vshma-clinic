@@ -29,6 +29,7 @@ import { TableRowSkeleton } from '@/components/ui/LoadingSkeleton';
 import type { Appointment, AppointmentStatus } from '@/types';
 import {
   formatDate,
+  formatDateShort,
   generatePatientWhatsAppUrl,
   formatTimeTo12h,
   formatTimeTo24h,
@@ -442,110 +443,115 @@ export default function AdminAppointmentsPage() {
 
       {/* Appointment Table */}
       <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto max-h-[calc(100vh-16rem)]">
           <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-gray-100 bg-gray-50/50 text-[11px] uppercase tracking-wider font-semibold text-gray-400">
-                <th className="py-3 px-4 sm:px-6">Patient</th>
-                <th className="py-3 px-4">Contact</th>
-                <th className="py-3 px-4">Scheduled For</th>
-                <th className="py-3 px-4">Consultation</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4 text-right">Quick Actions</th>
+            <thead className="sticky top-0 z-10 bg-white/95 backdrop-blur-xs">
+              <tr className="border-b border-gray-100 bg-gray-50/70 text-[11px] uppercase tracking-wider font-semibold text-gray-500">
+                <th className="py-3.5 px-4 sm:px-6">Patient</th>
+                <th className="py-3.5 px-4">Contact</th>
+                <th className="py-3.5 px-4 whitespace-nowrap">Scheduled For</th>
+                <th className="py-3.5 px-4">Consultation</th>
+                <th className="py-3.5 px-4">Status</th>
+                <th className="py-3.5 px-4 text-right whitespace-nowrap">Quick Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 text-sm">
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => <TableRowSkeleton key={i} />)
               ) : appointments.length > 0 ? (
-                appointments.map((appt) => (
-                  <tr key={appt.id} className="hover:bg-gray-50/60 transition-colors">
-                    <td className="py-4 px-4 sm:px-6">
-                      <div className="font-semibold text-gray-900">{appt.full_name}</div>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className="font-mono text-[11px] text-gray-500 font-medium">
-                          {appt.booking_reference}
+                appointments.map((appt) => {
+                  const targetDate = appt.status === 'rescheduled' && appt.rescheduled_date
+                    ? appt.rescheduled_date
+                    : appt.appointment_date;
+                  const targetTime = appt.status === 'rescheduled' && appt.rescheduled_time
+                    ? appt.rescheduled_time
+                    : appt.preferred_time || 'Time unspecified';
+
+                  return (
+                    <tr key={appt.id} className="hover:bg-gray-50/70 transition-colors duration-150">
+                      <td className="py-3.5 px-4 sm:px-6">
+                        <div className="font-semibold text-gray-900">{appt.full_name}</div>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="font-mono text-[11px] text-gray-500 font-medium">
+                            {appt.booking_reference}
+                          </span>
+                          {appt.age && (
+                            <span className="text-[11px] text-gray-400">&bull; {appt.age} yrs</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <div className="space-y-1">
+                          <a
+                            href={`tel:+91${appt.phone}`}
+                            className="flex items-center gap-1.5 text-xs text-gray-700 hover:text-forest transition-colors"
+                          >
+                            <Phone className="w-3.5 h-3.5 text-gray-400" />
+                            <span>{appt.phone}</span>
+                          </a>
+                          {appt.email && (
+                            <div className="flex items-center gap-1.5 text-[11px] text-gray-500 truncate max-w-[150px]">
+                              <Mail className="w-3 h-3 text-gray-400 shrink-0" />
+                              <span className="truncate">{appt.email}</span>
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <span className="font-medium text-gray-800 text-xs sm:text-sm">
+                          {formatDateShort(targetDate)}
                         </span>
-                        {appt.age && (
-                          <span className="text-[11px] text-gray-400">&bull; {appt.age} yrs</span>
+                        <span className="text-gray-400 text-xs ml-1.5 font-normal">
+                          &bull; {targetTime}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 text-xs text-gray-600">
+                        {appt.consultation_type}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <Badge status={appt.status} />
+                      </td>
+                      <td className="py-3.5 px-4 text-right whitespace-nowrap space-x-1 sm:space-x-1.5">
+                        {appt.status === 'pending' && (
+                          <button
+                            onClick={() => handleUpdateStatus(appt.id, 'confirmed')}
+                            disabled={actionLoading}
+                            className="p-1.5 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors inline-flex"
+                            title="Quick Confirm"
+                          >
+                            <CheckCircle2 className="w-4 h-4" />
+                          </button>
                         )}
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="space-y-1">
-                        <a
-                          href={`tel:+91${appt.phone}`}
-                          className="flex items-center gap-1.5 text-xs text-gray-700 hover:text-forest transition-colors"
-                        >
-                          <Phone className="w-3.5 h-3.5 text-gray-400" />
-                          <span>{appt.phone}</span>
-                        </a>
-                        {appt.email && (
-                          <div className="flex items-center gap-1.5 text-[11px] text-gray-500 truncate max-w-[150px]">
-                            <Mail className="w-3 h-3 text-gray-400 shrink-0" />
-                            <span className="truncate">{appt.email}</span>
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <p className="font-medium text-gray-800 text-xs sm:text-sm">
-                        {appt.status === 'rescheduled' && appt.rescheduled_date
-                          ? formatDate(appt.rescheduled_date)
-                          : formatDate(appt.appointment_date)}
-                      </p>
-                      <p className="text-[11px] text-gray-400 mt-0.5">
-                        {appt.status === 'rescheduled' && appt.rescheduled_time
-                          ? appt.rescheduled_time
-                          : appt.preferred_time || 'Time unspecified'}
-                      </p>
-                    </td>
-                    <td className="py-4 px-4 text-xs text-gray-600">
-                      {appt.consultation_type}
-                    </td>
-                    <td className="py-4 px-4">
-                      <Badge status={appt.status} />
-                    </td>
-                    <td className="py-4 px-4 text-right space-x-1 sm:space-x-2">
-                      {appt.status === 'pending' && (
                         <button
-                          onClick={() => handleUpdateStatus(appt.id, 'confirmed')}
-                          disabled={actionLoading}
-                          className="p-1.5 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors inline-flex"
-                          title="Quick Confirm"
+                          onClick={() => setSelectedAppt(appt)}
+                          className="p-1.5 text-gray-500 hover:text-forest hover:bg-mint rounded-lg transition-colors inline-flex"
+                          title="View Full Details"
                         >
-                          <CheckCircle2 className="w-4 h-4" />
+                          <Eye className="w-4 h-4" />
                         </button>
-                      )}
-                      <button
-                        onClick={() => setSelectedAppt(appt)}
-                        className="p-1.5 text-gray-500 hover:text-forest hover:bg-mint rounded-lg transition-colors inline-flex"
-                        title="View Full Details"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          setRescheduleModalAppt(appt);
-                          setRescheduleDate(appt.appointment_date);
-                          setRescheduleTime(appt.preferred_time || 'Morning (9 AM – 12 PM)');
-                          setRescheduleReason('');
-                        }}
-                        className="p-1.5 text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-lg transition-colors inline-flex"
-                        title="Reschedule Slot"
-                      >
-                        <CalendarClock className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => setDeleteAppt(appt)}
-                        className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors inline-flex"
-                        title="Delete Record"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </td>
-                  </tr>
-                ))
+                        <button
+                          onClick={() => {
+                            setRescheduleModalAppt(appt);
+                            setRescheduleDate(appt.appointment_date);
+                            setRescheduleTime(appt.preferred_time || 'Morning (9 AM – 12 PM)');
+                            setRescheduleReason('');
+                          }}
+                          className="p-1.5 text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-lg transition-colors inline-flex"
+                          title="Reschedule Slot"
+                        >
+                          <CalendarClock className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => setDeleteAppt(appt)}
+                          className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors inline-flex"
+                          title="Delete Record"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
               ) : (
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-sm text-gray-400">
