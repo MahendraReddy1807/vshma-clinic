@@ -9,7 +9,7 @@ export default function SettingsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-heading font-bold text-forest">Clinic CRM Settings</h1>
+          <h1 className="text-2xl sm:text-3xl font-serif font-light text-forest tracking-tight">Clinic CRM Settings</h1>
           <p className="text-xs sm:text-sm text-charcoal/70 mt-1">
             System configuration, communication rules, staff access, and operational policies.
           </p>

@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import FloatingWhatsApp from '@/components/layout/FloatingWhatsApp';
 import ScrollToTop from '@/components/layout/ScrollToTop';
 import TreatmentDirectory from '@/components/sections/TreatmentDirectory';
 import { CLINIC_INFO } from '@/lib/constants';
@@ -19,7 +18,6 @@ export default function TreatmentsPage() {
         <TreatmentDirectory />
       </main>
       <Footer />
-      <FloatingWhatsApp />
       <ScrollToTop />
     </div>
   );

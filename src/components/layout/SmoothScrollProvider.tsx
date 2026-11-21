@@ -52,7 +52,51 @@ export default function SmoothScrollProvider({ children }: { children: React.Rea
     gsap.ticker.add(updateRaf);
     gsap.ticker.lagSmoothing(0);
 
+    // Refresh ScrollTrigger once fonts and DOM layouts settle
+    if (document.fonts?.ready) {
+      document.fonts.ready.then(() => {
+        ScrollTrigger.refresh();
+      });
+    }
+
+    const handleResize = () => {
+      ScrollTrigger.refresh();
+    };
+    window.addEventListener('resize', handleResize, { passive: true });
+    window.addEventListener('orientationchange', handleResize, { passive: true });
+
+    // ───────────── Soft Section Snapping on Desktop (Proximity Snap) ─────────────
+    let snapTrigger: ScrollTrigger | null = null;
+    const snapSections = document.querySelectorAll<HTMLElement>('[data-snap-section]');
+    if (snapSections.length > 0 && !isTouch && !prefersReducedMotion && tier === 'high') {
+      snapTrigger = ScrollTrigger.create({
+        snap: {
+          snapTo: (progress) => {
+            const totalH = document.documentElement.scrollHeight - window.innerHeight;
+            if (totalH <= 0) return progress;
+            const scrollY = progress * totalH;
+
+            for (const sec of Array.from(snapSections)) {
+              const secTop = sec.offsetTop;
+              const dist = Math.abs(scrollY - secTop);
+              // Only snap if within close proximity (18% of screen height) so it never fights the user
+              if (dist < window.innerHeight * 0.18) {
+                return secTop / totalH;
+              }
+            }
+            return progress;
+          },
+          duration: { min: 0.25, max: 0.6 },
+          delay: 0.08,
+          ease: 'power2.out',
+        },
+      });
+    }
+
     return () => {
+      if (snapTrigger) snapTrigger.kill();
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
       instance.destroy();
       gsap.ticker.remove(updateRaf);
       activeLenis = null;

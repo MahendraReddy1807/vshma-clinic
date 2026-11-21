@@ -192,9 +192,9 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
   };
 
   return (
-    <section id="book" className="py-24 lg:py-32 bg-[#F7F3EC] relative scroll-mt-24 border-t border-[#D8D0BD]/40">
+    <section id="book" data-nav-theme="light" className="py-10 lg:py-16 bg-[#F7F3EC] relative scroll-mt-[var(--nav-h)] border-t border-[#D8D0BD]/40">
       <div className="max-w-4xl mx-auto px-5 sm:px-8">
-        
+
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto space-y-4 mb-10 sm:mb-14">
           <SectionTag>Consultation Reservation</SectionTag>
@@ -210,7 +210,7 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
 
         {/* Card Container */}
         <div className="rounded-[28px] bg-white border border-[#D8D0BD]/70 p-6 sm:p-12 shadow-xl relative overflow-hidden">
-          
+
           {/* Subtle Ambient Glow */}
           <div className="absolute top-0 right-0 w-80 h-80 bg-[#B89B5E]/10 rounded-full blur-[100px] pointer-events-none" />
 
@@ -332,7 +332,7 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
           ) : (
             /* ───────────── MULTI-STEP BOOKING WORKFLOW ───────────── */
             <form onSubmit={handleSubmit} className="space-y-8" noValidate>
-              
+
               {/* Step Progress Bar */}
               <div className="space-y-3 pb-6 border-b border-[#D8D0BD]/50">
                 <div className="flex items-center justify-between text-xs font-sans">
@@ -390,11 +390,10 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
                               setFormData({ ...formData, consultation_type: type });
                               clearFieldError('consultation_type');
                             }}
-                            className={`p-4 rounded-2xl border text-left transition-all ${
-                              isSelected
-                                ? 'bg-[#121A15] text-[#FAF8F2] border-[#B89B5E] shadow-md'
-                                : 'bg-[#FAF8F2] text-[#161815] border-[#D8D0BD]/70 hover:border-[#121A15]/40'
-                            }`}
+                            className={`p-4 rounded-2xl border text-left transition-all ${isSelected
+                              ? 'bg-[#121A15] text-[#FAF8F2] border-[#B89B5E] shadow-md'
+                              : 'bg-[#FAF8F2] text-[#161815] border-[#D8D0BD]/70 hover:border-[#121A15]/40'
+                              }`}
                           >
                             <div className="flex items-center justify-between">
                               <span className="font-serif text-lg">{type}</span>
@@ -424,11 +423,10 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
                       <button
                         type="button"
                         onClick={() => setFormData({ ...formData, consultation_mode: 'in_clinic' })}
-                        className={`p-6 rounded-2xl border text-left transition-all space-y-3 ${
-                          formData.consultation_mode === 'in_clinic'
-                            ? 'bg-[#121A15] text-[#FAF8F2] border-[#B89B5E] shadow-md'
-                            : 'bg-[#FAF8F2] text-[#161815] border-[#D8D0BD]/70 hover:border-[#121A15]/40'
-                        }`}
+                        className={`p-6 rounded-2xl border text-left transition-all space-y-3 ${formData.consultation_mode === 'in_clinic'
+                          ? 'bg-[#121A15] text-[#FAF8F2] border-[#B89B5E] shadow-md'
+                          : 'bg-[#FAF8F2] text-[#161815] border-[#D8D0BD]/70 hover:border-[#121A15]/40'
+                          }`}
                       >
                         <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
                           <MapPin className="w-5 h-5 text-[#B89B5E]" />
@@ -442,11 +440,10 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
                       <button
                         type="button"
                         onClick={() => setFormData({ ...formData, consultation_mode: 'video' })}
-                        className={`p-6 rounded-2xl border text-left transition-all space-y-3 ${
-                          formData.consultation_mode === 'video'
-                            ? 'bg-[#121A15] text-[#FAF8F2] border-[#B89B5E] shadow-md'
-                            : 'bg-[#FAF8F2] text-[#161815] border-[#D8D0BD]/70 hover:border-[#121A15]/40'
-                        }`}
+                        className={`p-6 rounded-2xl border text-left transition-all space-y-3 ${formData.consultation_mode === 'video'
+                          ? 'bg-[#121A15] text-[#FAF8F2] border-[#B89B5E] shadow-md'
+                          : 'bg-[#FAF8F2] text-[#161815] border-[#D8D0BD]/70 hover:border-[#121A15]/40'
+                          }`}
                       >
                         <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
                           <Video className="w-5 h-5 text-[#B89B5E]" />
@@ -503,11 +500,10 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
                               key={slot.value}
                               type="button"
                               onClick={() => setFormData({ ...formData, preferred_time: slot.value })}
-                              className={`p-3.5 rounded-2xl border text-center transition-all ${
-                                isSelected
-                                  ? 'bg-[#121A15] text-[#FAF8F2] border-[#B89B5E] shadow-sm font-medium'
-                                  : 'bg-[#FAF8F2] text-[#161815] border-[#D8D0BD]/70 hover:border-[#121A15]/40'
-                              }`}
+                              className={`p-3.5 rounded-2xl border text-center transition-all ${isSelected
+                                ? 'bg-[#121A15] text-[#FAF8F2] border-[#B89B5E] shadow-sm font-medium'
+                                : 'bg-[#FAF8F2] text-[#161815] border-[#D8D0BD]/70 hover:border-[#121A15]/40'
+                                }`}
                             >
                               <span className="block text-xs font-sans">{slot.label}</span>
                             </button>

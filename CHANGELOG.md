@@ -4,6 +4,18 @@ All notable changes to the VSHMA Homeopathy Clinic web platform and clinical CRM
 
 ---
 
+## [2.2.0] — 2026-11-21
+
+### Viewport-Fit Layout System & 6 Full-Screen Chapters
+- **Dynamic `--nav-h`**: Real navbar height measured dynamically via `ResizeObserver` and stored on `:root`.
+- **Global Viewport-Fit Screen Utilities**: Defined `.screen` and `.screen-chapter` sized to `calc(100svh - var(--nav-h))` using `svh/dvh` to ensure mobile browser address bars and desktop short displays (1366x768, 1536x864, 1920x1009) display complete chapters without vertical clipping.
+- **Fluid Typography**: Sized section titles using `clamp(2rem, min(4.8vw, 7.5vh), 4.25rem)` so headers scale proportionally to screen height as well as width.
+- **GSAP Pinned Offset & Proximity Snapping**: Updated pinned sections to start at `top top+=${navH}`, with `pinSpacing: true`, `anticipatePin: 1`, and desktop-only proximity snapping.
+- **Ancestor Transform Elimination**: Removed residual CSS transforms from `template.tsx` and layout wrappers upon animation completion to protect fixed positioning and GSAP pins.
+- **Theme-Aware Navbar**: Integrated real-time section theme tracking (`data-nav-theme="dark"` / `"light"`), transitioning with smooth 400ms cubic-bezier curve from transparent hero to dark forest or bone frosted glass.
+- **Consolidated Floating Dock (`FloatingDock.tsx`)**: Replaced scattered individual floating buttons (WhatsApp, Care Assistant, Book pill, mobile sticky bar) with a single bottom-right expandable capsule, including smart in-page booking button detection.
+- **Admin Command Palette (`AdminCommandPalette.tsx`)**: Built keyboard-accessible staff command menu (Ctrl+K / ⌘K) for quick navigation across overview, inbox, appointments, and directory.
+
 ## [2.1.0] — 2026-11-21
 
 ### Luxury Motion & 3D Layer (₹5L Grade Experience)

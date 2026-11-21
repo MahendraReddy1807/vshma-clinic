@@ -1,11 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCapability } from '@/lib/useCapability';
 
 export default function Template({ children }: { children: React.ReactNode }) {
   const { prefersReducedMotion, tier } = useCapability();
+  const [animDone, setAnimDone] = useState(false);
 
   // On low capability or reduced-motion, render children with zero curtain overhead
   if (prefersReducedMotion || tier === 'low') {
@@ -14,7 +15,7 @@ export default function Template({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      {/* ───────────── LUXURY ROUTE CURTAIN TRANSITION (700ms) ───────────── */}
+      {/* ───────────── LUXURY ROUTE CURTAIN TRANSITION (650ms) ───────────── */}
       <AnimatePresence mode="wait">
         <motion.div
           key="route-curtain-top"
@@ -32,13 +33,19 @@ export default function Template({ children }: { children: React.ReactNode }) {
         </motion.div>
       </AnimatePresence>
 
-      <motion.div
-        initial={{ opacity: 0.9, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      >
-        {children}
-      </motion.div>
+      {/* Render children directly without residual transform once initial entry completes */}
+      {animDone ? (
+        children
+      ) : (
+        <motion.div
+          initial={{ opacity: 0.92, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+          onAnimationComplete={() => setAnimDone(true)}
+        >
+          {children}
+        </motion.div>
+      )}
     </>
   );
 }

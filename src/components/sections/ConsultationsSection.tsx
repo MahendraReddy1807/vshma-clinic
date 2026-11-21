@@ -42,9 +42,10 @@ export default function ConsultationsSection() {
         ease: 'none',
         scrollTrigger: {
           trigger: container,
-          start: 'top top',
-          end: `+=${totalScroll * 1.2}`,
+          start: () => 'top top+=' + (parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 88),
+          end: `+=${totalScroll * 1.1}`,
           pin: true,
+          pinSpacing: true,
           scrub: 1,
           anticipatePin: 1,
           invalidateOnRefresh: true,
@@ -58,7 +59,9 @@ export default function ConsultationsSection() {
   return (
     <section
       id="consultations"
-      className="relative scroll-mt-24 bg-[#0A0F0C] text-[#F7F3EC] overflow-hidden"
+      data-nav-theme="dark"
+      data-snap-section
+      className="relative scroll-mt-[var(--nav-h)] bg-[#0A0F0C] text-[#F7F3EC] overflow-hidden"
       aria-label="Clinical Consultation Specialties"
     >
       {/* Ambient background glows */}
@@ -66,66 +69,65 @@ export default function ConsultationsSection() {
       <div className="absolute bottom-10 -left-48 w-96 h-96 rounded-full bg-[#B89B5E]/8 blur-[160px] pointer-events-none" />
 
       {/* ───────────── DESKTOP PINNED HORIZONTAL CAROUSEL (Large Screens) ───────────── */}
-      <div ref={containerRef} className="hidden lg:block min-h-screen py-20 px-8 relative z-10">
-        <div className="max-w-7xl mx-auto mb-10 flex items-end justify-between">
-          <div className="max-w-2xl space-y-4">
-            <SectionTag variant="dark">Consultation Specialties &bull; Formats</SectionTag>
-            <h2 className="font-serif font-light text-5xl lg:text-6xl text-[#F7F3EC] leading-[1.08] tracking-tight">
+      <div ref={containerRef} className="hidden lg:flex flex-col justify-between h-[calc(100svh-var(--nav-h))] py-6 px-8 relative z-10 max-w-7xl mx-auto w-full">
+        <div className="flex items-end justify-between pt-2">
+          <div className="max-w-2xl space-y-2">
+            <SectionTag variant="dark">Specialties &bull; Care Formats</SectionTag>
+            <h2 className="font-serif font-light text-chapter-title text-[#F7F3EC] leading-[1.05] tracking-tight">
               Consultations tailored to your personal health story.
             </h2>
-            <p className="text-[#D8D0BD]/75 text-base font-light font-sans">
-              Scroll to explore the 6 consultation formats. Each session is unhurried, private, and constitutional.
+            <p className="text-[#D8D0BD]/75 text-sm font-light font-sans max-w-xl">
+              Each clinical session provides dedicated time to explore your complaints, lifestyle rhythms, and constitutional response.
             </p>
           </div>
-          <div className="pb-2">
-            <PillButton variant="brass" href="/book" icon={<ArrowUpRight className="w-4 h-4 text-[#121A15]" />}>
+          <div className="pb-1">
+            <PillButton variant="brass" href="/book" className="in-page-book-btn" icon={<ArrowUpRight className="w-4 h-4 text-[#121A15]" />}>
               Request a Slot
             </PillButton>
           </div>
         </div>
 
         {/* Horizontal Track of 6 Luxury Cards */}
-        <div className="overflow-visible pt-4">
-          <div ref={trackRef} className="flex gap-8 w-max pb-8 will-change-transform">
+        <div className="overflow-visible py-2 my-auto">
+          <div ref={trackRef} className="flex gap-6 w-max will-change-transform">
             {consultations.map((item) => (
               <div
                 key={item.id}
-                className="w-[420px] rounded-[24px] border border-white/15 bg-[#121A15]/80 backdrop-blur-md p-8 flex flex-col justify-between shadow-2xl transition-all duration-300 hover:border-[#B89B5E]/50 group"
+                className="w-[360px] max-h-[48vh] rounded-[22px] border border-white/15 bg-[#121A15]/85 backdrop-blur-md p-6 flex flex-col justify-between shadow-2xl transition-all duration-300 hover:border-[#B89B5E]/50 group"
               >
-                <div className="space-y-6">
+                <div className="space-y-4">
                   {/* Card Header with Glyph and Number */}
-                  <div className="flex items-center justify-between pb-4 border-b border-white/10">
-                    <span className="font-serif text-3xl font-light text-[#B89B5E]">{item.number}</span>
-                    <GlyphIcon name={item.glyph} size={24} className="text-[#D4D8BA]" />
+                  <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                    <span className="font-serif text-2xl font-light text-[#B89B5E]">{item.number}</span>
+                    <GlyphIcon name={item.glyph} size={20} className="text-[#D4D8BA]" />
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     <span className="text-[10px] uppercase font-bold tracking-widest text-[#B89B5E] block font-sans">
                       {item.category}
                     </span>
-                    <h3 className="font-serif font-normal text-2xl text-[#FAF8F2] group-hover:text-[#B89B5E] transition-colors">
+                    <h3 className="font-serif font-normal text-xl text-[#FAF8F2] group-hover:text-[#B89B5E] transition-colors leading-snug">
                       {item.title}
                     </h3>
-                    <p className="text-xs text-[#D4D8BA]/70 font-sans italic">{item.subtitle}</p>
                   </div>
 
-                  <p className="text-sm text-[#FAF8F2]/75 leading-relaxed font-sans font-light">
+                  <p className="text-xs text-[#FAF8F2]/75 leading-relaxed font-sans font-light line-clamp-2">
                     {item.description}
                   </p>
 
-                  {/* Focus Areas */}
-                  <div className="pt-2 space-y-1.5">
-                    {item.focusAreas.map((focus, fIdx) => (
-                      <div key={fIdx} className="flex items-center gap-2 text-xs text-[#D8D0BD]/70 font-sans">
-                        <span className="w-1 h-1 rounded-full bg-[#B89B5E]" />
-                        <span>{focus}</span>
-                      </div>
-                    ))}
+                  {/* Mode & Duration Chips */}
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    <span className="px-2.5 py-1 rounded-full bg-white/10 text-[10px] font-sans font-medium text-[#D4D8BA]">
+                      {item.durationInitial} initial
+                    </span>
+                    <span className="px-2.5 py-1 rounded-full bg-[#B89B5E]/20 text-[10px] font-sans font-medium text-[#B89B5E]">
+                      In-Clinic &bull; Video
+                    </span>
                   </div>
                 </div>
 
-                <div className="pt-6 mt-6 border-t border-white/10 flex items-center justify-between">
-                  <span className="text-xs font-mono text-[#B89B5E]">{item.durationInitial} initial</span>
+                <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+                  <span className="text-xs font-mono text-[#D8D0BD]/70">{item.durationReview} review</span>
                   <PillButton variant="outline" size="sm" href={`/book?type=${encodeURIComponent(item.title)}`}>
                     Reserve
                   </PillButton>
@@ -134,22 +136,28 @@ export default function ConsultationsSection() {
             ))}
           </div>
         </div>
+
+        {/* Bottom subtle indicator */}
+        <div className="pb-2 text-xs text-[#D8D0BD]/50 font-sans flex items-center justify-between border-t border-white/10 pt-2">
+          <span>6 Clinical Specialties Available</span>
+          <span className="font-mono text-[10px] text-[#B89B5E]">Scroll horizontally on desktop</span>
+        </div>
       </div>
 
       {/* ───────────── MOBILE & TABLET STACK (Clean Vertical Accordion) ───────────── */}
-      <div className="lg:hidden py-20 px-5 sm:px-8 relative z-10">
-        <div className="max-w-3xl space-y-4 mb-12">
-          <SectionTag variant="dark">Consultation Specialties &bull; Formats</SectionTag>
-          <h2 className="font-serif font-light text-4xl sm:text-5xl text-[#F7F3EC] leading-[1.08] tracking-tight">
+      <div className="lg:hidden py-16 px-5 sm:px-8 relative z-10">
+        <div className="max-w-3xl space-y-3 mb-10">
+          <SectionTag variant="dark">Specialties &bull; Formats</SectionTag>
+          <h2 className="font-serif font-light text-3xl sm:text-4xl text-[#F7F3EC] leading-[1.08] tracking-tight">
             Consultations tailored to your personal health story.
           </h2>
-          <p className="text-[#D8D0BD]/75 text-base font-light leading-relaxed font-sans">
-            Every consultation is private, unhurried, and constitutional. Select an area below to explore session formats.
+          <p className="text-[#D8D0BD]/75 text-sm font-light leading-relaxed font-sans">
+            Every clinical session is private and personalized. Tap any specialty below to explore session formats.
           </p>
         </div>
 
         {/* SplitSemis Visual for Mobile */}
-        <div className="mb-10">
+        <div className="mb-8">
           <SplitSemis
             src="/images/hero-homeo.jpg"
             alt="Natural botanical remedies at VSHMA Clinic"
@@ -159,14 +167,14 @@ export default function ConsultationsSection() {
                 <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#B89B5E] block font-sans">
                   Session Structure
                 </span>
-                <p className="font-serif text-base text-[#F7F3EC]">45–60 min initial &bull; 20–30 min review</p>
+                <p className="font-serif text-sm text-[#F7F3EC]">45–60 min initial &bull; 20–30 min review</p>
               </div>
             }
           />
         </div>
 
         {/* 6 Accordion Rows */}
-        <div className="rounded-[24px] border border-white/10 bg-[#121A15]/60 backdrop-blur-md overflow-hidden shadow-2xl mb-8">
+        <div className="rounded-[22px] border border-white/10 bg-[#121A15]/60 backdrop-blur-md overflow-hidden shadow-2xl mb-8">
           {consultations.map((item, index) => (
             <AccordionRow
               key={item.id}
@@ -178,7 +186,7 @@ export default function ConsultationsSection() {
         </div>
 
         <div className="text-center">
-          <PillButton variant="brass" href="/book" icon={<ArrowUpRight className="w-4 h-4 text-[#121A15]" />}>
+          <PillButton variant="brass" href="/book" className="in-page-book-btn" icon={<ArrowUpRight className="w-4 h-4 text-[#121A15]" />}>
             Request a Consultation Slot
           </PillButton>
         </div>

@@ -55,6 +55,13 @@ export default function VshmaCareAssistant() {
     }
   }, [messages, isOpen]);
 
+  // Listen to open request from unified FloatingDock
+  useEffect(() => {
+    const handleOpen = () => setIsOpen(true);
+    window.addEventListener('vshma:open-chat', handleOpen);
+    return () => window.removeEventListener('vshma:open-chat', handleOpen);
+  }, []);
+
   // Hide on admin routes (placed after all hooks to respect Rules of Hooks)
   if (pathname?.startsWith('/admin')) {
     return null;
@@ -119,36 +126,6 @@ export default function VshmaCareAssistant() {
 
   return (
     <>
-      {/* Floating Trigger Button: Perfectly aligned above WhatsApp button */}
-      <div className="fixed bottom-24 right-6 z-40">
-        <button
-          type="button"
-          onClick={() => setIsOpen(!isOpen)}
-          aria-label="Open VSHMA Care Assistant"
-          className="group relative flex items-center justify-center w-14 h-14 rounded-full bg-forest hover:bg-forest-light text-white shadow-2xl border-2 border-gold/40 hover:scale-108 active:scale-95 transition-all duration-300 cursor-pointer"
-        >
-          {/* Logo Symbol inside */}
-          <div className="relative w-9 h-9 rounded-full overflow-hidden flex items-center justify-center">
-            <Image
-              src="/logo-transparent.png"
-              alt="VSHMA Emblem"
-              fill
-              sizes="36px"
-              className="object-contain"
-            />
-          </div>
-
-          {/* Active online pulse indicator dot */}
-          <span className="absolute top-1 right-1 w-3 h-3 rounded-full bg-emerald-400 border-2 border-forest" />
-          <span className="absolute top-1 right-1 w-3 h-3 rounded-full bg-emerald-400 animate-ping opacity-60" />
-
-          {/* Luxury Left Tooltip */}
-          <span className="absolute right-full mr-3 bg-white text-forest text-xs font-semibold px-3 py-1.5 rounded-xl shadow-lg border border-sage/20 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-            Care Assistant
-          </span>
-        </button>
-      </div>
-
       {/* Chat Window Modal */}
       <AnimatePresence>
         {isOpen && (

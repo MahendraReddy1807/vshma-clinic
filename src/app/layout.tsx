@@ -9,6 +9,8 @@ import FilmGrain from '@/components/ui/FilmGrain';
 import BrandIntro from '@/components/layout/BrandIntro';
 import CustomCursor from '@/components/ui/CustomCursor';
 import FloatingGlyphs from '@/components/ui/FloatingGlyphs';
+import FloatingDock from '@/components/layout/FloatingDock';
+import ChapterDepthTransitions from '@/components/layout/ChapterDepthTransitions';
 
 const newsreader = Newsreader({
   subsets: ['latin'],
@@ -146,6 +148,8 @@ export default function RootLayout({
           <MotionProvider>
             {children}
             <VshmaCareAssistant />
+            <FloatingDock />
+            <ChapterDepthTransitions />
           </MotionProvider>
         </SmoothScrollProvider>
       </body>

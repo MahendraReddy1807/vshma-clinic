@@ -50,7 +50,8 @@ export default function FAQSection() {
   return (
     <section
       id="faq"
-      className="scroll-mt-24 py-24 sm:py-32 bg-ivory text-charcoal border-b border-sage/20"
+      data-nav-theme="light"
+      className="scroll-mt-[var(--nav-h)] py-12 lg:py-16 bg-ivory text-charcoal border-b border-sage/20"
       aria-label="Frequently Asked Questions"
     >
       <div className="max-w-5xl mx-auto px-5 sm:px-8">

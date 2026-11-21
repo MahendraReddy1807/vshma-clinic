@@ -107,7 +107,7 @@ export const SITE_CONFIG: SiteConfig = {
     // TODO: Client to supply verified years of clinical experience
     yearsExperience: null,
     bioShort:
-      'Dr. Chihnitha Reddy T is a qualified Homeopathic Practitioner holding a Bachelor of Homeopathic Medicine and Surgery (BHMS). She founded VSHMA Homeopathy Clinic to provide patients with an unhurried, private clinical environment where natural medicine is practiced with rigorous individualized attention.',
+      'Dr. Chihnitha Reddy T is a qualified Homeopathic Practitioner holding a Bachelor of Homeopathic Medicine and Surgery (BHMS). She founded VSHMA Homeopathy Clinic to provide patients with a private, focused clinical environment where natural medicine is practiced with thorough clinical attention.',
     philosophyQuote:
       'We look at the whole person, not just isolated symptoms. Healing begins when a patient feels completely heard.',
   },
@@ -135,8 +135,8 @@ export const SITE_CONFIG: SiteConfig = {
       durationInitial: '45–60 min',
       durationReview: '20–30 min',
       description:
-        'A comprehensive constitutional case evaluation exploring present physical complaints, health history, lifestyle patterns, and personal triggers.',
-      focusAreas: ['Complete constitutional case evaluation', 'Detailed lifestyle and rhythm review', 'Customized homeopathic formulation'],
+        'A comprehensive first-time consultation exploring physical complaints, personal health chronology, lifestyle patterns, and sensitivity triggers.',
+      focusAreas: ['Comprehensive health intake', 'Lifestyle and daily rhythm review', 'Tailored homeopathic formulation'],
       glyph: 'crescent',
     },
     {
@@ -162,7 +162,7 @@ export const SITE_CONFIG: SiteConfig = {
       durationReview: '20–30 min',
       description:
         'Gentle, palatable natural therapeutics designed for infants and children, supporting natural immunity, sleep cycles, and seasonal resilience.',
-      focusAreas: ['Recurrent seasonal cough & cold support', 'Digestive and infant colic evaluation', 'Unhurried child-friendly atmosphere'],
+      focusAreas: ['Recurrent seasonal cough & cold support', 'Digestive and infant colic evaluation', 'Calm child-friendly atmosphere'],
       glyph: 'half-leaf',
     },
     {
@@ -174,7 +174,7 @@ export const SITE_CONFIG: SiteConfig = {
       durationInitial: '45–60 min',
       durationReview: '20–30 min',
       description:
-        'Supportive constitutional consultations addressing cycle regularity, perimenopausal shifts, hormonal headaches, and emotional equilibrium.',
+        'Supportive consultations addressing cycle regularity, perimenopausal shifts, hormonal headaches, and emotional equilibrium.',
       focusAreas: ['Supportive care for irregular cycles', 'Perimenopausal and hormonal rhythms', 'Safe, non-habit forming remedies'],
       glyph: 'orbital-cross',
     },
@@ -182,13 +182,13 @@ export const SITE_CONFIG: SiteConfig = {
       id: 'skin-wellness',
       number: '05',
       title: 'Skin & Dermatological Care',
-      subtitle: 'Internal constitutional balance',
+      subtitle: 'Skin harmony & sensitivity',
       category: 'Dermatological Support',
       durationInitial: '45–60 min',
       durationReview: '20–30 min',
       description:
-        'Care focused on the internal totality of chronic skin flare-ups, environmental triggers, and tissue recovery without aggressive suppression.',
-      focusAreas: ['Chronic skin reactivity consultations', 'Assessment of stress and weather triggers', 'Gentle internal therapeutic approach'],
+        'Consultation for chronic skin flare-ups, environmental triggers, and skin comfort through natural internal therapeutics.',
+      focusAreas: ['Consultation for recurring skin flare-ups', 'Assessment of weather and environmental triggers', 'Gentle internal therapeutic approach'],
       glyph: 'crescent',
     },
     {
@@ -200,8 +200,8 @@ export const SITE_CONFIG: SiteConfig = {
       durationInitial: '45–60 min',
       durationReview: '20–30 min',
       description:
-        'Constitutional evaluation for recurring gastric discomfort, irregular motility, bloating patterns, and dietary sensitivities.',
-      focusAreas: ['Long-term digestive pattern analysis', 'Food sensitivity lifestyle review', 'Individualized restorative guidance'],
+        'Consultation for recurring gastric discomfort, irregular motility, bloating patterns, and dietary sensitivities.',
+      focusAreas: ['Digestive pattern analysis', 'Dietary sensitivity review', 'Restorative homeopathic guidance'],
       glyph: 'semi-stacked',
     },
   ],

@@ -38,3 +38,20 @@ Under the **National Commission for Homeopathy Act** and Indian medical ethics:
 - **Independent Admin Alerts**: Clinic reception alerts for new bookings run independently of patient WhatsApp consent, ensuring no appointment is missed.
 - **Provider Redundancy**: WhatsApp infrastructure is standardized on **Green API** (Instance `710722808462`). Meta Cloud API credentials are never demanded or required.
 - **Right to Withdraw**: Patients can revoke WhatsApp consent at any time via reply or via the admin dossier with one click.
+
+---
+
+## 4. Copy Clean-Up & Plain Language Audit (Phase 4 Approval)
+
+The following wording refinements were implemented across the public site to eliminate developer labels, soften claims, and limit repetitive academic medical jargon:
+
+| Section / Element | Previous Phrasing | Refined Plain-Language Phrasing | Reason / Policy |
+| :--- | :--- | :--- | :--- |
+| **Philosophy Header** | *"Care rooted in personal dialogue and constitutional rigour"* | *"Care starts with listening"* | Calmer, more human, memorable headline. |
+| **Philosophy Card 01** | *"Totality Case Taking &bull; Constitutional Totality"* | *"Comprehensive Intake &bull; Personal Health Story"* | Replaces clinical repertory jargon with patient-friendly clarity. |
+| **Philosophy Card 02** | *"Individualized Therapeutics &bull; Custom Formulation"* | *"Tailored Formulations &bull; Constitutional Matching"* | Limits overuse of "individualized". |
+| **Skin Specialty** | *"Care focused on the internal totality of chronic skin flare-ups... without aggressive suppression"* | *"Consultation for chronic skin flare-ups, environmental triggers, and skin comfort"* | Removes adversarial claims ("suppression") and jargon ("totality"). |
+| **Digestive Specialty** | *"Motility rhythms & chronic bloating relief"* | *"Consultation for recurring gastric discomfort, irregular motility, bloating patterns"* | Removes cure/relief claims; focuses on clinical consultation scope. |
+| **Consultation Header** | *"Consultation Specialties &bull; Formats. Scroll to explore the 6 consultation formats..."* | *"Specialties &bull; Care Formats. Each clinical session provides dedicated time..."* | Removes dev instruction copy and eyebrow clutter. |
+| **Jargon Frequency Limit** | Words *unhurried*, *constitutional*, *individualized*, *totality* previously appeared 20+ times across site | Reduced to **2–3 total uses** across the entire landing page and menu | Creates balanced, refined prose without repetitive buzzwords. |
+

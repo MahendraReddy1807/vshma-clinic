@@ -3,7 +3,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import FloatingWhatsApp from '@/components/layout/FloatingWhatsApp';
 import ScrollToTop from '@/components/layout/ScrollToTop';
 import { CLINIC_INFO } from '@/lib/constants';
 import WhatsAppIcon from '@/components/ui/WhatsAppIcon';
@@ -177,7 +176,6 @@ export default function AboutPage() {
       </main>
 
       <Footer />
-      <FloatingWhatsApp />
       <ScrollToTop />
     </div>
   );

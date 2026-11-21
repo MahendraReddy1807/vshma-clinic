@@ -355,7 +355,7 @@ export default function AdminAppointmentsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="font-heading text-2xl sm:text-3xl font-bold text-gray-900">
+          <h1 className="font-serif font-light text-2xl sm:text-3xl text-forest tracking-tight">
             Appointment Records
           </h1>
           <p className="text-sm text-gray-500 mt-1">

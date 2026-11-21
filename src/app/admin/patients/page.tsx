@@ -162,7 +162,7 @@ export default function PatientsDirectoryPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-heading font-bold text-forest">Patient CRM Directory</h1>
+          <h1 className="text-2xl sm:text-3xl font-serif font-light text-forest tracking-tight">Patient CRM Directory</h1>
           <p className="text-xs sm:text-sm text-charcoal/70 mt-1">
             Search, manage, and inspect patient dossiers, family-shared phone numbers, and appointment histories.
           </p>

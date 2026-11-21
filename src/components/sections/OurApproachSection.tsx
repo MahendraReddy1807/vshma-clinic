@@ -12,21 +12,21 @@ const approachCards = [
   {
     number: '01',
     glyph: 'crescent' as const,
-    title: 'Totality Case Taking',
+    title: 'Comprehensive Intake',
     subtitle: 'Deep Listening',
-    tag: 'Constitutional Totality',
+    tag: 'Personal Health Story',
     description:
-      'We dedicate 45 to 60 minutes during your first session to understand physical symptoms alongside lifestyle rhythms, sleep, and emotional stressors.',
+      'We dedicate 45 to 60 minutes during your first session to understand physical complaints alongside lifestyle rhythms, sleep, and emotional stressors.',
     icon: Eye,
   },
   {
     number: '02',
     glyph: 'half-leaf' as const,
-    title: 'Individualized Therapeutics',
-    subtitle: 'Custom Matching',
+    title: 'Tailored Formulations',
+    subtitle: 'Constitutional Matching',
     tag: 'Custom Formulation',
     description:
-      'In classical homeopathy, no two patients receive the exact same prescription for the same complaint. Remedies are selected for your unique constitution.',
+      'In classical homeopathy, remedies are matched precisely to your constitutional characteristics and natural vitality response.',
     icon: Leaf,
   },
   {
@@ -36,17 +36,17 @@ const approachCards = [
     subtitle: 'Ongoing Guidance',
     tag: 'Progress Evaluation',
     description:
-      'Care continues beyond your first visit. Periodic reviews evaluate shifts in your wellbeing and fine-tune your regimen as your vitality responds.',
+      'Care continues beyond your first visit with structured follow-ups to evaluate remedy shifts and fine-tune your prescription regimen.',
     icon: HeartHandshake,
   },
   {
     number: '04',
     glyph: 'orbital-cross' as const,
-    title: 'Ethical Clinical Boundaries',
+    title: 'Ethical Clinical Standards',
     subtitle: 'Responsible Care',
     tag: 'Clinical Transparency',
     description:
-      'We practice with complete transparency. We never claim miracles or discourage conventional medical care when necessary for patient safety.',
+      'We practice with strict ethical boundaries, never claiming instant cures or discouraging primary conventional medical care when appropriate.',
     icon: ShieldCheck,
   },
 ];
@@ -54,32 +54,35 @@ const approachCards = [
 export default function OurApproachSection() {
   return (
     <section
-      id="our-approach"
-      className="relative scroll-mt-24 py-24 sm:py-32 bg-[#F7F3EC] text-[#161815] overflow-hidden border-b border-[#D8D0BD]/50"
+      id="approach"
+      data-nav-theme="light"
+      data-snap-section
+      className="relative scroll-mt-[var(--nav-h)] min-h-[calc(100svh-var(--nav-h))] lg:h-[calc(100svh-var(--nav-h))] flex flex-col justify-center py-6 lg:py-8 bg-[#F7F3EC] text-[#161815] overflow-hidden border-b border-[#D8D0BD]/50"
       aria-label="Our Clinical Approach"
     >
-      <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+      <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           
           {/* Left Column: Heading & Narrative Statement */}
-          <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-32">
+          <div className="lg:col-span-5 space-y-4 lg:space-y-5">
             <SectionTag variant="light">
-              Clinical Approach &bull; Methodology
+              Philosophy &bull; Methodology
             </SectionTag>
 
-            <h2 className="font-display font-light text-4xl sm:text-5xl lg:text-6xl text-[#121A15] leading-[1.08] tracking-tight">
-              Care rooted in personal dialogue and constitutional rigour.
+            <h2 className="font-display font-light text-chapter-title text-[#121A15] leading-[1.05] tracking-tight">
+              Care starts with listening.
             </h2>
 
-            <p className="text-[#161815]/75 text-base sm:text-lg font-light leading-relaxed font-sans">
-              We look at the whole person, not just the isolated symptom. By examining lifestyle rhythms, environmental sensitivities, and emotional stresses, we formulate natural remedies tailored specifically to you.
+            <p className="text-[#161815]/75 text-sm sm:text-base font-light leading-relaxed font-sans max-w-md">
+              We look at the whole person rather than isolated symptoms. By understanding lifestyle rhythms and environmental stresses, we formulate natural remedies tailored specifically to you.
             </p>
 
-            <div className="pt-2">
+            <div className="pt-1">
               <PillButton
                 variant="outline"
                 size="md"
                 href="/book"
+                className="in-page-book-btn"
                 icon={<ArrowUpRight className="w-4 h-4 text-[#B89B5E]" />}
               >
                 Experience This Care
@@ -88,48 +91,45 @@ export default function OurApproachSection() {
           </div>
 
           {/* Right Column: 2x2 Sage Cards Grid */}
-          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
-            {approachCards.map((card, idx) => {
-              const Icon = card.icon;
-              return (
-                <SageCard
-                  key={card.number}
-                  variant={idx % 2 === 0 ? 'sage' : 'bone'}
-                  className="flex flex-col justify-between space-y-6"
-                >
-                  <div className="space-y-4">
-                    {/* Card Header: Number & Glyphs */}
-                    <div className="flex items-center justify-between">
-                      <span className="font-display text-2xl font-light text-[#987E45]">
-                        {card.number}
-                      </span>
-                      <div className="w-9 h-9 rounded-full bg-white/40 border border-[#161815]/10 flex items-center justify-center text-[#121A15]">
-                        <GlyphIcon name={card.glyph} size={16} />
-                      </div>
+          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-5">
+            {approachCards.map((card, idx) => (
+              <SageCard
+                key={card.number}
+                variant={idx % 2 === 0 ? 'sage' : 'bone'}
+                className="flex flex-col justify-between p-5 lg:p-6 max-h-card-desktop shadow-sm"
+              >
+                <div className="space-y-3">
+                  {/* Card Header: Number & Glyphs */}
+                  <div className="flex items-center justify-between">
+                    <span className="font-display text-2xl font-light text-[#987E45]">
+                      {card.number}
+                    </span>
+                    <div className="w-8 h-8 rounded-full bg-white/40 border border-[#161815]/10 flex items-center justify-center text-[#121A15]">
+                      <GlyphIcon name={card.glyph} size={15} />
                     </div>
-
-                    <div className="space-y-1">
-                      <span className="text-[10px] font-sans font-bold uppercase tracking-[0.2em] text-[#987E45] block">
-                        {card.subtitle}
-                      </span>
-                      <h3 className="font-display font-normal text-2xl text-[#121A15] leading-tight">
-                        {card.title}
-                      </h3>
-                    </div>
-
-                    <p className="text-xs sm:text-sm text-[#161815]/75 leading-relaxed font-sans font-light">
-                      {card.description}
-                    </p>
                   </div>
 
-                  {/* Distinct Tag per Card */}
-                  <div className="pt-4 border-t border-[#161815]/10 flex items-center justify-between text-[11px] font-sans font-semibold tracking-wider uppercase text-[#121A15]/80">
-                    <span>{card.tag}</span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#B89B5E]" />
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] font-sans font-bold uppercase tracking-[0.18em] text-[#987E45] block">
+                      {card.subtitle}
+                    </span>
+                    <h3 className="font-display font-normal text-xl lg:text-2xl text-[#121A15] leading-tight">
+                      {card.title}
+                    </h3>
                   </div>
-                </SageCard>
-              );
-            })}
+
+                  <p className="text-xs text-[#161815]/75 leading-relaxed font-sans font-light line-clamp-3">
+                    {card.description}
+                  </p>
+                </div>
+
+                {/* Distinct Tag per Card */}
+                <div className="pt-3 border-t border-[#161815]/10 flex items-center justify-between text-[10px] font-sans font-semibold tracking-wider uppercase text-[#121A15]/80">
+                  <span>{card.tag}</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#B89B5E]" />
+                </div>
+              </SageCard>
+            ))}
           </div>
 
         </div>

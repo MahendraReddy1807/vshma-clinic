@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowUpRight, Clock, ShieldCheck, MapPin } from 'lucide-react';
+import { ArrowUpRight, Clock, ShieldCheck, MapPin, ChevronDown } from 'lucide-react';
 import { SITE_CONFIG } from '@/lib/site-config';
 import SectionTag from '@/components/ui/luxury/SectionTag';
 import PillButton from '@/components/ui/luxury/PillButton';
@@ -14,12 +14,15 @@ export default function HeroSection() {
 
   return (
     <section
-      className="relative min-h-[94vh] lg:min-h-screen w-full flex flex-col justify-center px-4 sm:px-6 lg:px-10 pt-28 sm:pt-32 pb-14 sm:pb-20 overflow-hidden bg-[#F7F3EC]"
+      id="hero"
+      data-nav-theme="light"
+      data-snap-section
+      className="relative w-full min-h-[calc(100svh-var(--nav-h))] lg:h-[calc(100svh-var(--nav-h))] flex flex-col justify-center px-4 sm:px-6 lg:px-8 py-3 lg:py-4 overflow-hidden bg-[#F7F3EC] scroll-mt-[var(--nav-h)]"
       aria-label="VSHMA Homeopathy Clinic Hero"
     >
       {/* ───────────── ARCHITECTURAL FULL-BLEED FRAMED CONTAINER ───────────── */}
-      <div className="relative w-full max-w-7xl mx-auto rounded-[28px] border border-[#D8D0BD]/60 bg-gradient-to-b from-[#F7F3EC] via-[#EDE6D3]/40 to-[#F7F3EC] p-6 sm:p-12 lg:p-16 overflow-hidden shadow-[0_12px_40px_-20px_rgba(18,26,21,0.08)]">
-        
+      <div className="relative w-full max-w-7xl mx-auto h-full max-h-[calc(100svh-var(--nav-h)-1.5rem)] rounded-[24px] sm:rounded-[28px] border border-[#D8D0BD]/60 bg-gradient-to-b from-[#F7F3EC] via-[#EDE6D3]/40 to-[#F7F3EC] p-5 sm:p-8 lg:p-10 flex flex-col justify-between overflow-hidden shadow-[0_12px_40px_-20px_rgba(18,26,21,0.08)]">
+
         {/* Subtle Architectural Hairline Grid Overlay */}
         <GridLines opacity="opacity-40" />
 
@@ -29,60 +32,60 @@ export default function HeroSection() {
         {/* Corner Concave Quarter-Circle Accents */}
         <div
           aria-hidden="true"
-          className="hidden sm:block absolute -bottom-6 -left-6 w-14 h-14 rounded-full border border-[#D8D0BD]/80 bg-[#F7F3EC] pointer-events-none"
+          className="hidden sm:block absolute -bottom-6 -left-6 w-12 h-12 rounded-full border border-[#D8D0BD]/80 bg-[#F7F3EC] pointer-events-none"
         />
         <div
           aria-hidden="true"
-          className="hidden sm:block absolute -bottom-6 -right-6 w-14 h-14 rounded-full border border-[#D8D0BD]/80 bg-[#F7F3EC] pointer-events-none"
+          className="hidden sm:block absolute -bottom-6 -right-6 w-12 h-12 rounded-full border border-[#D8D0BD]/80 bg-[#F7F3EC] pointer-events-none"
         />
 
-        {/* ───────────── HERO CONTENT ───────────── */}
-        <div className="relative z-10 max-w-3xl space-y-7 sm:space-y-9">
-          
-          {/* Eyebrow Status Pill */}
+        {/* ───────────── TOP EYEBROW STATUS ───────────── */}
+        <div className="relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 14 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: [0.2, 0.7, 0.2, 1] }}
+            transition={{ duration: 0.6, ease: [0.2, 0.7, 0.2, 1] }}
           >
             <SectionTag variant="light" pulseDot={true}>
               {clinic.city}, {clinic.state} &bull; Prior Appointment Only
             </SectionTag>
           </motion.div>
+        </div>
 
+        {/* ───────────── MAIN EDITORIAL CONTENT (Centered vertically) ───────────── */}
+        <div className="relative z-10 max-w-3xl my-auto space-y-4 sm:space-y-5 lg:space-y-6">
           {/* Three-Line Masked Serif Headline */}
-          <div className="space-y-1">
-            <motion.h1
-              initial={{ opacity: 0, y: 28 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, delay: 0.15, ease: [0.2, 0.7, 0.2, 1] }}
-              className="font-display font-light text-4xl sm:text-6xl lg:text-[4.75rem] text-[#121A15] leading-[1.05] tracking-tight"
-            >
-              Homeopathy that starts with listening.
-            </motion.h1>
-          </div>
+          <motion.h1
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.85, delay: 0.1, ease: [0.2, 0.7, 0.2, 1] }}
+            className="font-display font-light text-chapter-title text-[#121A15] leading-[1.04] tracking-tight"
+          >
+            Homeopathy that starts with listening.
+          </motion.h1>
 
           {/* Calm Plain-Language Editorial Paragraph */}
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.3, ease: [0.2, 0.7, 0.2, 1] }}
-            className="text-[#161815]/80 text-base sm:text-lg lg:text-xl font-light leading-relaxed max-w-2xl font-sans"
+            transition={{ duration: 0.85, delay: 0.25, ease: [0.2, 0.7, 0.2, 1] }}
+            className="text-[#161815]/80 text-sm sm:text-base lg:text-lg font-light leading-relaxed max-w-2xl font-sans"
           >
-            Led by <strong className="font-semibold text-[#121A15]">{doctor.name}</strong> ({doctor.degree}), VSHMA provides unhurried, private consultations in Bengaluru. We evaluate the whole person alongside lifestyle rhythms, sleep, and environmental triggers to formulate tailored homeopathic care.
+            Led by <strong className="font-semibold text-[#121A15]">{doctor.name}</strong> ({doctor.degree}), VSHMA provides unhurried, private clinical consultations in Bengaluru, understanding each patient&apos;s physical complaints and lifestyle rhythms.
           </motion.p>
 
           {/* Action Row */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.45, ease: [0.2, 0.7, 0.2, 1] }}
-            className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-1"
+            transition={{ duration: 0.85, delay: 0.35, ease: [0.2, 0.7, 0.2, 1] }}
+            className="flex flex-wrap items-center gap-3 pt-1"
           >
             <PillButton
               variant="dark"
-              size="lg"
+              size="md"
               href="/book"
+              className="in-page-book-btn"
               icon={<ArrowUpRight className="w-4 h-4 text-[#B89B5E]" />}
             >
               Request a Consultation
@@ -90,33 +93,52 @@ export default function HeroSection() {
 
             <PillButton
               variant="outline"
-              size="lg"
+              size="md"
               href="#about"
             >
-              Meet {doctor.name.split(' ')[0]} {doctor.name.split(' ')[1]}
+              Meet the Doctor
             </PillButton>
           </motion.div>
+        </div>
 
-          {/* Quiet Trust Bar */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1.1, delay: 0.65 }}
-            className="pt-6 grid grid-cols-1 sm:grid-cols-3 gap-3.5 max-w-2xl text-xs text-[#161815]/75 font-sans border-t border-[#D8D0BD]/50"
-          >
-            <div className="flex items-center gap-2.5">
-              <Clock className="w-4 h-4 text-[#B89B5E] shrink-0" />
+        {/* ───────────── BOTTOM BAR: TRUST STRIP & ELEGANT SCROLL CUE ───────────── */}
+        <div className="relative z-10 pt-3 border-t border-[#D8D0BD]/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-[#161815]/75 font-sans">
+          {/* Trust Strip: Shows values from site-config when populated */}
+          <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+            <div className="flex items-center gap-2">
+              <Clock className="w-3.5 h-3.5 text-[#B89B5E] shrink-0" />
               <span>45–60 Min First Sessions</span>
             </div>
-            <div className="flex items-center gap-2.5">
-              <ShieldCheck className="w-4 h-4 text-[#121A15] shrink-0" />
-              <span>Individualized Therapeutics</span>
+
+            {doctor.registrationNumber && (
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#121A15] shrink-0" />
+                <span>Reg: {doctor.registrationNumber}</span>
+              </div>
+            )}
+
+            {doctor.yearsExperience && (
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#121A15] shrink-0" />
+                <span>{doctor.yearsExperience} Experience</span>
+              </div>
+            )}
+
+            <div className="flex items-center gap-2">
+              <MapPin className="w-3.5 h-3.5 text-[#A3AA81] shrink-0" />
+              <span>Bengaluru Clinic &amp; Virtual</span>
             </div>
-            <div className="flex items-center gap-2.5">
-              <MapPin className="w-4 h-4 text-[#A3AA81] shrink-0" />
-              <span>In-Clinic &amp; Virtual Sessions</span>
-            </div>
-          </motion.div>
+          </div>
+
+          {/* Elegant Scroll Cue */}
+          <a
+            href="#approach"
+            aria-label="Scroll to Philosophy Chapter"
+            className="hidden lg:inline-flex items-center gap-2 text-[11px] uppercase tracking-widest text-[#B89B5E] hover:text-[#121A15] transition-colors group cursor-pointer"
+          >
+            <span>Scroll to Explore</span>
+            <ChevronDown className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-y-0.5" />
+          </a>
         </div>
 
       </div>

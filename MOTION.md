@@ -56,6 +56,14 @@ Every motion component inspects `useCapability()` before initializing:
 ### 4. Page & Route Transitions (`src/app/template.tsx`)
 - Deep forest curtain (`#121A15`) wipes out over 650ms on route navigation with a centered gold emblem.
 - Degrades instantly to standard zero-curtain rendering on low-capability devices.
+- **Zero Residual Transforms**: When route transition completes, the Framer Motion wrapper is removed (`onAnimationComplete`) so ancestors of fixed/pinned sections remain 100% free of transforms.
+
+### 5. Viewport-Fit System & Pinned Chapter Alignment
+- **Dynamic `--nav-h`**: Real navbar height measured dynamically via `ResizeObserver` and applied to `:root`.
+- **Screen Chapter Utility**: Every landing chapter fits inside `calc(100svh - var(--nav-h))`, ensuring the full chapter is visible at once on 1366x768, 1536x864, and 1920x1080/1009 viewports without clipping.
+- **GSAP Pinned Offset**: Pinned horizontal consultations start at `top top+=${navH}`, using `pinSpacing: true`, `anticipatePin: 1`, and `invalidateOnRefresh: true`.
+- **Soft Proximity Snap**: Desktop ScrollTrigger proximity snapping gently settles near chapter boundaries without fighting user scroll gestures.
+- **Consolidated Floating Dock**: Replaced competing floating widgets with a single bottom-right expandable action dock (WhatsApp, Phone, Care Assistant, Booking) that coordinates with in-page buttons.
 
 ---
 

@@ -1,9 +1,6 @@
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import FloatingWhatsApp from '@/components/layout/FloatingWhatsApp';
 import ScrollToTop from '@/components/layout/ScrollToTop';
-import MobileStickyBar from '@/components/layout/MobileStickyBar';
-import DesktopFloatingBookPill from '@/components/layout/DesktopFloatingBookPill';
 import HeroSection from '@/components/sections/HeroSection';
 import OurApproachSection from '@/components/sections/OurApproachSection';
 import ConsultationsSection from '@/components/sections/ConsultationsSection';
@@ -43,9 +40,6 @@ export default function HomePage() {
         <CTASection />
       </main>
       <Footer />
-      <MobileStickyBar />
-      <DesktopFloatingBookPill />
-      <FloatingWhatsApp />
       <ScrollToTop />
     </div>
   );

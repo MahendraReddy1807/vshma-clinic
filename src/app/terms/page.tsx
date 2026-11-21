@@ -1,6 +1,5 @@
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import FloatingWhatsApp from '@/components/layout/FloatingWhatsApp';
 import type { Metadata } from 'next';
 import { SITE_CONFIG } from '@/lib/site-config';
 import SectionTag from '@/components/ui/luxury/SectionTag';
@@ -65,7 +64,6 @@ export default function TermsPage() {
         </div>
       </main>
       <Footer />
-      <FloatingWhatsApp />
     </div>
   );
 }

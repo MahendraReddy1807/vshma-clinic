@@ -239,7 +239,7 @@ export default function FollowUpsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl font-heading font-bold text-forest">Follow-up Manager</h1>
+            <h1 className="text-2xl sm:text-3xl font-serif font-light text-forest tracking-tight">Follow-up Manager</h1>
             <span className="text-xs px-2.5 py-0.5 rounded-full bg-forest/10 text-forest font-semibold border border-forest/20">
               Outreach & Tasks
             </span>

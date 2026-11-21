@@ -566,7 +566,7 @@ export default function UnifiedInboxPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl font-heading font-bold text-forest">Unified Patient Inbox</h1>
+            <h1 className="text-2xl sm:text-3xl font-serif font-light text-forest tracking-tight">Unified Patient Inbox</h1>
             <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-800 text-white font-semibold flex items-center gap-1">
               <WhatsAppIcon className="w-3 h-3 text-[#25D366]" />
               <span>Green API Connected</span>
