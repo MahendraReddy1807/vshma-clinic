@@ -89,6 +89,55 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
       </head>
       <body className="min-h-full flex flex-col font-sans bg-[#F7F3EC] text-[#161815] selection:bg-[#D4D8BA]/40 selection:text-[#121A15]">
+        {/* Structured Data: MedicalClinic & Physician Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@graph': [
+                {
+                  '@type': 'MedicalClinic',
+                  '@id': 'https://vshma.in/#clinic',
+                  name: 'VSHMA Homeopathy Clinic',
+                  legalName: 'VSHMA Homeopathy Clinic',
+                  url: 'https://vshma.in',
+                  telephone: '+917416001477',
+                  email: 'care@vshma.in',
+                  medicalSpecialty: 'Homeopathic',
+                  address: {
+                    '@type': 'PostalAddress',
+                    addressLocality: 'Bengaluru',
+                    addressRegion: 'Karnataka',
+                    addressCountry: 'IN',
+                  },
+                  openingHoursSpecification: [
+                    {
+                      '@type': 'OpeningHoursSpecification',
+                      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+                      opens: '09:00',
+                      closes: '19:00',
+                    },
+                  ],
+                },
+                {
+                  '@type': 'Physician',
+                  '@id': 'https://vshma.in/#doctor',
+                  name: 'Dr. Chihnitha Reddy T',
+                  jobTitle: 'Lead Homeopathic Practitioner & Founder',
+                  medicalSpecialty: 'Homeopathic',
+                  worksFor: {
+                    '@id': 'https://vshma.in/#clinic',
+                  },
+                  alumniOf: {
+                    '@type': 'EducationalOrganization',
+                    name: 'Bachelor of Homeopathic Medicine and Surgery (BHMS)',
+                  },
+                },
+              ],
+            }),
+          }}
+        />
         <CustomCursor />
         <FilmGrain />
         <BrandIntro />
