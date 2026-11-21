@@ -2,11 +2,12 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import FloatingWhatsApp from '@/components/layout/FloatingWhatsApp';
 import ScrollToTop from '@/components/layout/ScrollToTop';
+import MobileStickyBar from '@/components/layout/MobileStickyBar';
+import DesktopFloatingBookPill from '@/components/layout/DesktopFloatingBookPill';
 import HeroSection from '@/components/sections/HeroSection';
-import AboutSection from '@/components/sections/AboutSection';
-import ConsultationOptionsSection from '@/components/sections/ConsultationOptionsSection';
 import OurApproachSection from '@/components/sections/OurApproachSection';
-import WhyChooseSection from '@/components/sections/WhyChooseSection';
+import ConsultationsSection from '@/components/sections/ConsultationsSection';
+import AboutSection from '@/components/sections/AboutSection';
 import HowItWorksSection from '@/components/sections/HowItWorksSection';
 import BookingSection from '@/components/sections/BookingSection';
 import FAQSection from '@/components/sections/FAQSection';
@@ -14,37 +15,36 @@ import CTASection from '@/components/sections/CTASection';
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen flex flex-col bg-[#F6F2E9] text-charcoal selection:bg-sage/20 selection:text-forest">
+    <div className="min-h-screen flex flex-col bg-bone text-ink selection:bg-sage/40 selection:text-forest">
       <Navbar />
       <main className="flex-1">
-        {/* 01. Premium Hero */}
+        {/* 01. Framed Hero */}
         <HeroSection />
 
-        {/* 02. Doctor Introduction */}
-        <AboutSection />
-
-        {/* 03. Our Clinical Approach */}
+        {/* 02. Our Clinical Approach (2x2 SageCard Grid) */}
         <OurApproachSection />
 
-        {/* 04. Consultation Options (Vertical Scroll Drives Horizontal Card Glide) */}
-        <ConsultationOptionsSection />
+        {/* 03. Consultations Accordion & SplitSemis (Replaces duplicate glide) */}
+        <ConsultationsSection />
 
-        {/* 05. Why VSHMA & Personal Attention */}
-        <WhyChooseSection />
+        {/* 04. Doctor Profile & Authentic Architectural Portrait */}
+        <AboutSection />
 
-        {/* 06. The Consultation Journey */}
+        {/* 05. The Consultation Journey (Unified Durations) */}
         <HowItWorksSection />
 
-        {/* 07. Appointment Booking Experience */}
+        {/* 06. Multi-Step Appointment Booking Experience */}
         <BookingSection />
 
-        {/* 08. Frequently Asked Questions */}
+        {/* 07. Frequently Asked Questions */}
         <FAQSection />
 
-        {/* 09. Contact and Clinic Information */}
+        {/* 08. Contact, Location Coordination & RingsMap */}
         <CTASection />
       </main>
       <Footer />
+      <MobileStickyBar />
+      <DesktopFloatingBookPill />
       <FloatingWhatsApp />
       <ScrollToTop />
     </div>

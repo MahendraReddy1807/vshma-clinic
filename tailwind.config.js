@@ -8,17 +8,37 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        forest: {
-          DEFAULT: "#263B32",
-          light: "#354E43",
-          dark: "#1B2A24",
-          deep: "#121C18",
+        bone: {
+          DEFAULT: "#E3E4DC",
+          light: "#EBECE6",
+          dark: "#D4D6CB",
         },
         sage: {
-          DEFAULT: "#66745C",
-          light: "#8F9D85",
-          soft: "#DCE3D6",
-          dark: "#4E5A45",
+          DEFAULT: "#D4D8BA",
+          light: "#E4E7CE",
+          soft: "#EEF0DF",
+          dark: "#A3AA81",
+        },
+        forest: {
+          DEFAULT: "#121A15",
+          light: "#1F2B23",
+          dark: "#0A0F0C",
+          deep: "#060907",
+        },
+        cream: {
+          DEFAULT: "#EDE6D3",
+          soft: "#F6F1E3",
+          dark: "#DCD2B9",
+        },
+        ink: {
+          DEFAULT: "#161815",
+          light: "#2A2E28",
+          muted: "#4F534B",
+        },
+        brass: {
+          DEFAULT: "#B89B5E",
+          light: "#D0B57C",
+          dark: "#987E45",
         },
         sand: {
           DEFAULT: "#D8D0BD",
@@ -26,39 +46,35 @@ module.exports = {
           dark: "#B8AE96",
         },
         ivory: {
-          DEFAULT: "#F6F2E9",
-          warm: "#ECE6D8",
+          DEFAULT: "#F7F3EC",
+          warm: "#EDE6D8",
           dark: "#E3DCcb",
         },
-        cream: {
-          DEFAULT: "#F6F2E9",
-          soft: "#FAF7F0",
-        },
         bronze: {
-          DEFAULT: "#9B795A",
-          light: "#B89676",
-          dark: "#7A5E44",
+          DEFAULT: "#B89B5E",
+          light: "#D0B57C",
+          dark: "#987E45",
         },
         gold: {
-          DEFAULT: "#9B795A",
-          light: "#B89676",
-          dark: "#7A5E44",
+          DEFAULT: "#B89B5E",
+          light: "#D0B57C",
+          dark: "#987E45",
         },
         charcoal: {
-          DEFAULT: "#292B27",
-          light: "#3D403A",
-          dark: "#1A1B19",
-        },
-        mint: {
-          DEFAULT: "#E5ECE0",
-          light: "#F0F5ED",
-          dark: "#C8D6C0",
+          DEFAULT: "#161815",
+          light: "#2B2E28",
+          dark: "#0E100D",
         },
       },
+      borderRadius: {
+        card: "18px",
+        hero: "28px",
+      },
       fontFamily: {
-        display: ["'Cormorant Garamond'", "Georgia", "serif"],
-        heading: ["'Playfair Display'", "Georgia", "serif"],
-        sans: ["'Manrope'", "'Inter'", "system-ui", "-apple-system", "sans-serif"],
+        display: ["var(--font-newsreader)", "'Newsreader'", "'Cormorant Garamond'", "Georgia", "serif"],
+        serif: ["var(--font-newsreader)", "'Newsreader'", "Georgia", "serif"],
+        sans: ["var(--font-instrument-sans)", "'Instrument Sans'", "'Manrope'", "system-ui", "-apple-system", "sans-serif"],
+        heading: ["var(--font-newsreader)", "'Newsreader'", "Georgia", "serif"],
       },
     },
   },

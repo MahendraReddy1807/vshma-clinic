@@ -223,13 +223,13 @@ const baseStyles = `
 
 function renderVoucherHeader(title: string, reference: string, titleColor = '#A38548'): string {
   return `
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width: 100%; border-collapse: collapse; border-bottom: 1px solid #EDE8DC; margin-bottom: 12px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width: 100%; border-collapse: collapse; border-bottom: 1px solid #EDE8DC; margin-bottom: 14px;">
     <tr>
-      <td align="left" valign="middle" style="padding-bottom: 12px; text-align: left; vertical-align: middle;">
-        <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: ${titleColor};">${title}</span>
+      <td align="left" valign="middle" style="padding-bottom: 12px; padding-right: 14px; text-align: left; vertical-align: middle;">
+        <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: ${titleColor}; display: inline-block;">${title}</span>
       </td>
-      <td align="right" valign="middle" style="padding-bottom: 12px; text-align: right; vertical-align: middle;">
-        <span style="display: inline-block; background-color: #0C231A; color: #FAF8F2; padding: 5px 12px; border-radius: 6px; font-family: 'Courier New', Courier, monospace; font-size: 13px; font-weight: 700; letter-spacing: 1.5px; border: 1px solid #C5A869;">${reference}</span>
+      <td align="right" valign="middle" style="padding-bottom: 12px; text-align: right; vertical-align: middle; white-space: nowrap;">
+        <span style="display: inline-block; background-color: #0C231A; color: #FAF8F2; padding: 6px 14px; border-radius: 6px; font-family: 'Courier New', Courier, monospace; font-size: 13px; font-weight: 700; letter-spacing: 1.5px; border: 1px solid #C5A869; white-space: nowrap;">${reference}</span>
       </td>
     </tr>
   </table>

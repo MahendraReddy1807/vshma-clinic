@@ -37,7 +37,7 @@ export async function GET(request: Request) {
   return NextResponse.json({
     status: 'active',
     endpoint: '/api/webhooks/whatsapp',
-    provider: (process.env.WHATSAPP_PROVIDER || 'meta').toLowerCase(),
+    provider: (process.env.WHATSAPP_PROVIDER || 'green_api').toLowerCase(),
     meta_configured: Boolean(process.env.WHATSAPP_ACCESS_TOKEN && process.env.WHATSAPP_APP_SECRET),
     green_api_configured: Boolean(
       (process.env.GREEN_API_ID_INSTANCE?.trim() || process.env.GREEN_API_INSTANCE_ID?.trim()) &&

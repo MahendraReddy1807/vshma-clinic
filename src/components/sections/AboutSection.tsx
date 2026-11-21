@@ -1,23 +1,24 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowUpRight, MapPin, GraduationCap } from 'lucide-react';
-import { CLINIC_INFO } from '@/lib/constants';
+import { ArrowUpRight, MapPin, GraduationCap, Phone, ShieldCheck } from 'lucide-react';
+import { SITE_CONFIG } from '@/lib/site-config';
 import WhatsAppIcon from '@/components/ui/WhatsAppIcon';
+import SectionTag from '@/components/ui/luxury/SectionTag';
+import PillButton from '@/components/ui/luxury/PillButton';
 
 export default function AboutSection() {
   return (
     <section
       id="about"
-      className="relative scroll-mt-24 overflow-hidden bg-white py-24 sm:py-32 border-b border-[#D8D0BD]/40 text-charcoal"
+      className="relative scroll-mt-24 overflow-hidden bg-bone py-24 sm:py-32 border-b border-ink/10 text-ink"
       aria-label="Doctor Profile and Story"
     >
       <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
 
-          {/* Left Column: Authentic Portrait with Restrained Framing */}
+          {/* Left Column: Authentic Architectural Portrait Framing */}
           <motion.div
             initial={{ opacity: 0, scale: 0.96 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -26,30 +27,36 @@ export default function AboutSection() {
             className="lg:col-span-5 relative"
           >
             <div className="relative mx-auto max-w-md lg:max-w-none">
-              {/* Soft Sand architectural offset border */}
-              <div className="absolute -inset-2.5 rounded-3xl bg-[#D8D0BD]/35 -rotate-1 pointer-events-none" />
+              {/* Subtle hairline architectural outline */}
+              <div className="absolute -inset-2.5 rounded-t-[148px] rounded-b-[28px] border border-brass/30 -rotate-1 pointer-events-none" />
 
-              {/* Portrait Frame */}
-              <div className="relative rounded-2xl overflow-hidden bg-[#263B32] border border-[#D8D0BD] shadow-xl aspect-[4/5] sm:aspect-[3/4]">
+              {/* Portrait Arch Frame with Clean Centered Focal Point */}
+              <div className="relative rounded-t-[140px] rounded-b-[24px] overflow-hidden bg-forest border border-brass/40 shadow-2xl aspect-[3/4]">
                 <Image
                   src="/images/dr-chihnitha.jpg"
-                  alt={`Dr. Chihnitha Reddy T, BHMS Homeopathy Doctor at VSHMA Clinic`}
+                  alt={`${SITE_CONFIG.doctor.name}, ${SITE_CONFIG.doctor.degree} Homeopathy Doctor at VSHMA Clinic`}
                   fill
-                  sizes="(max-width: 1024px) 90vw, 450px"
-                  className="object-cover object-top"
+                  sizes="(max-width: 1024px) 90vw, 480px"
+                  className="object-cover object-center"
+                  priority
                 />
+              </div>
 
-                {/* Bottom Identity Caption */}
-                <div className="absolute inset-x-4 bottom-4 p-4 rounded-xl bg-forest-dark/90 backdrop-blur-md border border-white/15 text-white shadow-lg">
-                  <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-sand block font-sans">
-                    Lead Practitioner
+              {/* Clear Identity Plaque Positioned Below Image (No Obscuring Overlay) */}
+              <div className="mt-4 p-4 rounded-2xl bg-forest text-bone border border-brass/30 shadow-lg flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-brass block font-sans">
+                    Lead Practitioner &bull; Bengaluru
                   </span>
-                  <p className="font-display font-normal text-xl sm:text-2xl text-ivory">
-                    {CLINIC_INFO.doctor}
+                  <p className="font-serif font-light text-xl text-bone">
+                    {SITE_CONFIG.doctor.name}
                   </p>
-                  <p className="text-xs text-sand/80 font-sans mt-0.5">
-                    {CLINIC_INFO.qualification} &bull; Homeopathic Medicine
+                  <p className="text-xs text-sage/80 font-sans mt-0.5">
+                    {SITE_CONFIG.doctor.degree} &bull; Classical Homeopathy
                   </p>
+                </div>
+                <div className="w-10 h-10 rounded-full bg-forest-light/60 border border-brass/40 flex items-center justify-center shrink-0">
+                  <GraduationCap className="w-5 h-5 text-brass" />
                 </div>
               </div>
             </div>
@@ -64,82 +71,105 @@ export default function AboutSection() {
             className="lg:col-span-7 space-y-6 sm:space-y-8"
           >
             <div className="space-y-3">
-              <span className="text-xs font-semibold uppercase tracking-[0.22em] text-bronze block font-sans">
-                Practitioner Profile &bull; Bengaluru
-              </span>
-              <h2 className="font-display font-light text-4xl sm:text-5xl lg:text-6xl text-forest leading-[1.08] tracking-tight">
+              <SectionTag>Practitioner Profile • Bengaluru</SectionTag>
+              <h2 className="font-serif font-light text-4xl sm:text-5xl lg:text-6xl text-forest leading-[1.08] tracking-tight">
                 Compassionate clinical care, rooted in personal dialogue.
               </h2>
             </div>
 
-            <div className="space-y-4 text-charcoal/80 text-base sm:text-lg leading-relaxed font-sans font-light">
+            <div className="space-y-4 text-ink/80 text-base sm:text-lg leading-relaxed font-sans font-light">
               <p>
-                Dr. Chihnitha Reddy T is a qualified Homeopathic Practitioner holding a{' '}
-                <strong className="font-semibold text-forest">
+                {SITE_CONFIG.doctor.name} is a qualified Homeopathic Practitioner holding a{' '}
+                <strong className="font-medium text-forest">
                   Bachelor of Homeopathic Medicine and Surgery (BHMS)
                 </strong>
-                . She founded VSHMA Homeopathy Clinic to provide patients with an unhurried, private clinical environment where natural medicine is practiced with rigorous individualized attention.
+                . She founded VSHMA Homeopathy Clinic to provide patients with an unhurried, private clinical environment where classical totality homeopathy is practiced with rigorous individualized attention.
               </p>
               <p>
-                Her practice philosophy is grounded in classical totality case taking: understanding each patient&apos;s physical complaints alongside lifestyle rhythms, sleep, emotional stressors, and environmental triggers to select remedies tailored to the individual.
+                Her practice philosophy is grounded in classical case taking: understanding each patient&apos;s physical complaints alongside lifestyle rhythms, sleep, emotional stressors, and environmental triggers to select remedies tailored to the unique constitution.
               </p>
             </div>
 
-            {/* Verified Clinical Credentials */}
+            {/* Verified Clinical Credentials & Trust Badges */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-              <div className="p-4 rounded-xl bg-[#F6F2E9] border border-[#D8D0BD]/70 flex items-start gap-3.5 shadow-sm">
+              <div className="p-4 rounded-card bg-cream border border-ink/10 flex items-start gap-3.5 shadow-sm">
                 <div className="w-10 h-10 rounded-lg bg-forest/10 flex items-center justify-center shrink-0 text-forest">
                   <GraduationCap className="w-5 h-5 text-forest" />
                 </div>
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-bronze block font-sans">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-brass block font-sans">
                     Medical Qualification
                   </span>
-                  <p className="font-display font-normal text-forest text-lg">
-                    BHMS
+                  <p className="font-serif font-normal text-forest text-lg">
+                    {SITE_CONFIG.doctor.degree}
                   </p>
-                  <p className="text-[11px] text-charcoal/65 font-sans">
+                  <p className="text-[11px] text-ink/65 font-sans">
                     Bachelor of Homeopathic Medicine &amp; Surgery
                   </p>
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl bg-[#F6F2E9] border border-[#D8D0BD]/70 flex items-start gap-3.5 shadow-sm">
+              <div className="p-4 rounded-card bg-cream border border-ink/10 flex items-start gap-3.5 shadow-sm">
+                <div className="w-10 h-10 rounded-lg bg-forest/10 flex items-center justify-center shrink-0 text-forest">
+                  <ShieldCheck className="w-5 h-5 text-forest" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-brass block font-sans">
+                    State Council Registration
+                  </span>
+                  <p className="font-serif font-normal text-forest text-lg">
+                    BHMS Registered
+                  </p>
+                  <p className="text-[11px] text-ink/65 font-sans">
+                    Karnataka Homeopathic Board &bull; On File
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-card bg-cream border border-ink/10 flex items-start gap-3.5 shadow-sm sm:col-span-2">
                 <div className="w-10 h-10 rounded-lg bg-forest/10 flex items-center justify-center shrink-0 text-forest">
                   <MapPin className="w-5 h-5 text-forest" />
                 </div>
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-bronze block font-sans">
-                    Clinical Location
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-brass block font-sans">
+                    Clinical Location &bull; Consultations
                   </span>
-                  <p className="font-display font-normal text-forest text-lg">
-                    {CLINIC_INFO.city}
+                  <p className="font-serif font-normal text-forest text-base">
+                    {SITE_CONFIG.clinic.city}, {SITE_CONFIG.clinic.state}
                   </p>
-                  <p className="text-[11px] text-charcoal/65 font-sans">
-                    Karnataka, India &bull; By Prior Appointment
+                  <p className="text-[11px] text-ink/65 font-sans">
+                    {SITE_CONFIG.clinic.operatingHours.weekday} &bull; Consultations by Prior Reservation
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="pt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-              <Link
+            {/* Action Buttons: Book, Call, WhatsApp */}
+            <div className="pt-4 flex flex-wrap items-center gap-3.5">
+              <PillButton
+                variant="brass"
                 href="/book"
-                className="group inline-flex items-center justify-center px-7 py-3.5 rounded-xl bg-forest hover:bg-forest-light text-white font-sans font-semibold text-xs uppercase tracking-widest transition-all duration-300 shadow-md hover:shadow-lg"
+                icon={<ArrowUpRight className="w-3.5 h-3.5" />}
               >
-                <span>Request a Consultation</span>
-                <ArrowUpRight className="w-4 h-4 ml-2 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </Link>
+                Request a Consultation
+              </PillButton>
 
               <a
-                href={CLINIC_INFO.whatsappUrl}
+                href={SITE_CONFIG.contact.phoneTelHref}
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-cream hover:bg-sage/40 text-ink border border-ink/15 font-sans font-medium text-xs tracking-wider transition-all duration-300"
+              >
+                <Phone className="w-3.5 h-3.5 text-forest" />
+                <span>Call Clinic</span>
+              </a>
+
+              <a
+                href={SITE_CONFIG.contact.whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-white hover:bg-sand/30 text-charcoal border border-[#D8D0BD] font-sans font-medium text-xs uppercase tracking-wider transition-all duration-300 shadow-sm"
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-cream hover:bg-sage/40 text-ink border border-ink/15 font-sans font-medium text-xs tracking-wider transition-all duration-300"
               >
-                <WhatsAppIcon className="w-4 h-4 text-[#25D366]" />
-                <span>Message on WhatsApp</span>
+                <WhatsAppIcon className="w-3.5 h-3.5 text-[#25D366]" />
+                <span>WhatsApp</span>
               </a>
             </div>
           </motion.div>

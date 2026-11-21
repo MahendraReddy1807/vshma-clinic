@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, ArrowUpRight } from 'lucide-react';
+import { Menu, X, ArrowUpRight, Phone } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { NAV_LINKS, CLINIC_INFO } from '@/lib/constants';
+import { NAV_LINKS } from '@/lib/constants';
+import { SITE_CONFIG } from '@/lib/site-config';
 import WhatsAppIcon from '@/components/ui/WhatsAppIcon';
 import BrandLogo from '@/components/ui/BrandLogo';
 
@@ -13,10 +14,11 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
+  const { contact } = SITE_CONFIG;
 
   useEffect(() => {
     const onScroll = () => {
-      setScrolled(window.scrollY > 30);
+      setScrolled(window.scrollY > 25);
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
@@ -51,8 +53,8 @@ export default function Navbar() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? 'py-3.5 bg-[#F6F2E9]/95 backdrop-blur-md shadow-sm border-b border-[#D8D0BD]/60'
-          : 'py-5 bg-[#F6F2E9]/80 backdrop-blur-sm border-b border-[#D8D0BD]/30'
+          ? 'py-3 bg-[#F7F3EC]/95 backdrop-blur-md shadow-xs border-b border-[#D8D0BD]/70'
+          : 'py-5 bg-transparent border-b border-[#D8D0BD]/25'
       }`}
     >
       <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
@@ -69,7 +71,7 @@ export default function Navbar() {
           {/* Desktop Floating Navigation Capsule */}
           <nav
             aria-label="Main Navigation"
-            className="hidden lg:flex items-center gap-1 px-5 py-2 rounded-full bg-white/80 border border-[#D8D0BD] shadow-sm backdrop-blur-md"
+            className="hidden lg:flex items-center gap-1 px-5 py-1.5 rounded-full bg-white/85 border border-[#D8D0BD] shadow-2xs backdrop-blur-md"
           >
             {NAV_LINKS.map((link) => {
               const isActive = pathname === link.href;
@@ -79,8 +81,8 @@ export default function Navbar() {
                   href={link.href}
                   className={`relative px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide font-sans transition-all duration-200 ${
                     isActive
-                      ? 'text-white bg-forest shadow-xs'
-                      : 'text-charcoal/75 hover:text-forest hover:bg-forest/5'
+                      ? 'text-[#F7F3EC] bg-[#121A15] shadow-xs'
+                      : 'text-[#161815]/75 hover:text-[#121A15] hover:bg-[#121A15]/5'
                   }`}
                 >
                   {link.label}
@@ -92,21 +94,19 @@ export default function Navbar() {
           {/* Right Direct CTAs */}
           <div className="hidden sm:flex items-center gap-3">
             <a
-              href={CLINIC_INFO.whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs font-semibold flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-[#D8D0BD] text-forest hover:bg-[#F6F2E9] transition-all duration-200 shadow-xs"
+              href={contact.phoneTelHref}
+              className="text-xs font-medium flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white/85 border border-[#D8D0BD] text-[#121A15] hover:bg-[#EDE6D3] transition-all shadow-2xs"
             >
-              <WhatsAppIcon className="w-4 h-4 text-[#25D366]" />
-              <span className="font-sans">+91 {CLINIC_INFO.phone}</span>
+              <Phone className="w-3.5 h-3.5 text-[#B89B5E]" />
+              <span className="font-sans">{contact.phoneDisplay}</span>
             </a>
 
             <Link
               href="/book"
-              className="group inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-forest hover:bg-forest-light text-white text-xs font-semibold font-sans uppercase tracking-wider transition-all duration-200 shadow-sm hover:shadow"
+              className="group inline-flex items-center gap-1.5 px-5 py-2 rounded-full bg-[#121A15] hover:bg-[#1F2B23] text-[#F7F3EC] border border-[#B89B5E]/70 text-xs font-semibold font-sans uppercase tracking-wider transition-all duration-300 shadow-xs hover:shadow-md hover:-translate-y-0.5"
             >
-              <span>Book Consultation</span>
-              <ArrowUpRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              <span>Book</span>
+              <ArrowUpRight className="w-3.5 h-3.5 text-[#B89B5E] transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </Link>
           </div>
 
@@ -114,7 +114,7 @@ export default function Navbar() {
           <button
             type="button"
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="lg:hidden p-2.5 rounded-xl border border-[#D8D0BD] bg-white text-forest shadow-xs cursor-pointer"
+            className="lg:hidden p-2.5 rounded-full border border-[#D8D0BD] bg-white text-[#121A15] shadow-xs cursor-pointer"
             aria-expanded={mobileOpen}
             aria-label="Toggle Navigation Menu"
           >
@@ -164,19 +164,19 @@ export default function Navbar() {
                 </Link>
 
                 <a
-                  href={CLINIC_INFO.whatsappUrl}
+                  href={contact.whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl bg-emerald-50 text-emerald-900 border border-emerald-200 text-xs font-semibold font-sans"
                 >
                   <WhatsAppIcon className="w-4 h-4 text-[#25D366]" />
-                  <span>WhatsApp: +91 {CLINIC_INFO.phone}</span>
+                  <span>WhatsApp: {contact.phoneDisplay}</span>
                 </a>
               </div>
             </motion.div>
 
             <div className="text-center text-xs text-sage-light/70 pt-6 pb-2 font-sans">
-              {CLINIC_INFO.fullName} &bull; {CLINIC_INFO.doctor} ({CLINIC_INFO.qualification})
+              {SITE_CONFIG.clinic.fullName} &bull; {SITE_CONFIG.doctor.name} ({SITE_CONFIG.doctor.degree})
             </div>
           </motion.div>
         )}

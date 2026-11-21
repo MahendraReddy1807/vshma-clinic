@@ -19,12 +19,12 @@ export class WhatsAppProviderFactory {
       return this.instance;
     }
 
-    const providerType = (process.env.WHATSAPP_PROVIDER || 'meta').trim().toLowerCase();
+    const providerType = (process.env.WHATSAPP_PROVIDER || 'green_api').trim().toLowerCase();
 
-    if (providerType === 'green_api') {
-      this.instance = new GreenApiWhatsAppProvider();
-    } else {
+    if (providerType === 'meta') {
       this.instance = new MetaWhatsAppProvider();
+    } else {
+      this.instance = new GreenApiWhatsAppProvider();
     }
 
     return this.instance;

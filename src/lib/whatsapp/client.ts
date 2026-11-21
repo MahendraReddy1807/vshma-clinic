@@ -14,10 +14,21 @@ function getGreenProvider(): GreenApiWhatsAppProvider {
 }
 
 /**
+ * Resolves the active WhatsApp provider.
+ * VSHMA clinic standardizes on Green API by default.
+ * Meta is only selected if explicitly configured via WHATSAPP_PROVIDER=meta.
+ */
+export function getActiveWhatsAppProvider(): 'green_api' | 'meta' {
+  const explicit = process.env.WHATSAPP_PROVIDER?.trim().toLowerCase();
+  if (explicit === 'meta') return 'meta';
+  return 'green_api';
+}
+
+/**
  * Checks whether the active WhatsApp provider (Green API or Meta) has valid credentials.
  */
 export function isWhatsAppConfigured(): boolean {
-  const provider = (process.env.WHATSAPP_PROVIDER || 'meta').trim().toLowerCase();
+  const provider = getActiveWhatsAppProvider();
   if (provider === 'green_api') {
     const id = process.env.GREEN_API_ID_INSTANCE?.trim() || process.env.GREEN_API_INSTANCE_ID?.trim();
     const token = process.env.GREEN_API_TOKEN_INSTANCE?.trim() || process.env.GREEN_API_API_TOKEN?.trim();
@@ -231,10 +242,21 @@ export async function sendWhatsAppMessage(
   payload: WhatsAppTemplatePayload,
   configOverride?: Partial<WhatsAppConfig>
 ): Promise<WhatsAppSendResult> {
-  const activeProvider = (process.env.WHATSAPP_PROVIDER || 'meta').trim().toLowerCase();
+  const activeProvider = getActiveWhatsAppProvider();
 
   // 1. Direct Green API dispatch: Meta credentials are NEVER required when using Green API
   if (activeProvider === 'green_api') {
+    const id = process.env.GREEN_API_ID_INSTANCE?.trim() || process.env.GREEN_API_INSTANCE_ID?.trim();
+    const token = process.env.GREEN_API_TOKEN_INSTANCE?.trim() || process.env.GREEN_API_API_TOKEN?.trim();
+
+    if (!id || !token) {
+      return {
+        success: false,
+        status: 'failed',
+        error: 'Green API credentials (GREEN_API_ID_INSTANCE or GREEN_API_TOKEN_INSTANCE) missing.',
+      };
+    }
+
     const provider = getGreenProvider();
     const formattedText = renderWhatsAppTextFromPayload(payload);
     const sendResult = await provider.sendTextMessage({

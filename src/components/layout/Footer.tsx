@@ -122,9 +122,6 @@ export default function Footer() {
             <Link href="/terms" className="hover:text-white transition-colors">
               Terms &amp; Boundaries
             </Link>
-            <Link href="/admin/login" className="hover:text-sand text-[11px] transition-colors">
-              Admin Portal
-            </Link>
           </div>
         </div>
 

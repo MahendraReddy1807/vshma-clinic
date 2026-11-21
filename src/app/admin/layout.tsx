@@ -121,7 +121,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
+    <>
+      <head>
+        <meta name="robots" content="noindex, nofollow" />
+      </head>
+      <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
       {/* Mobile Top Bar */}
       <div className="md:hidden bg-forest text-white px-4 py-3 flex items-center justify-between border-b border-forest-light">
         <div className="flex items-center gap-2">
@@ -210,5 +214,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {children}
       </main>
     </div>
+    </>
   );
 }

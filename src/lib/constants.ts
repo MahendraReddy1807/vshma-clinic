@@ -39,19 +39,27 @@ export const NAV_LINKS: NavLink[] = [
   { label: 'Contact', href: '/contact' },
 ];
 
-/* ───────────── Consultation Types ───────────── */
+/* ───────────── Consultation Types (Aligned with 6 Specialties) ───────────── */
 export const CONSULTATION_TYPES = [
   'General Consultation',
-  'Follow-up Consultation',
-  'New Patient Consultation',
-  'Online Consultation',
+  'Ongoing & Follow-Up Care',
+  'Pediatric & Family Wellness',
+  "Women's Health & Hormonal Balance",
+  'Dermatological & Skin Wellness',
+  'Digestive & Metabolic Harmony',
 ] as const;
 
-/* ───────────── Time Slots ───────────── */
+/* ───────────── Consultation Modes ───────────── */
+export const CONSULTATION_MODES = [
+  { label: 'In-Clinic Consultation (Bengaluru)', value: 'in_clinic' },
+  { label: 'Virtual Video Consultation (Pan-India)', value: 'video' },
+] as const;
+
+/* ───────────── Time Slots (Covering Mon–Sat 9:00 AM – 7:00 PM) ───────────── */
 export const TIME_SLOTS = [
-  { label: 'Morning (9 AM – 12 PM)', value: 'Morning (9AM-12PM)' },
-  { label: 'Afternoon (12 PM – 3 PM)', value: 'Afternoon (12PM-3PM)' },
-  { label: 'Evening (3 PM – 6 PM)', value: 'Evening (3PM-6PM)' },
+  { label: 'Morning (9:00 AM – 12:00 PM)', value: 'Morning (9:00 AM – 12:00 PM)' },
+  { label: 'Afternoon (12:00 PM – 3:30 PM)', value: 'Afternoon (12:00 PM – 3:30 PM)' },
+  { label: 'Evening (3:30 PM – 7:00 PM)', value: 'Evening (3:30 PM – 7:00 PM)' },
 ] as const;
 
 /* ───────────── Services ───────────── */

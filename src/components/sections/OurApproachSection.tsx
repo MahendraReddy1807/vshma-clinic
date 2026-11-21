@@ -1,40 +1,52 @@
 'use client';
 
+import React from 'react';
 import { motion } from 'framer-motion';
-import { Leaf, Eye, HeartHandshake, ShieldCheck } from 'lucide-react';
-import Link from 'next/link';
+import { Eye, Leaf, HeartHandshake, ShieldCheck, ArrowUpRight } from 'lucide-react';
+import SectionTag from '@/components/ui/luxury/SectionTag';
+import SageCard from '@/components/ui/luxury/SageCard';
+import GlyphIcon from '@/components/ui/luxury/GlyphIcon';
+import PillButton from '@/components/ui/luxury/PillButton';
 
-const approachSteps = [
+const approachCards = [
   {
     number: '01',
-    title: 'Comprehensive Case Evaluation',
+    glyph: 'crescent' as const,
+    title: 'Totality Case Taking',
     subtitle: 'Deep Listening',
+    tag: 'Constitutional Totality',
     description:
-      'We dedicate ample time during your initial consultation to explore not just acute symptoms, but your general health history, emotional stress, energy rhythms, and environmental triggers.',
+      'We dedicate 45 to 60 minutes during your first session to understand physical symptoms alongside lifestyle rhythms, sleep, and emotional stressors.',
     icon: Eye,
   },
   {
     number: '02',
+    glyph: 'half-leaf' as const,
     title: 'Individualized Therapeutics',
     subtitle: 'Custom Matching',
+    tag: 'Custom Formulation',
     description:
-      'In classic homeopathic tradition, no two patients receive the exact same prescription for the same complaint. Remedies are carefully selected based on your unique constitutional picture.',
+      'In classical homeopathy, no two patients receive the exact same prescription for the same complaint. Remedies are selected for your unique constitution.',
     icon: Leaf,
   },
   {
     number: '03',
-    title: 'Continuous Follow-Up Support',
+    glyph: 'semi-stacked' as const,
+    title: 'Longitudinal Review',
     subtitle: 'Ongoing Guidance',
+    tag: 'Progress Evaluation',
     description:
-      'Care doesn’t end when you leave the clinic. We evaluate shifts in your wellbeing over periodic review sessions and fine-tune your regimen as your vitality responds.',
+      'Care continues beyond your first visit. Periodic reviews evaluate shifts in your wellbeing and fine-tune your regimen as your vitality responds.',
     icon: HeartHandshake,
   },
   {
     number: '04',
+    glyph: 'orbital-cross' as const,
     title: 'Ethical Clinical Boundaries',
     subtitle: 'Responsible Care',
+    tag: 'Clinical Transparency',
     description:
-      'We practice with complete transparency. We never claim miracles or discourage conventional care when necessary, actively supporting integrated approaches to patient safety.',
+      'We practice with complete transparency. We never claim miracles or discourage conventional medical care when necessary for patient safety.',
     icon: ShieldCheck,
   },
 ];
@@ -43,118 +55,84 @@ export default function OurApproachSection() {
   return (
     <section
       id="our-approach"
-      className="relative scroll-mt-24 py-24 sm:py-32 bg-forest text-white overflow-hidden"
+      className="relative scroll-mt-24 py-24 sm:py-32 bg-[#F7F3EC] text-[#161815] overflow-hidden border-b border-[#D8D0BD]/50"
       aria-label="Our Clinical Approach"
     >
-      {/* Background ambient lighting */}
-      <div className="absolute top-1/4 -right-40 w-96 h-96 bg-emerald-light/20 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-10 -left-40 w-96 h-96 bg-gold/15 rounded-full blur-[140px] pointer-events-none" />
+      <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+          
+          {/* Left Column: Heading & Narrative Statement */}
+          <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-32">
+            <SectionTag variant="light">
+              Clinical Approach &bull; Methodology
+            </SectionTag>
 
-      <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 relative z-10">
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-4 mb-16 sm:mb-20">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-gold" />
-            <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-ivory">
-              Clinical Methodology
-            </span>
-          </motion.div>
+            <h2 className="font-display font-light text-4xl sm:text-5xl lg:text-6xl text-[#121A15] leading-[1.08] tracking-tight">
+              Care rooted in personal dialogue and constitutional rigour.
+            </h2>
 
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.1 }}
-            className="font-display font-light text-4xl sm:text-5xl lg:text-6xl text-ivory leading-[1.08] tracking-tight"
-          >
-            A thoughtful approach to care.
-          </motion.h2>
+            <p className="text-[#161815]/75 text-base sm:text-lg font-light leading-relaxed font-sans">
+              We look at the whole person, not just the isolated symptom. By examining lifestyle rhythms, environmental sensitivities, and emotional stresses, we formulate natural remedies tailored specifically to you.
+            </p>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="text-sage-light/85 text-base sm:text-lg font-light leading-relaxed font-sans"
-          >
-            Rooted in authentic homeopathic principles, practiced with modern clinical rigour and genuine human empathy.
-          </motion.p>
-        </div>
-
-        {/* 4-Pillar Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-          {approachSteps.map((step, idx) => {
-            const Icon = step.icon;
-            return (
-              <motion.div
-                key={step.number}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-50px' }}
-                transition={{ duration: 0.7, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                className="group relative p-7 rounded-3xl bg-forest-dark/50 border border-white/10 hover:border-gold/50 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 shadow-xl flex flex-col justify-between"
+            <div className="pt-2">
+              <PillButton
+                variant="outline"
+                size="md"
+                href="/book"
+                icon={<ArrowUpRight className="w-4 h-4 text-[#B89B5E]" />}
               >
-                <div className="space-y-5">
-                  <div className="flex items-center justify-between">
-                    <span className="font-display text-2xl font-light text-gold">
-                      {step.number}
-                    </span>
-                    <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center text-gold group-hover:bg-gold group-hover:text-forest transition-colors duration-300">
-                      <Icon className="w-5 h-5" />
-                    </div>
-                  </div>
-
-                  <div>
-                    <span className="text-[10px] uppercase font-bold tracking-widest text-sage block">
-                      {step.subtitle}
-                    </span>
-                    <h3 className="font-heading font-semibold text-lg sm:text-xl text-ivory mt-1">
-                      {step.title}
-                    </h3>
-                  </div>
-
-                  <p className="text-xs sm:text-sm text-sage-light/80 leading-relaxed font-light">
-                    {step.description}
-                  </p>
-                </div>
-
-                <div className="pt-6 mt-6 border-t border-white/10">
-                  <span className="text-[11px] font-semibold tracking-wider uppercase text-gold/80 flex items-center gap-1.5">
-                    <span className="w-1 h-1 rounded-full bg-gold" />
-                    Individualized Care
-                  </span>
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {/* Bottom Banner */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="mt-16 sm:mt-20 p-8 sm:p-10 rounded-3xl bg-gradient-to-r from-forest-dark via-forest-dark/90 to-emerald-dark/60 border border-gold/30 text-center max-w-4xl mx-auto shadow-2xl space-y-4"
-        >
-          <p className="font-serif italic text-lg sm:text-xl text-ivory/95 max-w-2xl mx-auto">
-            &ldquo;We respect the individuality of every case. Homeopathy works with your body&apos;s natural regulatory vitality—not against it.&rdquo;
-          </p>
-          <div className="pt-2">
-            <Link
-              href="/book"
-              className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-gold hover:bg-gold-light text-forest-deep font-sans font-semibold text-xs tracking-wider uppercase transition-all shadow-md"
-            >
-              Request a Consultation
-            </Link>
+                Experience This Care
+              </PillButton>
+            </div>
           </div>
-        </motion.div>
+
+          {/* Right Column: 2x2 Sage Cards Grid */}
+          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+            {approachCards.map((card, idx) => {
+              const Icon = card.icon;
+              return (
+                <SageCard
+                  key={card.number}
+                  variant={idx % 2 === 0 ? 'sage' : 'bone'}
+                  className="flex flex-col justify-between space-y-6"
+                >
+                  <div className="space-y-4">
+                    {/* Card Header: Number & Glyphs */}
+                    <div className="flex items-center justify-between">
+                      <span className="font-display text-2xl font-light text-[#987E45]">
+                        {card.number}
+                      </span>
+                      <div className="w-9 h-9 rounded-full bg-white/40 border border-[#161815]/10 flex items-center justify-center text-[#121A15]">
+                        <GlyphIcon name={card.glyph} size={16} />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-sans font-bold uppercase tracking-[0.2em] text-[#987E45] block">
+                        {card.subtitle}
+                      </span>
+                      <h3 className="font-display font-normal text-2xl text-[#121A15] leading-tight">
+                        {card.title}
+                      </h3>
+                    </div>
+
+                    <p className="text-xs sm:text-sm text-[#161815]/75 leading-relaxed font-sans font-light">
+                      {card.description}
+                    </p>
+                  </div>
+
+                  {/* Distinct Tag per Card */}
+                  <div className="pt-4 border-t border-[#161815]/10 flex items-center justify-between text-[11px] font-sans font-semibold tracking-wider uppercase text-[#121A15]/80">
+                    <span>{card.tag}</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#B89B5E]" />
+                  </div>
+                </SageCard>
+              );
+            })}
+          </div>
+
+        </div>
       </div>
     </section>
   );

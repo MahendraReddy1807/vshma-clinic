@@ -1,16 +1,33 @@
 import type { Metadata, Viewport } from 'next';
+import { Newsreader, Instrument_Sans } from 'next/font/google';
 import './globals.css';
 import { CLINIC_INFO } from '@/lib/constants';
 import MotionProvider from '@/components/layout/MotionProvider';
 import VshmaCareAssistant from '@/components/chat/VshmaCareAssistant';
 
+const newsreader = Newsreader({
+  subsets: ['latin'],
+  style: ['normal', 'italic'],
+  weight: ['300', '400', '500'],
+  variable: '--font-newsreader',
+  display: 'swap',
+});
+
+const instrumentSans = Instrument_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-instrument-sans',
+  display: 'swap',
+});
+
 export const viewport: Viewport = {
-  themeColor: '#183D32',
+  themeColor: '#121A15',
   width: 'device-width',
   initialScale: 1,
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://vshma.in'),
   title: {
     default: `${CLINIC_INFO.fullName} | ${CLINIC_INFO.tagline}`,
     template: `%s | ${CLINIC_INFO.fullName}`,
@@ -59,21 +76,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full antialiased scroll-smooth">
+    <html lang="en" className={`h-full antialiased scroll-smooth ${newsreader.variable} ${instrumentSans.variable}`}>
       <head>
         <link rel="icon" href="/icon.png?v=2" type="image/png" sizes="32x32 48x48 192x192 512x512" />
         <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
         <link rel="shortcut icon" href="/favicon.ico?v=2" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
-        <link rel="stylesheet" href="/styles.css" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap"
-          rel="stylesheet"
-        />
       </head>
-      <body className="min-h-full flex flex-col font-sans bg-[#F6F2E9] text-[#292B27] selection:bg-sage/20 selection:text-forest">
+      <body className="min-h-full flex flex-col font-sans bg-[#F7F3EC] text-[#161815] selection:bg-[#D4D8BA]/40 selection:text-[#121A15]">
         <MotionProvider>
           {children}
           <VshmaCareAssistant />

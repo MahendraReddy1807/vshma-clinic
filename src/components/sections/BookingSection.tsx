@@ -19,7 +19,7 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
 import Textarea from '@/components/ui/Textarea';
-import { CONSULTATION_TYPES, TIME_SLOTS, CLINIC_INFO } from '@/lib/constants';
+import { CONSULTATION_TYPES, TIME_SLOTS } from '@/lib/constants';
 import { getTodayISO } from '@/lib/utils';
 import Link from 'next/link';
 
@@ -36,6 +36,7 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
     appointment_date: '',
     preferred_time: '',
     consultation_type: initialType || (CONSULTATION_TYPES[0] as string),
+    consultation_mode: 'in_clinic' as 'in_clinic' | 'video',
     message: '',
     privacy_consent: false,
     whatsapp_opt_in: false,
@@ -114,11 +115,13 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
     setErrors({});
 
     try {
+      const formattedType = `${formData.consultation_type} [${formData.consultation_mode === 'video' ? 'Virtual Video' : 'In-Clinic'}]`;
       const response = await fetch('/api/appointments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
+          consultation_type: formattedType,
           whatsapp_opt_in: Boolean(formData.whatsapp_opt_in),
           whatsapp_opt_in_timestamp: formData.whatsapp_opt_in ? new Date().toISOString() : null,
           whatsapp_opt_in_source: 'web_booking_form',
@@ -243,6 +246,7 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
                       appointment_date: '',
                       preferred_time: '',
                       consultation_type: CONSULTATION_TYPES[0] as string,
+                      consultation_mode: 'in_clinic',
                       message: '',
                       privacy_consent: false,
                       whatsapp_opt_in: false,
@@ -431,12 +435,45 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
                 </div>
               </div>
 
+              {/* Consultation Mode: In-Clinic vs Virtual Video */}
+              <div>
+                <label className="block text-xs font-bold text-forest uppercase tracking-wider mb-2 font-sans">
+                  Consultation Mode
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setFormData((prev) => ({ ...prev, consultation_mode: 'in_clinic' }))}
+                    className={`p-3.5 rounded-2xl border text-left transition-all ${
+                      formData.consultation_mode === 'in_clinic'
+                        ? 'bg-forest text-white border-forest shadow-md font-medium'
+                        : 'bg-white text-charcoal border-sage/40 hover:border-forest/50'
+                    }`}
+                  >
+                    <span className="block text-xs font-bold uppercase tracking-wider">In-Clinic Visit</span>
+                    <span className="block text-xs opacity-80 mt-0.5">Bengaluru Clinic &bull; In-Person Consultation</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData((prev) => ({ ...prev, consultation_mode: 'video' }))}
+                    className={`p-3.5 rounded-2xl border text-left transition-all ${
+                      formData.consultation_mode === 'video'
+                        ? 'bg-forest text-white border-forest shadow-md font-medium'
+                        : 'bg-white text-charcoal border-sage/40 hover:border-forest/50'
+                    }`}
+                  >
+                    <span className="block text-xs font-bold uppercase tracking-wider">Virtual Video Consultation</span>
+                    <span className="block text-xs opacity-80 mt-0.5">Pan-India &bull; Secure Video Intake</span>
+                  </button>
+                </div>
+              </div>
+
               <div>
                 <label
                   htmlFor="booking-type"
                   className="block text-xs font-bold text-forest uppercase tracking-wider mb-2 font-sans"
                 >
-                  Consultation Type
+                  Consultation Specialty
                 </label>
                 <div className="relative">
                   <FileText className="absolute left-4 top-3.5 w-4 h-4 text-gray-400" />

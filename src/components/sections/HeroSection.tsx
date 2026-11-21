@@ -1,180 +1,161 @@
 'use client';
 
+import React from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { ArrowUpRight, ArrowDown, MapPin, Calendar, Clock, ShieldCheck } from 'lucide-react';
-import { CLINIC_INFO } from '@/lib/constants';
+import { motion, useReducedMotion } from 'framer-motion';
+import { ArrowUpRight, Clock, ShieldCheck, MapPin } from 'lucide-react';
+import { SITE_CONFIG } from '@/lib/site-config';
+import SectionTag from '@/components/ui/luxury/SectionTag';
+import PillButton from '@/components/ui/luxury/PillButton';
+import GridLines from '@/components/ui/luxury/GridLines';
 
 export default function HeroSection() {
+  const shouldReduceMotion = useReducedMotion();
+  const { doctor, clinic } = SITE_CONFIG;
+
   return (
     <section
-      className="relative min-h-[92vh] lg:min-h-screen w-full flex flex-col justify-between bg-[#F6F2E9] text-charcoal pt-28 sm:pt-32 pb-12 sm:pb-16 border-b border-[#D8D0BD]/40 overflow-hidden"
-      aria-label="VSHMA Homeopathy Clinic Overview"
+      className="relative min-h-[94vh] lg:min-h-screen w-full flex flex-col justify-center px-4 sm:px-6 lg:px-10 pt-28 sm:pt-32 pb-14 sm:pb-20 overflow-hidden bg-[#F7F3EC]"
+      aria-label="VSHMA Homeopathy Clinic Hero"
     >
-      {/* Background Architectural/Botanical Atmospheric Layer */}
-      <div className="absolute inset-0 pointer-events-none select-none z-0">
-        <div className="absolute right-0 top-0 w-full lg:w-7/12 h-full opacity-[0.22] mix-blend-multiply">
-          <Image
-            src="/images/hero-homeo.jpg"
-            alt="Botanical herbs, remedies, and serene natural clinic environment"
-            fill
-            priority
-            quality={90}
-            sizes="(max-width: 1024px) 100vw, 60vw"
-            className="object-cover object-center"
-          />
-        </div>
-        {/* Soft Sand & Warm Ivory gradients */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#F6F2E9] via-[#F6F2E9]/90 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#F6F2E9] via-transparent to-[#F6F2E9]/40" />
-      </div>
+      {/* ───────────── ARCHITECTURAL FULL-BLEED FRAMED CONTAINER ───────────── */}
+      <div className="relative w-full max-w-7xl mx-auto rounded-[28px] border border-[#D8D0BD]/60 bg-gradient-to-b from-[#F7F3EC] via-[#EDE6D3]/40 to-[#F7F3EC] p-6 sm:p-12 lg:p-16 overflow-hidden shadow-[0_12px_40px_-20px_rgba(18,26,21,0.08)]">
+        
+        {/* Subtle Architectural Hairline Grid Overlay */}
+        <GridLines opacity="opacity-40" />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 w-full my-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
-          
-          {/* Left Column: Editorial Headline & Doctor Introduction */}
-          <div className="lg:col-span-8 space-y-6 sm:space-y-8">
-            {/* Location & Status Eyebrow */}
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/80 border border-[#D8D0BD] text-xs font-sans shadow-sm"
-            >
-              <span className="w-2 h-2 rounded-full bg-forest" />
-              <span className="font-semibold uppercase tracking-widest text-forest text-[11px]">
-                Bengaluru, Karnataka &bull; Prior Appointment Only
-              </span>
-            </motion.div>
-
-            {/* Large Sophisticated Editorial Headline */}
-            <motion.h1
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="font-display font-light text-4xl sm:text-6xl lg:text-[4.75rem] text-forest leading-[1.06] tracking-tight"
-            >
-              Constitutional Homeopathy,{' '}
-              <span className="italic font-normal text-bronze block sm:inline">
-                Practiced with Clinical Time.
-              </span>
-            </motion.h1>
-
-            {/* Thoughtful Doctor Introduction */}
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              className="text-charcoal/80 text-base sm:text-lg lg:text-xl font-light leading-relaxed max-w-2xl font-sans"
-            >
-              Led by <strong className="font-semibold text-forest">{CLINIC_INFO.doctor}</strong> ({CLINIC_INFO.qualification}), VSHMA provides personalized, unhurried consultations that look beyond surface symptoms to evaluate your constitutional vitality.
-            </motion.p>
-
-            {/* Two Clear CTAs: Primary Appointment + Secondary Doctor Profile */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-4"
-            >
-              <Link
-                href="/book"
-                className="group inline-flex items-center justify-center px-8 py-4 rounded-xl bg-forest hover:bg-forest-light text-white font-sans font-semibold text-xs uppercase tracking-widest transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0"
-              >
-                <span>Request a Consultation</span>
-                <ArrowUpRight className="w-4 h-4 ml-2 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </Link>
-
-              <a
-                href="#about"
-                className="inline-flex items-center justify-center px-7 py-4 rounded-xl bg-white hover:bg-white/80 text-forest border border-[#D8D0BD] font-sans font-medium text-xs uppercase tracking-wider transition-colors shadow-sm"
-              >
-                <span>Meet Dr. Chihnitha</span>
-              </a>
-            </motion.div>
-
-            {/* Three Quiet Trust Signals */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 1, delay: 0.6 }}
-              className="pt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl text-xs text-charcoal/70 font-sans border-t border-[#D8D0BD]/60"
-            >
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-bronze shrink-0" />
-                <span>45–60 Min Initial Sessions</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-forest shrink-0" />
-                <span>Individualized Therapeutics</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-sage shrink-0" />
-                <span>In-Clinic &amp; Secured Video</span>
-              </div>
-            </motion.div>
-          </div>
-
-          {/* Right Column: Refined Editorial Practitioner Preview Frame */}
-          <div className="lg:col-span-4">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.85, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              className="relative p-6 sm:p-7 rounded-2xl bg-white border border-[#D8D0BD] shadow-xl max-w-sm mx-auto lg:ml-auto space-y-5"
-            >
-              <div className="flex items-center gap-4">
-                <div className="relative w-18 h-18 sm:w-20 sm:h-20 rounded-xl overflow-hidden border border-[#D8D0BD] shadow-sm shrink-0 aspect-square">
-                  <Image
-                    src="/images/dr-chihnitha.jpg"
-                    alt={`${CLINIC_INFO.doctor}, ${CLINIC_INFO.qualification}`}
-                    fill
-                    sizes="80px"
-                    className="object-cover object-[center_25%]"
-                  />
-                </div>
-                <div className="space-y-0.5">
-                  <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-bronze block font-sans">
-                    Lead Practitioner
-                  </span>
-                  <h2 className="font-display font-normal text-xl sm:text-2xl text-forest leading-tight">
-                    {CLINIC_INFO.doctor}
-                  </h2>
-                  <p className="text-xs text-charcoal/70 font-sans">
-                    {CLINIC_INFO.qualification} &bull; Homeopathic Medicine
-                  </p>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-[#D8D0BD]/50 space-y-2 text-xs text-charcoal/75 font-sans leading-relaxed">
-                <p className="italic font-serif text-charcoal/85 text-sm">
-                  &ldquo;A clinical space dedicated to unhurried listening, constitutional totality, and personal care.&rdquo;
-                </p>
-                <div className="flex items-center justify-between pt-2 text-[11px] text-charcoal/60">
-                  <span>Bengaluru Clinic</span>
-                  <span className="font-medium text-forest">Prior Reservation</span>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-
-        </div>
-      </div>
-
-      {/* Bottom Sub-Strip */}
-      <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 w-full pt-6 mt-8 border-t border-[#D8D0BD]/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-charcoal/65 font-sans">
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-forest" />
-          <span>VSHMA Homeopathy Clinic &bull; Bengaluru, Karnataka, India</span>
-        </div>
-        <a
-          href="#consultations"
-          className="inline-flex items-center gap-1.5 text-forest hover:text-bronze font-semibold transition-colors"
+        {/* Ambient Foliage Photography with Slow Zoom Entrance */}
+        <motion.div
+          initial={{ scale: shouldReduceMotion ? 1 : 1.18, opacity: 0 }}
+          animate={{ scale: 1, opacity: 0.22 }}
+          transition={{ duration: 2.6, ease: [0.16, 1, 0.3, 1] }}
+          className="absolute right-0 top-0 w-full lg:w-7/12 h-full pointer-events-none select-none mix-blend-multiply overflow-hidden"
         >
-          <span>Explore Clinical Consultations</span>
-          <ArrowDown className="w-3.5 h-3.5" />
-        </a>
+          <motion.div
+            animate={
+              shouldReduceMotion
+                ? {}
+                : {
+                    rotate: [0, 0.5, 0],
+                    scale: [1, 1.02, 1],
+                  }
+            }
+            transition={{
+              duration: 14,
+              repeat: Infinity,
+              repeatType: 'mirror',
+              ease: 'easeInOut',
+            }}
+            className="w-full h-full relative"
+          >
+            <Image
+              src="/images/hero-homeo.jpg"
+              alt="Serene natural clinic environment and botanical remedies"
+              fill
+              priority
+              quality={88}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 750px"
+              className="object-cover object-center"
+            />
+          </motion.div>
+          {/* Edge Feather Gradients */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#F7F3EC] via-[#F7F3EC]/85 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#F7F3EC] via-transparent to-[#F7F3EC]/30" />
+        </motion.div>
+
+        {/* Corner Concave Quarter-Circle Accents */}
+        <div
+          aria-hidden="true"
+          className="hidden sm:block absolute -bottom-6 -left-6 w-14 h-14 rounded-full border border-[#D8D0BD]/80 bg-[#F7F3EC] pointer-events-none"
+        />
+        <div
+          aria-hidden="true"
+          className="hidden sm:block absolute -bottom-6 -right-6 w-14 h-14 rounded-full border border-[#D8D0BD]/80 bg-[#F7F3EC] pointer-events-none"
+        />
+
+        {/* ───────────── HERO CONTENT ───────────── */}
+        <div className="relative z-10 max-w-3xl space-y-7 sm:space-y-9">
+          
+          {/* Eyebrow Status Pill */}
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.2, 0.7, 0.2, 1] }}
+          >
+            <SectionTag variant="light" pulseDot={true}>
+              {clinic.city}, {clinic.state} &bull; Prior Appointment Only
+            </SectionTag>
+          </motion.div>
+
+          {/* Three-Line Masked Serif Headline */}
+          <div className="space-y-1">
+            <motion.h1
+              initial={{ opacity: 0, y: 28 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, delay: 0.15, ease: [0.2, 0.7, 0.2, 1] }}
+              className="font-display font-light text-4xl sm:text-6xl lg:text-[4.75rem] text-[#121A15] leading-[1.05] tracking-tight"
+            >
+              Homeopathy that starts with listening.
+            </motion.h1>
+          </div>
+
+          {/* Calm Plain-Language Editorial Paragraph */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 0.3, ease: [0.2, 0.7, 0.2, 1] }}
+            className="text-[#161815]/80 text-base sm:text-lg lg:text-xl font-light leading-relaxed max-w-2xl font-sans"
+          >
+            Led by <strong className="font-semibold text-[#121A15]">{doctor.name}</strong> ({doctor.degree}), VSHMA provides unhurried, private consultations in Bengaluru. We evaluate the whole person alongside lifestyle rhythms, sleep, and environmental triggers to formulate tailored homeopathic care.
+          </motion.p>
+
+          {/* Action Row */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 0.45, ease: [0.2, 0.7, 0.2, 1] }}
+            className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-1"
+          >
+            <PillButton
+              variant="dark"
+              size="lg"
+              href="/book"
+              icon={<ArrowUpRight className="w-4 h-4 text-[#B89B5E]" />}
+            >
+              Request a Consultation
+            </PillButton>
+
+            <PillButton
+              variant="outline"
+              size="lg"
+              href="#about"
+            >
+              Meet {doctor.name.split(' ')[0]} {doctor.name.split(' ')[1]}
+            </PillButton>
+          </motion.div>
+
+          {/* Quiet Trust Bar */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1.1, delay: 0.65 }}
+            className="pt-6 grid grid-cols-1 sm:grid-cols-3 gap-3.5 max-w-2xl text-xs text-[#161815]/75 font-sans border-t border-[#D8D0BD]/50"
+          >
+            <div className="flex items-center gap-2.5">
+              <Clock className="w-4 h-4 text-[#B89B5E] shrink-0" />
+              <span>45–60 Min First Sessions</span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <ShieldCheck className="w-4 h-4 text-[#121A15] shrink-0" />
+              <span>Individualized Therapeutics</span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <MapPin className="w-4 h-4 text-[#A3AA81] shrink-0" />
+              <span>In-Clinic &amp; Virtual Sessions</span>
+            </div>
+          </motion.div>
+        </div>
+
       </div>
     </section>
   );
