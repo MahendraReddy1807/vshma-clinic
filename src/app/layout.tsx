@@ -4,6 +4,9 @@ import './globals.css';
 import { CLINIC_INFO } from '@/lib/constants';
 import MotionProvider from '@/components/layout/MotionProvider';
 import VshmaCareAssistant from '@/components/chat/VshmaCareAssistant';
+import SmoothScrollProvider from '@/components/layout/SmoothScrollProvider';
+import FilmGrain from '@/components/ui/FilmGrain';
+import BrandIntro from '@/components/layout/BrandIntro';
 
 const newsreader = Newsreader({
   subsets: ['latin'],
@@ -84,10 +87,14 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
       </head>
       <body className="min-h-full flex flex-col font-sans bg-[#F7F3EC] text-[#161815] selection:bg-[#D4D8BA]/40 selection:text-[#121A15]">
-        <MotionProvider>
-          {children}
-          <VshmaCareAssistant />
-        </MotionProvider>
+        <FilmGrain />
+        <BrandIntro />
+        <SmoothScrollProvider>
+          <MotionProvider>
+            {children}
+            <VshmaCareAssistant />
+          </MotionProvider>
+        </SmoothScrollProvider>
       </body>
     </html>
   );
