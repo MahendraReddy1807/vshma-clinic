@@ -1,45 +1,70 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Calendar,
   Clock,
   User,
   Phone,
   Mail,
-  FileText,
   CheckCircle2,
   AlertCircle,
   ExternalLink,
-  ShieldCheck,
+  ArrowRight,
+  ArrowLeft,
+  Sparkles,
+  MapPin,
+  Video,
 } from 'lucide-react';
 import WhatsAppIcon from '@/components/ui/WhatsAppIcon';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import Select from '@/components/ui/Select';
 import Textarea from '@/components/ui/Textarea';
 import { CONSULTATION_TYPES, TIME_SLOTS } from '@/lib/constants';
 import { getTodayISO } from '@/lib/utils';
+import SectionTag from '@/components/ui/luxury/SectionTag';
 import Link from 'next/link';
 
 interface BookingSectionProps {
   initialType?: string;
 }
 
+const STEP_TITLES = [
+  'Specialty',
+  'Visit Mode',
+  'Date & Time',
+  'Patient Details',
+  'Review & Consent',
+];
+
 export default function BookingSection({ initialType }: BookingSectionProps) {
-  const [formData, setFormData] = useState({
+  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1);
+
+  const [formData, setFormData] = useState<{
+    full_name: string;
+    phone: string;
+    email: string;
+    age: string;
+    appointment_date: string;
+    preferred_time: string;
+    consultation_type: string;
+    consultation_mode: 'in_clinic' | 'video';
+    message: string;
+    privacy_consent: boolean;
+    whatsapp_opt_in: boolean;
+  }>({
     full_name: '',
     phone: '',
     email: '',
     age: '',
     appointment_date: '',
-    preferred_time: '',
+    preferred_time: (TIME_SLOTS[0]?.value || 'Morning (9:00 AM – 12:00 PM)') as string,
     consultation_type: initialType || (CONSULTATION_TYPES[0] as string),
-    consultation_mode: 'in_clinic' as 'in_clinic' | 'video',
+    consultation_mode: 'in_clinic',
     message: '',
     privacy_consent: false,
-    whatsapp_opt_in: false,
+    whatsapp_opt_in: true,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -76,40 +101,55 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
     }
   };
 
-  const validate = () => {
+  const validateStep = (currentStep: number): boolean => {
     const newErrors: Record<string, string> = {};
-    if (!formData.full_name.trim()) {
-      newErrors.full_name = 'Full name is required.';
+
+    if (currentStep === 3) {
+      if (!formData.appointment_date) {
+        newErrors.appointment_date = 'Preferred appointment date is required.';
+      } else if (formData.appointment_date < getTodayISO()) {
+        newErrors.appointment_date = 'Date cannot be in the past.';
+      }
     }
 
-    const cleanPhone = formData.phone.replace(/[\s\-()]/g, '');
-    if (!cleanPhone) {
-      newErrors.phone = 'Mobile number is required.';
-    } else if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
-      newErrors.phone = 'Enter a valid 10-digit Indian mobile number.';
+    if (currentStep === 4) {
+      if (!formData.full_name.trim()) {
+        newErrors.full_name = 'Full name is required.';
+      }
+      const cleanPhone = formData.phone.replace(/[\s\-()]/g, '');
+      if (!cleanPhone) {
+        newErrors.phone = 'Mobile number is required.';
+      } else if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
+        newErrors.phone = 'Enter a valid 10-digit Indian mobile number.';
+      }
+      if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+        newErrors.email = 'Please provide a valid email address.';
+      }
     }
 
-    if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
-      newErrors.email = 'Please provide a valid email address.';
-    }
-
-    if (!formData.appointment_date) {
-      newErrors.appointment_date = 'Preferred appointment date is required.';
-    } else if (formData.appointment_date < getTodayISO()) {
-      newErrors.appointment_date = 'Date cannot be in the past.';
-    }
-
-    if (!formData.privacy_consent) {
-      newErrors.privacy_consent = 'Please agree to the privacy policy to proceed.';
+    if (currentStep === 5) {
+      if (!formData.privacy_consent) {
+        newErrors.privacy_consent = 'Please agree to the privacy policy to proceed.';
+      }
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleNext = () => {
+    if (validateStep(step)) {
+      setStep((prev) => Math.min(5, prev + 1) as 1 | 2 | 3 | 4 | 5);
+    }
+  };
+
+  const handleBack = () => {
+    setStep((prev) => Math.max(1, prev - 1) as 1 | 2 | 3 | 4 | 5);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (!validateStep(5)) return;
 
     setIsLoading(true);
     setErrors({});
@@ -152,81 +192,101 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
   };
 
   return (
-    <section id="book" className="py-24 lg:py-32 bg-white relative scroll-mt-24">
+    <section id="book" className="py-24 lg:py-32 bg-[#F7F3EC] relative scroll-mt-24 border-t border-[#D8D0BD]/40">
       <div className="max-w-4xl mx-auto px-5 sm:px-8">
-        <div className="text-center max-w-2xl mx-auto space-y-4 mb-12 sm:mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-forest/10 text-forest text-xs font-semibold tracking-widest uppercase font-sans">
-            <span className="w-1.5 h-1.5 rounded-full bg-gold" />
-            <span>Consultation Reservation</span>
-          </div>
+        
+        {/* Header */}
+        <div className="text-center max-w-2xl mx-auto space-y-4 mb-10 sm:mb-14">
+          <SectionTag>Consultation Reservation</SectionTag>
 
-          <h2 className="font-display font-light text-4xl sm:text-5xl lg:text-6xl text-forest leading-[1.08] tracking-tight">
+          <h2 className="font-serif font-light text-4xl sm:text-5xl lg:text-6xl text-[#121A15] leading-[1.08] tracking-tight">
             Schedule a Consultation
           </h2>
 
-          <p className="text-charcoal/75 text-base sm:text-lg font-light leading-relaxed font-sans">
-            Request your appointment with Dr. Chihnitha Reddy T (BHMS). Receive an instant booking reference. Our clinic desk is notified automatically.
+          <p className="text-[#161815]/75 text-base sm:text-lg font-light leading-relaxed font-sans">
+            Request an unhurried consultation with Dr. Chihnitha Reddy T (BHMS). Receive an instant booking reference and automated concierge confirmation.
           </p>
         </div>
 
-        <div className="rounded-[2.5rem] bg-ivory border border-sage/30 p-8 sm:p-12 shadow-xl relative overflow-hidden">
-          {/* Subtle background glow */}
-          <div className="absolute top-0 right-0 w-80 h-80 bg-gold/10 rounded-full blur-[100px] pointer-events-none" />
+        {/* Card Container */}
+        <div className="rounded-[28px] bg-white border border-[#D8D0BD]/70 p-6 sm:p-12 shadow-xl relative overflow-hidden">
+          
+          {/* Subtle Ambient Glow */}
+          <div className="absolute top-0 right-0 w-80 h-80 bg-[#B89B5E]/10 rounded-full blur-[100px] pointer-events-none" />
 
           {bookingSuccess ? (
+            /* ───────────── STEP 6: ANIMATED CONFIRMATION & CLOSING CIRCLE ───────────── */
             <motion.div
-              initial={{ opacity: 0, scale: 0.96 }}
+              initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              className="text-center py-6 space-y-6"
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+              className="text-center py-6 space-y-7"
             >
-              <div className="w-20 h-20 bg-emerald-100 text-forest rounded-3xl flex items-center justify-center mx-auto shadow-md border-2 border-emerald-300">
-                <CheckCircle2 className="w-10 h-10 text-emerald-700" />
+              {/* Signature Half-Circle Mark Completing into a Full Circle */}
+              <div className="relative w-24 h-24 mx-auto flex items-center justify-center">
+                {/* Left Semi */}
+                <motion.div
+                  initial={{ x: -24, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ duration: 0.7, ease: [0.2, 0.7, 0.2, 1] }}
+                  className="w-10 h-20 rounded-l-full bg-gradient-to-r from-[#D4D8BA] to-[#B89B5E] shadow-md"
+                />
+                {/* Right Semi */}
+                <motion.div
+                  initial={{ x: 24, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ duration: 0.7, ease: [0.2, 0.7, 0.2, 1] }}
+                  className="w-10 h-20 rounded-r-full bg-gradient-to-l from-[#D4D8BA] to-[#B89B5E] shadow-md"
+                />
+                {/* Center Success Check */}
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.45, type: 'spring', stiffness: 260, damping: 20 }}
+                  className="absolute w-8 h-8 rounded-full bg-[#121A15] text-[#FAF8F2] flex items-center justify-center shadow-lg"
+                >
+                  <CheckCircle2 className="w-5 h-5 text-[#B89B5E]" />
+                </motion.div>
               </div>
 
               <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold uppercase tracking-wider font-sans">
-                  <span>✓ Automatically Confirmed & Received</span>
-                </div>
-                <h3 className="font-display text-3xl sm:text-4xl font-normal text-forest">
+                <span className="text-xs uppercase font-bold tracking-widest text-[#B89B5E] font-sans">
                   Appointment Request Confirmed
+                </span>
+                <h3 className="font-serif text-3xl sm:text-4xl text-[#121A15]">
+                  Your consultation request is registered.
                 </h3>
-                <p className="text-charcoal/75 max-w-md mx-auto text-sm sm:text-base font-light">
-                  Your appointment slot request has been logged in the VSHMA clinical system.
+                <p className="text-[#161815]/75 max-w-md mx-auto text-sm sm:text-base font-light font-sans">
+                  The clinical desk has received your details. No further action is required from you.
                 </p>
               </div>
 
-              <div className="inline-block bg-white border border-sage/30 rounded-3xl px-8 py-5 shadow-sm">
-                <span className="text-[11px] uppercase tracking-widest text-gold font-bold block mb-1">
+              {/* Official Booking Reference Card */}
+              <div className="inline-block bg-[#F7F3EC] border border-[#D8D0BD] rounded-3xl px-8 py-5 shadow-sm">
+                <span className="text-[11px] uppercase tracking-widest text-[#B89B5E] font-bold block mb-1 font-sans">
                   Official Booking Reference
                 </span>
-                <span className="font-mono text-2xl sm:text-3xl font-bold text-forest tracking-wider">
+                <span className="font-mono text-2xl sm:text-3xl font-bold text-[#121A15] tracking-widest">
                   {bookingSuccess.reference}
                 </span>
               </div>
 
               {/* Automated Next Steps Card */}
-              <div className="bg-white/90 backdrop-blur-sm border border-[#D8D0BD] rounded-2xl p-5 max-w-lg mx-auto text-left space-y-3 shadow-xs">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-forest font-sans block">
-                  Automated Next Steps:
+              <div className="bg-[#FAF8F2] border border-[#D8D0BD] rounded-2xl p-5 max-w-lg mx-auto text-left space-y-3 shadow-xs">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#121A15] font-sans block">
+                  Next Steps:
                 </span>
-                <ul className="space-y-2 text-xs sm:text-sm text-charcoal/80 font-sans">
+                <ul className="space-y-2 text-xs sm:text-sm text-[#161815]/80 font-sans">
                   <li className="flex items-start gap-2.5">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                     <span>
-                      <strong>Slot Reserved:</strong> Your preferred slot ({bookingSuccess.date || 'Requested date'} &bull; {bookingSuccess.time || 'Preferred time'}) is reserved in the clinic schedule.
+                      <strong>Slot Reserved:</strong> Your requested window ({bookingSuccess.date || 'Requested date'} &bull; {bookingSuccess.time || 'Preferred time'}) is recorded in the clinical scheduler.
                     </span>
                   </li>
                   <li className="flex items-start gap-2.5">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                     <span>
-                      <strong>Automatic Clinic Notification:</strong> Dr. Chihnitha&apos;s team has automatically received your details.
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <span>
-                      <strong>Direct Reach-Out:</strong> Our coordination desk will contact you directly via call or WhatsApp. <em>No further action is required from you.</em>
+                      <strong>Concierge Review:</strong> Dr. Chihnitha&apos;s team will verify slot availability and dispatch your consultation voucher.
                     </span>
                   </li>
                 </ul>
@@ -235,53 +295,68 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
               <div className="flex flex-col sm:flex-row gap-3.5 justify-center items-center pt-2">
                 <Button
                   size="lg"
-                  className="w-full sm:w-auto bg-forest hover:bg-forest-light text-white shadow-md"
+                  className="w-full sm:w-auto bg-[#121A15] hover:bg-[#1F2B23] text-white shadow-md rounded-full px-8 py-3.5"
                   onClick={() => {
                     setBookingSuccess(null);
+                    setStep(1);
                     setFormData({
                       full_name: '',
                       phone: '',
                       email: '',
                       age: '',
                       appointment_date: '',
-                      preferred_time: '',
+                      preferred_time: TIME_SLOTS[0]?.value || 'Morning (9:00 AM – 12:00 PM)',
                       consultation_type: CONSULTATION_TYPES[0] as string,
                       consultation_mode: 'in_clinic',
                       message: '',
                       privacy_consent: false,
-                      whatsapp_opt_in: false,
+                      whatsapp_opt_in: true,
                     });
                   }}
                 >
                   Book Another Consultation
                 </Button>
 
-                {/* Optional direct message button for patients who prefer manual chat */}
                 <a
                   href={bookingSuccess.whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-xs font-semibold text-charcoal/70 hover:text-forest transition-colors py-2 px-3"
+                  className="inline-flex items-center gap-2 text-xs font-semibold text-[#161815]/80 hover:text-[#121A15] transition-colors py-2 px-3 font-sans"
                 >
                   <WhatsAppIcon className="w-4 h-4 text-[#25D366]" />
-                  <span>Message on WhatsApp (Optional)</span>
+                  <span>Open WhatsApp Concierge</span>
                   <ExternalLink className="w-3 h-3 opacity-60" />
                 </a>
               </div>
             </motion.div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-6 relative z-10" noValidate>
-              <div className="p-4 rounded-xl bg-[#F6F2E9] border border-[#D8D0BD] text-xs text-charcoal/80 flex items-start gap-3">
-                <Clock className="w-4 h-4 text-bronze shrink-0 mt-0.5" />
-                <p>
-                  <strong>Appointment Policy:</strong> This form registers an appointment request. Our clinic desk will review the slot and confirm your scheduled consultation directly with you.
-                </p>
+            /* ───────────── MULTI-STEP BOOKING WORKFLOW ───────────── */
+            <form onSubmit={handleSubmit} className="space-y-8" noValidate>
+              
+              {/* Step Progress Bar */}
+              <div className="space-y-3 pb-6 border-b border-[#D8D0BD]/50">
+                <div className="flex items-center justify-between text-xs font-sans">
+                  <span className="font-semibold text-[#121A15] uppercase tracking-wider">
+                    Step 0{step} of 05 &mdash; {STEP_TITLES[step - 1]}
+                  </span>
+                  <span className="text-[#161815]/60 font-mono">
+                    {Math.round((step / 5) * 100)}% Complete
+                  </span>
+                </div>
+                {/* Horizontal progress track */}
+                <div className="w-full h-1.5 rounded-full bg-[#E3E4DC] overflow-hidden">
+                  <motion.div
+                    className="h-full bg-gradient-to-r from-[#D4D8BA] to-[#B89B5E]"
+                    initial={{ width: '20%' }}
+                    animate={{ width: `${(step / 5) * 100}%` }}
+                    transition={{ duration: 0.45, ease: [0.2, 0.7, 0.2, 1] }}
+                  />
+                </div>
               </div>
 
               {errors.form && (
                 <div
                   role="alert"
-                  aria-live="polite"
                   className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-start gap-3"
                 >
                   <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
@@ -289,292 +364,386 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
                 </div>
               )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label
-                    htmlFor="booking-fullname"
-                    className="block text-xs font-bold text-forest uppercase tracking-wider mb-2 font-sans"
+              {/* Progressive Step Views */}
+              <AnimatePresence mode="wait">
+                {/* STEP 1: Specialty Selection */}
+                {step === 1 && (
+                  <motion.div
+                    key="step-1"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    className="space-y-4"
                   >
-                    Patient Full Name <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <User className="absolute left-4 top-3.5 w-4 h-4 text-gray-400" />
-                    <Input
-                      id="booking-fullname"
-                      placeholder="e.g. Anand Sharma"
-                      value={formData.full_name}
-                      onChange={(e) => {
-                        setFormData({ ...formData, full_name: e.target.value });
-                        clearFieldError('full_name');
-                      }}
-                      className="pl-11 rounded-2xl"
-                      error={errors.full_name}
-                      required
-                    />
-                  </div>
-                </div>
+                    <label className="block text-xs font-bold text-[#121A15] uppercase tracking-wider font-sans mb-1">
+                      Choose Your Consultation Specialty
+                    </label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      {CONSULTATION_TYPES.map((type) => {
+                        const isSelected = formData.consultation_type === type;
+                        return (
+                          <button
+                            key={type}
+                            type="button"
+                            onClick={() => {
+                              setFormData({ ...formData, consultation_type: type });
+                              clearFieldError('consultation_type');
+                            }}
+                            className={`p-4 rounded-2xl border text-left transition-all ${
+                              isSelected
+                                ? 'bg-[#121A15] text-[#FAF8F2] border-[#B89B5E] shadow-md'
+                                : 'bg-[#FAF8F2] text-[#161815] border-[#D8D0BD]/70 hover:border-[#121A15]/40'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="font-serif text-lg">{type}</span>
+                              {isSelected && <CheckCircle2 className="w-5 h-5 text-[#B89B5E] shrink-0" />}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                )}
 
-                <div>
-                  <label
-                    htmlFor="booking-phone"
-                    className="block text-xs font-bold text-forest uppercase tracking-wider mb-2 font-sans"
+                {/* STEP 2: Visit Mode */}
+                {step === 2 && (
+                  <motion.div
+                    key="step-2"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    className="space-y-4"
                   >
-                    Mobile Number <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <Phone className="absolute left-4 top-3.5 w-4 h-4 text-gray-400" />
-                    <Input
-                      id="booking-phone"
-                      type="tel"
-                      placeholder="10-digit number (e.g. 9876543210)"
-                      value={formData.phone}
-                      onChange={(e) => {
-                        setFormData({ ...formData, phone: e.target.value });
-                        clearFieldError('phone');
-                      }}
-                      className="pl-11 rounded-2xl"
-                      error={errors.phone}
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
+                    <label className="block text-xs font-bold text-[#121A15] uppercase tracking-wider font-sans mb-1">
+                      Select Preferred Consultation Mode
+                    </label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, consultation_mode: 'in_clinic' })}
+                        className={`p-6 rounded-2xl border text-left transition-all space-y-3 ${
+                          formData.consultation_mode === 'in_clinic'
+                            ? 'bg-[#121A15] text-[#FAF8F2] border-[#B89B5E] shadow-md'
+                            : 'bg-[#FAF8F2] text-[#161815] border-[#D8D0BD]/70 hover:border-[#121A15]/40'
+                        }`}
+                      >
+                        <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                          <MapPin className="w-5 h-5 text-[#B89B5E]" />
+                        </div>
+                        <div>
+                          <p className="font-serif text-xl">In-Clinic Visit</p>
+                          <p className="text-xs opacity-75 font-sans mt-0.5">Bengaluru Practice &bull; Face-to-Face Examination</p>
+                        </div>
+                      </button>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                <div className="sm:col-span-2">
-                  <label
-                    htmlFor="booking-email"
-                    className="block text-xs font-bold text-forest uppercase tracking-wider mb-2 font-sans"
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, consultation_mode: 'video' })}
+                        className={`p-6 rounded-2xl border text-left transition-all space-y-3 ${
+                          formData.consultation_mode === 'video'
+                            ? 'bg-[#121A15] text-[#FAF8F2] border-[#B89B5E] shadow-md'
+                            : 'bg-[#FAF8F2] text-[#161815] border-[#D8D0BD]/70 hover:border-[#121A15]/40'
+                        }`}
+                      >
+                        <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                          <Video className="w-5 h-5 text-[#B89B5E]" />
+                        </div>
+                        <div>
+                          <p className="font-serif text-xl">Virtual Video Consultation</p>
+                          <p className="text-xs opacity-75 font-sans mt-0.5">Pan-India &bull; Secure Encrypted Session</p>
+                        </div>
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* STEP 3: Date & Preferred Time */}
+                {step === 3 && (
+                  <motion.div
+                    key="step-3"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    className="space-y-6"
                   >
-                    Email Address (For Confirmation &amp; Reminders)
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute left-4 top-3.5 w-4 h-4 text-gray-400" />
-                    <Input
-                      id="booking-email"
-                      type="email"
-                      placeholder="e.g. yourname@example.com"
-                      value={formData.email}
-                      onChange={(e) => {
-                        setFormData({ ...formData, email: e.target.value });
-                        clearFieldError('email');
-                      }}
-                      className="pl-11 rounded-2xl"
-                      error={errors.email}
-                    />
-                  </div>
-                </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[#121A15] uppercase tracking-wider font-sans mb-2">
+                        Preferred Date <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <Calendar className="absolute left-4 top-3.5 w-4 h-4 text-gray-400" />
+                        <Input
+                          type="date"
+                          min={getTodayISO()}
+                          value={formData.appointment_date}
+                          onChange={(e) => {
+                            setFormData({ ...formData, appointment_date: e.target.value });
+                            clearFieldError('appointment_date');
+                          }}
+                          className="pl-11 rounded-2xl"
+                          error={errors.appointment_date}
+                          required
+                        />
+                      </div>
+                    </div>
 
-                <div>
-                  <label
-                    htmlFor="booking-age"
-                    className="block text-xs font-bold text-forest uppercase tracking-wider mb-2 font-sans"
+                    <div>
+                      <label className="block text-xs font-bold text-[#121A15] uppercase tracking-wider font-sans mb-2">
+                        Preferred Time Window (Operating Hours 9:00 AM – 7:00 PM)
+                      </label>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        {TIME_SLOTS.map((slot) => {
+                          const isSelected = formData.preferred_time === slot.value;
+                          return (
+                            <button
+                              key={slot.value}
+                              type="button"
+                              onClick={() => setFormData({ ...formData, preferred_time: slot.value })}
+                              className={`p-3.5 rounded-2xl border text-center transition-all ${
+                                isSelected
+                                  ? 'bg-[#121A15] text-[#FAF8F2] border-[#B89B5E] shadow-sm font-medium'
+                                  : 'bg-[#FAF8F2] text-[#161815] border-[#D8D0BD]/70 hover:border-[#121A15]/40'
+                              }`}
+                            >
+                              <span className="block text-xs font-sans">{slot.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* STEP 4: Patient Details */}
+                {step === 4 && (
+                  <motion.div
+                    key="step-4"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    className="space-y-6"
                   >
-                    Patient Age
-                  </label>
-                  <Input
-                    id="booking-age"
-                    type="number"
-                    min={0}
-                    max={120}
-                    placeholder="e.g. 32"
-                    value={formData.age}
-                    onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                    className="rounded-2xl"
-                  />
-                </div>
-              </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-xs font-bold text-[#121A15] uppercase tracking-wider font-sans mb-2">
+                          Patient Full Name <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative">
+                          <User className="absolute left-4 top-3.5 w-4 h-4 text-gray-400" />
+                          <Input
+                            placeholder="e.g. Anand Sharma"
+                            value={formData.full_name}
+                            onChange={(e) => {
+                              setFormData({ ...formData, full_name: e.target.value });
+                              clearFieldError('full_name');
+                            }}
+                            className="pl-11 rounded-2xl"
+                            error={errors.full_name}
+                            required
+                          />
+                        </div>
+                      </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label
-                    htmlFor="booking-date"
-                    className="block text-xs font-bold text-forest uppercase tracking-wider mb-2 font-sans"
+                      <div>
+                        <label className="block text-xs font-bold text-[#121A15] uppercase tracking-wider font-sans mb-2">
+                          Mobile Number (10 Digits) <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative">
+                          <Phone className="absolute left-4 top-3.5 w-4 h-4 text-gray-400" />
+                          <Input
+                            type="tel"
+                            placeholder="e.g. 9876543210"
+                            value={formData.phone}
+                            onChange={(e) => {
+                              setFormData({ ...formData, phone: e.target.value });
+                              clearFieldError('phone');
+                            }}
+                            className="pl-11 rounded-2xl"
+                            error={errors.phone}
+                            required
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-xs font-bold text-[#121A15] uppercase tracking-wider font-sans mb-2">
+                          Email (For Schedule Voucher)
+                        </label>
+                        <div className="relative">
+                          <Mail className="absolute left-4 top-3.5 w-4 h-4 text-gray-400" />
+                          <Input
+                            type="email"
+                            placeholder="e.g. anand@example.com"
+                            value={formData.email}
+                            onChange={(e) => {
+                              setFormData({ ...formData, email: e.target.value });
+                              clearFieldError('email');
+                            }}
+                            className="pl-11 rounded-2xl"
+                            error={errors.email}
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-[#121A15] uppercase tracking-wider font-sans mb-2">
+                          Patient Age
+                        </label>
+                        <Input
+                          type="number"
+                          placeholder="e.g. 34"
+                          value={formData.age}
+                          onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                          className="rounded-2xl"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[#121A15] uppercase tracking-wider font-sans mb-2">
+                        Primary Health Concern (Optional)
+                      </label>
+                      <Textarea
+                        rows={2}
+                        placeholder="Briefly describe your symptoms or reason for consultation..."
+                        value={formData.message}
+                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                        className="rounded-2xl"
+                      />
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* STEP 5: Review & DPDP Consent */}
+                {step === 5 && (
+                  <motion.div
+                    key="step-5"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    className="space-y-6"
                   >
-                    Preferred Date <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <Calendar className="absolute left-4 top-3.5 w-4 h-4 text-gray-400" />
-                    <Input
-                      id="booking-date"
-                      type="date"
-                      min={getTodayISO()}
-                      value={formData.appointment_date}
-                      onChange={(e) => {
-                        setFormData({ ...formData, appointment_date: e.target.value });
-                        clearFieldError('appointment_date');
-                      }}
-                      className="pl-11 rounded-2xl"
-                      error={errors.appointment_date}
-                      required
-                    />
-                  </div>
-                </div>
+                    {/* Summary Card */}
+                    <div className="p-5 rounded-2xl bg-[#FAF8F2] border border-[#D8D0BD] space-y-3">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#B89B5E] block font-sans">
+                        Consultation Dossier Summary
+                      </span>
+                      <div className="grid grid-cols-2 gap-4 text-xs font-sans">
+                        <div>
+                          <p className="text-[#161815]/60">Specialty</p>
+                          <p className="font-semibold text-[#121A15]">{formData.consultation_type}</p>
+                        </div>
+                        <div>
+                          <p className="text-[#161815]/60">Visit Mode</p>
+                          <p className="font-semibold text-[#121A15]">
+                            {formData.consultation_mode === 'video' ? 'Virtual Video Call' : 'In-Clinic (Bengaluru)'}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[#161815]/60">Date &amp; Slot</p>
+                          <p className="font-semibold text-[#121A15]">{formData.appointment_date} &bull; {formData.preferred_time}</p>
+                        </div>
+                        <div>
+                          <p className="text-[#161815]/60">Patient</p>
+                          <p className="font-semibold text-[#121A15]">{formData.full_name} ({formData.phone})</p>
+                        </div>
+                      </div>
+                    </div>
 
-                <div>
-                  <label
-                    htmlFor="booking-time"
-                    className="block text-xs font-bold text-forest uppercase tracking-wider mb-2 font-sans"
-                  >
-                    Preferred Time Window
-                  </label>
-                  <div className="relative">
-                    <Clock className="absolute left-4 top-3.5 w-4 h-4 text-gray-400" />
-                    <Select
-                      id="booking-time"
-                      options={TIME_SLOTS.map((t) => ({ label: t.label, value: t.value }))}
-                      placeholder="Choose a convenient time"
-                      value={formData.preferred_time}
-                      onChange={(e) => {
-                        setFormData({ ...formData, preferred_time: e.target.value });
-                        clearFieldError('preferred_time');
-                      }}
-                      className="pl-11 rounded-2xl"
-                    />
-                  </div>
-                </div>
-              </div>
+                    {/* DPDP Act 2023 Consent Checkbox */}
+                    <div className="space-y-3">
+                      <label className="flex items-start gap-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.privacy_consent}
+                          onChange={(e) => {
+                            setFormData({ ...formData, privacy_consent: e.target.checked });
+                            clearFieldError('privacy_consent');
+                          }}
+                          className="mt-1 h-4 w-4 rounded border-[#D8D0BD] text-[#121A15] focus:ring-[#B89B5E] cursor-pointer"
+                        />
+                        <span className="text-xs text-[#161815]/80 leading-relaxed font-sans">
+                          I consent to VSHMA Homeopathy Clinic storing my consultation request and health intake notes for appointment coordination in compliance with the Digital Personal Data Protection (DPDP) Act 2023 and the clinic&apos;s{' '}
+                          <Link href="/privacy" className="underline font-semibold text-[#121A15]" target="_blank">
+                            Privacy Policy
+                          </Link>
+                          . <span className="text-red-500">*</span>
+                        </span>
+                      </label>
+                      {errors.privacy_consent && (
+                        <p className="text-xs text-red-500 pl-7">{errors.privacy_consent}</p>
+                      )}
 
-              {/* Consultation Mode: In-Clinic vs Virtual Video */}
-              <div>
-                <label className="block text-xs font-bold text-forest uppercase tracking-wider mb-2 font-sans">
-                  Consultation Mode
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {/* WhatsApp Opt-in */}
+                      <label className="flex items-start gap-3 cursor-pointer pt-2">
+                        <input
+                          type="checkbox"
+                          checked={formData.whatsapp_opt_in}
+                          onChange={(e) => setFormData({ ...formData, whatsapp_opt_in: e.target.checked })}
+                          className="mt-1 h-4 w-4 rounded border-[#D8D0BD] text-[#121A15] focus:ring-[#B89B5E] cursor-pointer"
+                        />
+                        <span className="text-xs text-[#161815]/80 leading-relaxed font-sans">
+                          Send automated appointment confirmation and reminder updates via WhatsApp.
+                        </span>
+                      </label>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Step Navigation Controls */}
+              <div className="flex items-center justify-between pt-6 border-t border-[#D8D0BD]/50">
+                {step > 1 ? (
                   <button
                     type="button"
-                    onClick={() => setFormData((prev) => ({ ...prev, consultation_mode: 'in_clinic' }))}
-                    className={`p-3.5 rounded-2xl border text-left transition-all ${
-                      formData.consultation_mode === 'in_clinic'
-                        ? 'bg-forest text-white border-forest shadow-md font-medium'
-                        : 'bg-white text-charcoal border-sage/40 hover:border-forest/50'
-                    }`}
+                    onClick={handleBack}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-[#D8D0BD] text-xs font-semibold text-[#161815] hover:bg-[#FAF8F2] transition-colors font-sans"
                   >
-                    <span className="block text-xs font-bold uppercase tracking-wider">In-Clinic Visit</span>
-                    <span className="block text-xs opacity-80 mt-0.5">Bengaluru Clinic &bull; In-Person Consultation</span>
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>Back</span>
                   </button>
+                ) : (
+                  <div />
+                )}
+
+                {step < 5 ? (
                   <button
                     type="button"
-                    onClick={() => setFormData((prev) => ({ ...prev, consultation_mode: 'video' }))}
-                    className={`p-3.5 rounded-2xl border text-left transition-all ${
-                      formData.consultation_mode === 'video'
-                        ? 'bg-forest text-white border-forest shadow-md font-medium'
-                        : 'bg-white text-charcoal border-sage/40 hover:border-forest/50'
-                    }`}
+                    onClick={handleNext}
+                    className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-[#121A15] text-[#FAF8F2] text-xs font-semibold hover:bg-[#1F2B23] transition-colors shadow-md font-sans"
                   >
-                    <span className="block text-xs font-bold uppercase tracking-wider">Virtual Video Consultation</span>
-                    <span className="block text-xs opacity-80 mt-0.5">Pan-India &bull; Secure Video Intake</span>
+                    <span>Continue to {STEP_TITLES[step]}</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </button>
-                </div>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="booking-type"
-                  className="block text-xs font-bold text-forest uppercase tracking-wider mb-2 font-sans"
-                >
-                  Consultation Specialty
-                </label>
-                <div className="relative">
-                  <FileText className="absolute left-4 top-3.5 w-4 h-4 text-gray-400" />
-                  <Select
-                    id="booking-type"
-                    options={CONSULTATION_TYPES.map((c) => ({ label: c, value: c }))}
-                    value={formData.consultation_type}
-                    onChange={(e) => {
-                      setFormData({ ...formData, consultation_type: e.target.value });
-                      clearFieldError('consultation_type');
-                    }}
-                    className="pl-11 rounded-2xl"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="booking-message"
-                  className="block text-xs font-bold text-forest uppercase tracking-wider mb-2 font-sans"
-                >
-                  Additional Information (Optional)
-                </label>
-                <Textarea
-                  id="booking-message"
-                  placeholder="Share any special timing requests or general questions..."
-                  value={formData.message}
-                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  rows={3}
-                  className="rounded-2xl"
-                />
-              </div>
-
-              {/* Privacy consent checkbox */}
-              <div className="pt-1">
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formData.privacy_consent}
-                    onChange={(e) => {
-                      setFormData({ ...formData, privacy_consent: e.target.checked });
-                      clearFieldError('privacy_consent');
-                    }}
-                    className="mt-1 h-4 w-4 rounded border-sage text-forest focus:ring-forest cursor-pointer"
-                  />
-                  <span className="text-xs text-charcoal/70 leading-relaxed font-sans">
-                    I agree to allow VSHMA to store this contact information for booking and appointment coordination in compliance with the{' '}
-                    <Link href="/privacy" className="text-forest font-semibold underline underline-offset-2" target="_blank">
-                      Privacy Policy
-                    </Link>
-                    . <span className="text-red-500">*</span>
-                  </span>
-                </label>
-                {errors.privacy_consent && (
-                  <p role="alert" className="text-xs text-red-500 mt-1">{errors.privacy_consent}</p>
+                ) : (
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-[#B89B5E] hover:bg-[#CEB57D] text-[#121A15] text-xs font-semibold transition-colors shadow-md font-sans disabled:opacity-50"
+                  >
+                    {isLoading ? (
+                      <span>Reserving Slot...</span>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4" />
+                        <span>Confirm Consultation Reservation</span>
+                      </>
+                    )}
+                  </button>
                 )}
               </div>
 
-              {/* Optional WhatsApp communication consent */}
-              <div className="pt-2 p-3.5 rounded-2xl bg-forest/5 border border-forest/15">
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formData.whatsapp_opt_in}
-                    onChange={(e) => {
-                      setFormData({ ...formData, whatsapp_opt_in: e.target.checked });
-                    }}
-                    className="mt-1 h-4 w-4 rounded border-sage text-forest focus:ring-forest cursor-pointer"
-                  />
-                  <div className="space-y-1">
-                    <span className="text-xs font-semibold text-forest flex items-center gap-1.5 font-sans">
-                      <WhatsAppIcon className="w-3.5 h-3.5 text-[#25D366]" />
-                      <span>Receive appointment updates on WhatsApp (Optional)</span>
-                    </span>
-                    <p className="text-[11px] text-charcoal/70 leading-relaxed font-sans">
-                      Receive appointment updates on WhatsApp. I agree to receive WhatsApp messages from VSHMA Homeopathy Clinic regarding my appointment, confirmation, rescheduling, cancellation and reminders. I can withdraw my consent at any time.
-                    </p>
-                  </div>
-                </label>
-                <p className="text-[10px] text-charcoal/50 mt-1 pl-7 font-sans">
-                  To withdraw consent at any time, reply STOP on WhatsApp or notify clinic reception.
-                </p>
-              </div>
-
-              <div className="pt-2">
-                <Button
-                  type="submit"
-                  size="lg"
-                  loading={isLoading}
-                  disabled={isLoading}
-                  className="w-full py-4 text-base font-semibold shadow-xl hover:shadow-2xl font-sans"
-                >
-                  {isLoading ? 'Recording Reservation...' : 'Request Appointment Slot'}
-                </Button>
-                <div className="flex items-center justify-center gap-2 text-center text-xs text-charcoal/50 mt-3 font-light font-sans">
-                  <ShieldCheck className="w-3.5 h-3.5 text-gold" />
-                  <span>Your booking reference will be generated and verified securely.</span>
-                </div>
-              </div>
             </form>
           )}
+
         </div>
       </div>
     </section>
