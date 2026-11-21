@@ -52,35 +52,48 @@ export default function AboutPage() {
           <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
               {/* Left Column: Portrait & Key Details */}
-              <div className="lg:col-span-5 space-y-6">
-                <div className="relative rounded-[2.5rem] overflow-hidden bg-forest-dark border-2 border-white shadow-2xl aspect-[3/4] max-w-md mx-auto lg:max-w-none">
+              <div className="lg:col-span-5 space-y-4">
+                <div className="relative rounded-[2rem] overflow-hidden bg-forest border border-brass/40 shadow-xl aspect-[3/4] max-w-md mx-auto lg:max-w-none">
                   <Image
                     src="/images/dr-chihnitha.jpg"
                     alt={`Portrait of ${CLINIC_INFO.doctor}`}
                     fill
                     priority
                     sizes="(max-width: 1024px) 90vw, 450px"
-                    className="object-cover object-top"
+                    className="object-cover object-center"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-forest-dark/80 via-transparent to-transparent" />
-                  <div className="absolute inset-x-5 bottom-5 p-4 rounded-2xl bg-white/90 backdrop-blur-md border border-white/40 shadow-lg text-forest">
-                    <p className="font-heading font-semibold text-lg">{CLINIC_INFO.doctor}</p>
-                    <p className="text-xs text-charcoal/70 font-medium">{CLINIC_INFO.qualification} &bull; Homeopathic Physician</p>
+                </div>
+
+                {/* Identity Plaque Positioned Cleanly Below Image */}
+                <div className="p-4 rounded-2xl bg-forest text-bone border border-brass/30 shadow-md flex items-center justify-between max-w-md mx-auto lg:max-w-none">
+                  <div>
+                    <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-brass block font-sans">
+                      Lead Practitioner &bull; Bengaluru
+                    </span>
+                    <p className="font-serif font-light text-xl text-bone">
+                      {CLINIC_INFO.doctor}
+                    </p>
+                    <p className="text-xs text-sage/80 font-sans mt-0.5">
+                      {CLINIC_INFO.qualification} &bull; Classical Homeopathy
+                    </p>
+                  </div>
+                  <div className="w-10 h-10 rounded-full bg-forest-light/60 border border-brass/40 flex items-center justify-center shrink-0">
+                    <GraduationCap className="w-5 h-5 text-brass" />
                   </div>
                 </div>
 
                 {/* Quick Info Box */}
-                <div className="p-6 rounded-3xl bg-ivory border border-sage/25 space-y-4 max-w-md mx-auto lg:max-w-none">
+                <div className="p-5 rounded-2xl bg-ivory border border-sage/25 space-y-3 max-w-md mx-auto lg:max-w-none">
                   <div className="flex items-center gap-3 text-sm text-charcoal/80 font-sans">
-                    <GraduationCap className="w-5 h-5 text-forest shrink-0" />
+                    <GraduationCap className="w-4 h-4 text-forest shrink-0" />
                     <span><strong>Degree:</strong> {CLINIC_INFO.qualification}</span>
                   </div>
                   <div className="flex items-center gap-3 text-sm text-charcoal/80 font-sans">
-                    <MapPin className="w-5 h-5 text-forest shrink-0" />
+                    <MapPin className="w-4 h-4 text-forest shrink-0" />
                     <span><strong>Location:</strong> {CLINIC_INFO.location}</span>
                   </div>
                   <div className="flex items-center gap-3 text-sm text-charcoal/80 font-sans">
-                    <Clock className="w-5 h-5 text-forest shrink-0" />
+                    <Clock className="w-4 h-4 text-forest shrink-0" />
                     <span><strong>Format:</strong> Prior appointment only (In-clinic &amp; Online)</span>
                   </div>
                 </div>
