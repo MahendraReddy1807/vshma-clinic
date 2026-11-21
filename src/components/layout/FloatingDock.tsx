@@ -14,7 +14,6 @@ import {
 } from 'lucide-react';
 import WhatsAppIcon from '@/components/ui/WhatsAppIcon';
 import { SITE_CONFIG } from '@/lib/site-config';
-import BrandLogo from '@/components/ui/BrandLogo';
 
 export default function FloatingDock() {
   const pathname = usePathname();
@@ -180,31 +179,26 @@ export default function FloatingDock() {
             )}
           </AnimatePresence>
 
-          {/* Master Trigger Capsule */}
+          {/* Master Trigger: Single circular icon button (P0.3 compliance - no label text, no OMI bug) */}
           <button
             type="button"
             onClick={() => setIsOpen(!isOpen)}
             aria-expanded={isOpen}
             aria-label="Toggle VSHMA Care Concierge Dock"
-            className="group relative flex items-center gap-2.5 px-4 py-3 rounded-full bg-[#121A15] hover:bg-[#1A261F] text-[#EDE6D3] border border-[#B89B5E]/60 shadow-2xl transition-all duration-300 cursor-pointer backdrop-blur-md hover:scale-105 active:scale-95"
+            className="group relative w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#121A15] hover:bg-[#1A261F] text-[#EDE6D3] border border-[#B89B5E]/60 shadow-2xl transition-all duration-300 cursor-pointer backdrop-blur-md flex items-center justify-center hover:scale-105 active:scale-95"
           >
             {/* Pulsing subtle status bead */}
-            <span className="relative flex h-2 w-2">
+            <span className="absolute top-1 right-1 flex h-2.5 w-2.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#B89B5E] opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#B89B5E]" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#B89B5E]" />
             </span>
 
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full overflow-hidden flex items-center justify-center shrink-0">
-                <BrandLogo size="sm" theme="light" />
-              </div>
-              <span className="font-sans text-xs font-semibold tracking-wide text-[#EDE6D3]">
-                {isOpen ? 'Close' : 'Care Concierge'}
-              </span>
-            </div>
-
-            <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-[#B89B5E] transition-transform duration-300">
-              {isOpen ? <X className="w-3.5 h-3.5" /> : <Sparkles className="w-3.5 h-3.5" />}
+            <div className="w-6 h-6 flex items-center justify-center text-[#B89B5E] transition-transform duration-300">
+              {isOpen ? (
+                <X className="w-5 h-5 text-[#B89B5E]" />
+              ) : (
+                <Sparkles className="w-5 h-5 text-[#B89B5E] group-hover:rotate-12 transition-transform duration-300" />
+              )}
             </div>
           </button>
         </div>
