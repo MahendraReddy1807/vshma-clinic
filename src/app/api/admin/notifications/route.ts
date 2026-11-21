@@ -11,6 +11,8 @@ import {
   notifyPatientAppointmentRescheduledViaWhatsApp,
   notifyPatientAppointmentCancelledViaWhatsApp,
 } from '@/lib/whatsapp/service';
+import { getNotifyMode } from '@/lib/notifications/config';
+import { NotificationDispatcher } from '@/lib/notifications/dispatcher';
 
 export async function GET(request: Request) {
   const auth = await verifyAdminAuth(request);
@@ -56,10 +58,37 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: message }, { status: 503 });
     }
 
+    // 4. Fetch recent notification_jobs
+    const { data: jobs } = await supabase
+      .from('notification_jobs')
+      .select('*, appointments(booking_reference, full_name, phone)')
+      .order('created_at', { ascending: false })
+      .limit(60);
+
+    // 5. Job stats
+    const jobStats = {
+      queued: 0,
+      sent: 0,
+      failed: 0,
+      skipped: 0,
+    };
+
+    if (jobs) {
+      for (const j of jobs) {
+        if (j.status === 'queued') jobStats.queued++;
+        else if (j.status === 'sent') jobStats.sent++;
+        else if (j.status === 'failed') jobStats.failed++;
+        else if (j.status === 'skipped') jobStats.skipped++;
+      }
+    }
+
     return NextResponse.json({
+      notifyMode: getNotifyMode(),
       notifications: notifications || [],
       unreadCount: unreadCount || 0,
       logs: logs || [],
+      jobs: jobs || [],
+      jobStats,
     });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
@@ -119,10 +148,50 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { log_id } = body;
+    const { log_id, job_id, action } = body;
+
+    // Action: Run Dispatcher Now
+    if (action === 'run_dispatcher_now') {
+      const result = await NotificationDispatcher.dispatchDueJobs(50);
+      return NextResponse.json({
+        success: true,
+        message: `Dispatcher executed successfully. Processed ${result.totalClaimed} jobs (${result.sentCount} sent, ${result.failedCount} failed, ${result.skippedCount} skipped).`,
+        result,
+      });
+    }
+
+    // Action: Retry notification_jobs row
+    if (job_id) {
+      const supabase = createServerSupabaseClient();
+      const { data: job, error: jobErr } = await supabase
+        .from('notification_jobs')
+        .update({
+          status: 'queued',
+          attempts: 0,
+          scheduled_at: new Date().toISOString(),
+          last_error: null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', job_id)
+        .select()
+        .single();
+
+      if (jobErr || !job) {
+        return NextResponse.json({ error: jobErr?.message || 'Notification job not found' }, { status: 404 });
+      }
+
+      // Trigger instant dispatch
+      const dispatchRes = await NotificationDispatcher.dispatchDueJobs(10);
+      return NextResponse.json({
+        success: true,
+        message: 'Notification job re-queued and dispatched.',
+        job,
+        dispatchRes,
+      });
+    }
 
     if (!log_id) {
-      return NextResponse.json({ error: 'Log ID is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Log ID or Job ID is required' }, { status: 400 });
     }
 
     const supabase = createServerSupabaseClient();

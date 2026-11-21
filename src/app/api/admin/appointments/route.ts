@@ -8,6 +8,8 @@ import {
   rescheduleAppointmentReminders,
   cancelAppointmentReminders,
 } from '@/lib/scheduler/reminder-engine';
+import { EventScheduler } from '@/lib/notifications/event-scheduler';
+import { NotificationDispatcher } from '@/lib/notifications/dispatcher';
 import { formatTimeTo12h, getTodayISO } from '@/lib/utils';
 import {
   notifyPatientAppointmentConfirmedViaWhatsApp,
@@ -281,6 +283,13 @@ export async function PATCH(request: Request) {
     let whatsappStatus: string = whatsappOptIn ? 'pending' : 'not_opted_in';
 
     if (status === 'confirmed') {
+      // Notification Engine: queue confirmed event + reminders
+      try {
+        await EventScheduler.onConfirmed(updatedAppt);
+      } catch (err) {
+        console.warn('[EventScheduler onConfirmed Error]', err);
+      }
+
       // 3a. Schedule reminder jobs using exact confirmed date and exact time
       if (currentAppt.status !== 'confirmed') {
         await scheduleAppointmentReminders({
@@ -352,6 +361,13 @@ export async function PATCH(request: Request) {
       const newDate = targetDate;
       const newTime = targetTime;
 
+      // Notification Engine: queue rescheduled event + recalculate reminders
+      try {
+        await EventScheduler.onRescheduled(updatedAppt, currentAppt.appointment_date, currentAppt.preferred_time || '');
+      } catch (err) {
+        console.warn('[EventScheduler onRescheduled Error]', err);
+      }
+
       // Reschedule reminder jobs with new exact schedule
       await rescheduleAppointmentReminders(updatedAppt.id, newDate, newTime);
 
@@ -413,6 +429,13 @@ export async function PATCH(request: Request) {
       }
 
     } else if (status === 'cancelled') {
+      // Notification Engine: queue cancelled event + cancel queued jobs
+      try {
+        await EventScheduler.onCancelled(updatedAppt, reason, 'clinic');
+      } catch (err) {
+        console.warn('[EventScheduler onCancelled Error]', err);
+      }
+
       // Cancel pending reminders
       await cancelAppointmentReminders(updatedAppt.id);
 
@@ -470,8 +493,18 @@ export async function PATCH(request: Request) {
       }
 
     } else if (status === 'completed') {
+      try {
+        await EventScheduler.onCompleted(updatedAppt);
+      } catch (err) {
+        console.warn('[EventScheduler onCompleted Error]', err);
+      }
       await cancelAppointmentReminders(updatedAppt.id);
     }
+
+    // Instantly trigger dispatcher to send immediate updates
+    void NotificationDispatcher.dispatchDueJobs(15).catch((err) =>
+      console.warn('[Dispatcher Instant Trigger Error]', err)
+    );
 
     return NextResponse.json({
       success: true,

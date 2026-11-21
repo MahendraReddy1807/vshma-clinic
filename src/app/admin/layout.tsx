@@ -12,6 +12,7 @@ import {
   Bell,
   BarChart3,
   BookOpen,
+  Mail,
   Settings,
   LogOut,
   Menu,
@@ -113,6 +114,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       name: 'Knowledge Base',
       href: '/admin/knowledge-base',
       icon: BookOpen,
+    },
+    {
+      name: 'Email Templates',
+      href: '/admin/emails/preview',
+      icon: Mail,
     },
     {
       name: 'Settings',

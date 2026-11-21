@@ -13,6 +13,8 @@ import {
   notifyAdminNewBookingViaWhatsApp,
   notifyPatientBookingAckViaWhatsApp,
 } from '@/lib/whatsapp/service';
+import { EventScheduler } from '@/lib/notifications/event-scheduler';
+import { NotificationDispatcher } from '@/lib/notifications/dispatcher';
 
 export async function POST(request: Request) {
   try {
@@ -183,6 +185,29 @@ export async function POST(request: Request) {
     }
 
     const appointmentId = insertedAppt.id;
+
+    // Queue idempotent booking received notifications via Notification Engine
+    try {
+      await EventScheduler.onBookingReceived({
+        id: appointmentId,
+        booking_reference,
+        full_name: sanitizedName,
+        phone: sanitizedPhone,
+        email: sanitizedEmail,
+        appointment_date,
+        preferred_time: sanitizedTime,
+        consultation_type: sanitizedType,
+        notes: sanitizedMessage,
+        whatsapp_opt_in: isOptedIn,
+      });
+
+      // Instantly dispatch queued jobs without waiting for cron
+      void NotificationDispatcher.dispatchDueJobs(10).catch((err) =>
+        console.warn('[Dispatcher Instant Trigger Error]', err)
+      );
+    } catch (schedErr) {
+      console.warn('[EventScheduler onBookingReceived Error]', schedErr);
+    }
 
     // 5. In-dashboard notification for Real-Time Administrator Alert
     try {

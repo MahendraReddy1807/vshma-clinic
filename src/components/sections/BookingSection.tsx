@@ -25,6 +25,7 @@ import { CONSULTATION_TYPES, TIME_SLOTS } from '@/lib/constants';
 import { getTodayISO } from '@/lib/utils';
 import SectionTag from '@/components/ui/luxury/SectionTag';
 import Link from 'next/link';
+import BookingSuccessModal from '@/components/booking/BookingSuccessModal';
 
 interface BookingSectionProps {
   initialType?: string;
@@ -213,6 +214,38 @@ export default function BookingSection({ initialType }: BookingSectionProps) {
 
           {/* Subtle Ambient Glow */}
           <div className="absolute top-0 right-0 w-80 h-80 bg-[#B89B5E]/10 rounded-full blur-[100px] pointer-events-none" />
+
+          {bookingSuccess && (
+            <BookingSuccessModal
+              data={{
+                reference: bookingSuccess.reference,
+                fullName: bookingSuccess.fullName || formData.full_name,
+                phone: bookingSuccess.phone || formData.phone,
+                date: bookingSuccess.date || formData.appointment_date,
+                time: bookingSuccess.time || formData.preferred_time,
+                type: bookingSuccess.type || formData.consultation_type,
+                mode: formData.consultation_mode === 'video' ? 'Virtual Video Call' : 'In-Clinic (Bengaluru)',
+                whatsappUrl: bookingSuccess.whatsappUrl,
+              }}
+              onClose={() => {
+                setBookingSuccess(null);
+                setStep(1);
+                setFormData({
+                  full_name: '',
+                  phone: '',
+                  email: '',
+                  age: '',
+                  appointment_date: '',
+                  preferred_time: TIME_SLOTS[0]?.value || 'Morning (9:00 AM – 12:00 PM)',
+                  consultation_type: CONSULTATION_TYPES[0] as string,
+                  consultation_mode: 'in_clinic',
+                  message: '',
+                  privacy_consent: false,
+                  whatsapp_opt_in: true,
+                });
+              }}
+            />
+          )}
 
           {bookingSuccess ? (
             /* ───────────── STEP 6: ANIMATED CONFIRMATION & CLOSING CIRCLE ───────────── */

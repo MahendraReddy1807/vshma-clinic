@@ -4,6 +4,52 @@ All notable changes to the VSHMA Homeopathy Clinic web platform and clinical CRM
 
 ---
 
+## [2.3.0] — 2026-11-21
+
+### Multi-Channel Notification Engine & Automation System
+- **Idempotent Data Model (`notification_jobs`)**: Every notification job carries a deterministic unique key `dedupe_key = appointment_id + ":" + event_type + ":" + channel + ":" + recipient_role`, completely preventing duplicate notifications across network retries, double clicks, and parallel cron triggers.
+- **Provider Abstraction Architecture**:
+  - `EmailProvider`: Resend integration with custom domain support and MIME attachments.
+  - `WhatsAppProvider`: Standardized on Green API default (Instance `710722808462`) with Meta Cloud API selectable via env.
+  - `SmsProvider`: MSG91 / Fast2SMS adapter behind `SMS_ENABLED=false` default with DLT template ID placeholders.
+- **Strict Sandbox Isolation (`NOTIFY_MODE`)**:
+  - Configurable as `"live" | "sandbox" | "dry-run"` (defaulting to `"sandbox"` outside live production).
+  - In sandbox mode, all outgoing emails are securely redirected to `mahendrart07@gmail.com` and WhatsApp/SMS messages to `+91 7416001477` with clear redirect banners, protecting real patients during development.
+  - Privacy masking permanently masks emails and phone numbers in logs (`m***7@gmail.com`, `+91 ******1477`).
+- **Atomic Dispatcher Endpoint (`/api/cron/dispatch`)**:
+  - Protected by `CRON_SECRET` and authenticated admin session headers.
+  - Claims due jobs atomically, executes provider dispatch, handles exponential retry backoff (1m, 5m, 15m, 30m, 1h, max 5 attempts), and marks permanent failures for admin attention.
+- **Quiet Hours Protection**: Automatically enforces 9:00 PM – 7:00 AM IST quiet hours. Patient reminders scheduled during quiet hours are held and released at 7:05 AM IST.
+- **Opt-Out & Consent Handling**: DPDP Act & TRAI compliant opt-out registry (`opt_out_registry`) that honours incoming "STOP" replies and automatically skips marketing and reminder jobs.
+
+### Luxury Message Templates (Phases 3 & 4)
+- **13 Production Luxury Email Templates**: 600px bulletproof table layout with bone background (`#F7F3EC`), forest header band (`#121A15`), cream voucher card (`#FAF8F5`) with dashed divider, brass reference badge (`#B89B5E`), Georgia/Cambria typography, sage detail rows, dark mode support (`prefers-color-scheme`), and plain text fallback.
+- **Interactive Email Preview Route (`/admin/emails/preview`)**: Full administrative preview suite with mobile/desktop frame toggles, HTML/Text tabs, and one-click "Send Test Email" to verify live inbox delivery.
+- **WhatsApp & SMS Templates**: Formatted in IST with Meta-ready variables (`{{1}}`, `{{2}}`) and DLT placeholders under 160 characters.
+
+### Full-Screen Booking Success Experience (Phase 5)
+- **`BookingSuccessModal.tsx`**:
+  - Animated signature half-circle mark assembling and completing into a full circle with soft brass aura.
+  - Restrained floating pearl and botanical leaf particles (with reduced-motion accessibility fallback).
+  - Glass consultation voucher card with reference code, copy-to-clipboard button, and doctor details.
+  - One-click Google Calendar integration and downloadable `.ics` calendar file.
+  - Instant WhatsApp sharing button and printable voucher card.
+  - Three-line "What happens next" patient onboarding walkthrough.
+
+### Admin Panel Upgrades (Phase 7)
+- **Notification Center (`/admin/notifications`)**:
+  - Real-time `NOTIFY_MODE` sandbox status indicator.
+  - "Run Dispatcher Now" emergency trigger button with instant feedback.
+  - Delivery health metrics (Queued Due, Delivered Sent, Failed / Errors, Opt-out Skipped).
+  - Active jobs queue with one-click Retry button for failed attempts.
+  - Channel filter (All, Email, WhatsApp, SMS) and status filter (All, Queued, Sent, Failed, Skipped).
+- **Settings & Rules (`/admin/settings`)**:
+  - Clinic alert emails and doctor WhatsApp routing controls.
+  - Automated reminder offset toggles (24h, 2h, 1h, 10min, doctor alerts, 8:00 AM daily digest).
+  - Quiet hours configuration display and SMS adapter DLT template status.
+
+---
+
 ## [2.2.0] — 2026-11-21
 
 ### Viewport-Fit Layout System & 6 Full-Screen Chapters
