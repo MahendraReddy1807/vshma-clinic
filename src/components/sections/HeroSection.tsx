@@ -1,16 +1,15 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ArrowUpRight, Clock, ShieldCheck, MapPin } from 'lucide-react';
 import { SITE_CONFIG } from '@/lib/site-config';
 import SectionTag from '@/components/ui/luxury/SectionTag';
 import PillButton from '@/components/ui/luxury/PillButton';
 import GridLines from '@/components/ui/luxury/GridLines';
+import HeroSceneWrapper from '@/components/3d/HeroSceneWrapper';
 
 export default function HeroSection() {
-  const shouldReduceMotion = useReducedMotion();
   const { doctor, clinic } = SITE_CONFIG;
 
   return (
@@ -24,44 +23,8 @@ export default function HeroSection() {
         {/* Subtle Architectural Hairline Grid Overlay */}
         <GridLines opacity="opacity-40" />
 
-        {/* Ambient Foliage Photography with Slow Zoom Entrance */}
-        <motion.div
-          initial={{ scale: shouldReduceMotion ? 1 : 1.18, opacity: 0 }}
-          animate={{ scale: 1, opacity: 0.22 }}
-          transition={{ duration: 2.6, ease: [0.16, 1, 0.3, 1] }}
-          className="absolute right-0 top-0 w-full lg:w-7/12 h-full pointer-events-none select-none mix-blend-multiply overflow-hidden"
-        >
-          <motion.div
-            animate={
-              shouldReduceMotion
-                ? {}
-                : {
-                    rotate: [0, 0.5, 0],
-                    scale: [1, 1.02, 1],
-                  }
-            }
-            transition={{
-              duration: 14,
-              repeat: Infinity,
-              repeatType: 'mirror',
-              ease: 'easeInOut',
-            }}
-            className="w-full h-full relative"
-          >
-            <Image
-              src="/images/hero-homeo.jpg"
-              alt="Serene natural clinic environment and botanical remedies"
-              fill
-              priority
-              quality={88}
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 750px"
-              className="object-cover object-center"
-            />
-          </motion.div>
-          {/* Edge Feather Gradients */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#F7F3EC] via-[#F7F3EC]/85 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#F7F3EC] via-transparent to-[#F7F3EC]/30" />
-        </motion.div>
+        {/* ───────────── SIGNATURE 3D HERO SCENE & POSTER BACKDROP ───────────── */}
+        <HeroSceneWrapper />
 
         {/* Corner Concave Quarter-Circle Accents */}
         <div
